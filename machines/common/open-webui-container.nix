@@ -9,7 +9,7 @@
   };
 
   volumes = [
-    "/home/ank/.local/share/open-webui/data:/app/backend/data"
+    "/home/amunoz/.local/share/open-webui/data:/app/backend/data"
   ];
 
   ports = [

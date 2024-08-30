@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: commit_template
+# uuid: commit_template
+# key: ct
+# condition: t
+# --
+${1:type$(yas-auto-next (yas-choose-value (+list-commit-predicates)))}(${2:scope$(yas-auto-next (yas-choose-value (+current-repo-scopes)))}): $0

@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: python
+# uuid: python
+# key: python
+# --
+
+#+BEGIN_SRC python :session :async yes
+`%`$0
+#+END_SRC

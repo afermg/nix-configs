@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: corrections
+# key: cr
+# --
+[[color:blue][`yas-selected-text`$0]]

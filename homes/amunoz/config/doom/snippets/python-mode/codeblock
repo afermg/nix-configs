@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: code-block
+# key: cb
+# uuid: cb
+# condition: t
+# group: jupytext
+# --
+`(if (previous-line-empty-p) "# %%" "\n # %%")`
+`yas-selected-text`$0

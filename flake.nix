@@ -6,13 +6,7 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
     nixpkgs-master.url = "github:nixos/nixpkgs/master";
-    nixpkgs-ank.url = "github:leoank/nixpkgs/cudanew";
-
-    # submodule
-    astroank = {
-      url = "git+file:homes/common/astroank";
-      flake = false;
-    };
+    # nixpkgs-ank.url = "github:leoank/nixpkgs/cudanew";
 
     # darwin inputs
     darwin = {
@@ -77,9 +71,6 @@
     nix-ld.url = "github:Mic92/nix-ld";
     nix-ld.inputs.nixpkgs.follows = "nixpkgs";
 
-    # nixpkgs-wayland.url = "github:nix-community/nixpkgs-wayland";
-    # nixpkgs-wayland.inputs.nixpkgs.follows = "nixpkgs";
-
     hyprland = {
       url = "github:hyprwm/hyprland";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -105,11 +96,6 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
-    # nvidia-vgpu
-    # nixos-nvidia-vgpu = {
-    #   url = "github:leoank/nixos-nvidia-vgpu/535.129";
-    #   inputs.nixpkgs.follows = "nixpkgs";
-    # };
   };
 
   outputs = {
@@ -146,15 +132,11 @@
     # NixOS configuration entrypoint
     # Available through 'nixos-rebuild --flake .#your-hostname'
     nixosConfigurations = {
-      karkinos = lib.nixosSystem {
-        modules = [./machines/karkinos];
+      moby = lib.nixosSystem {
+        modules = [./machines/moby];
         specialArgs = {inherit inputs outputs;};
       };
 
-      chiral = lib.nixosSystem {
-        modules = [./machines/chiral];
-        specialArgs = {inherit inputs outputs;};
-      };
     };
 
     # Darwin configuration entrypoint
@@ -170,19 +152,13 @@
     # Standalone home-manager configuration entrypoint
     # Available through 'home-manager --flake .#your-username@your-hostname'
     homeConfigurations = {
-      "ank@karkinos" = lib.homeManagerConfiguration {
+      "alan@moby" = lib.homeManagerConfiguration {
         pkgs = pkgsFor.x86_64-linux;
         extraSpecialArgs = {inherit inputs outputs;};
         # > Our main home-manager configuration file <
-        modules = [./homes/ank/karkinos.nix];
+        modules = [./homes/alan/moby.nix];
       };
 
-      "ank@chiral" = lib.homeManagerConfiguration {
-        pkgs = pkgsFor.x86_64-linux;
-        extraSpecialArgs = {inherit inputs outputs;};
-        # > Our main home-manager configuration file <
-        modules = [./homes/ank/chiral.nix];
-      };
     };
   };
 }

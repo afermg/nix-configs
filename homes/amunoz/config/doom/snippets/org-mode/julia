@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: jj
+# key: jj                 
+# --
+
+#+BEGIN_SRC jupyter-julia
+$0
+#+END_SRC

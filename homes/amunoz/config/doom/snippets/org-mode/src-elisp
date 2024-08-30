@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: src-elisp
+# uuid: src-elisp
+# key: se
+# condition: t
+# --
+
+#+begin_src elisp :tangle yes
+$0
+#+end_src

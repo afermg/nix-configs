@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: jupyter-python
+# uuid: jp
+# key: trigger-key
+# condition: t
+# --
+
+#+BEGIN_SRC python :session
+$0
+#+END_SRC

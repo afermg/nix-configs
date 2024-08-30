@@ -10,7 +10,7 @@ Neusis provides nixos configs for linux and macos machines. (Support for windows
 linux machines
 
 ```bash
-nixos-rebuild switch --flake .#karkinos
+nixos-rebuild switch --flake .#moby
 ```
 
 macos machines

@@ -9,7 +9,7 @@
     inputs.home-manager.darwinModules.home-manager
     inputs.nix-homebrew.darwinModules.nix-homebrew
     ../common/darwin_home_manager.nix
-    (import ../common/nix-homebrew.nix { inherit inputs; user = "kumarank";})
+    (import ../common/nix-homebrew.nix { inherit inputs; user = "alan";})
     ../common/nix.nix
     ../common/substituters.nix
   ];
@@ -26,16 +26,17 @@
   };
 
   # Create users
-  users.users.kumarank = {
-    description = "Ankur Kumar";
-    home = "/Users/kumarank";
+  users.users.alan = {
+    description = "Alan Munoz";
+    home = "/Users/alan";
     createHome = true;
     isHidden = false;
-    shell = pkgs.zsh;
-    openssh.authorizedKeys.keyFiles = [
-      ../../homes/ank/id_rsa.pub
-      ../../homes/ank/id_ed25519.pub
-    ];
+    initialPassword = "password";
+    shell = pkgs.fish;
+    # openssh.authorizedKeys.keyFiles = [
+    #   ../../homes/ank/id_rsa.pub
+    #   ../../homes/ank/id_ed25519.pub
+    # ];
   };
 
   # This is important! Removing this will break your shell and thus your system
@@ -62,9 +63,9 @@
       # Look into why enabling this break shell for starship
       # useUserPackages = true;
       extraSpecialArgs = {inherit inputs outputs;};
-      users.kumarank = {
+      users.alan = {
         imports = [
-          ../../homes/ank/machines/darwin001.nix
+          ../../homes/alan/machines/darwin001.nix
         ];
       };
     };
