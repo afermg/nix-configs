@@ -16,12 +16,12 @@
     };
 
     containers.enable = true;
-    oci-containers = {
-      backend = "podman";
-      containers = {
-        open-webui = import ./open-webui-container.nix;
-      };
-    };
+    # oci-containers = {
+    #   backend = "podman";
+    #   containers = {
+    #     open-webui = import ./open-webui-container.nix;
+    #   };
+    # };
     podman = {
       enable = true;
       enableNvidia = true;
