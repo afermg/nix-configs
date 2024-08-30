@@ -1,9 +1,6 @@
 # Neusis
 
-> In geometry, the neusis (νεῦσις; from Ancient Greek νεύειν (neuein) 'incline towards'; plural: νεύσεις, neuseis) is a geometric construction method that was used in antiquity by Greek mathematicians.
-> -- Wikipedia
-
-Neusis provides nixos configs for linux and macos machines. (Support for windows arriving soon!)
+Nix configs for linux and macos machines. 
 
 ## Getting started
 
@@ -18,3 +15,5 @@ macos machines
 ```bash
 darwin-rebuild switch --flake .#darwin001
 ```
+
+This combines [this](https://github.com/afermg/clouds) and [this](https://github.com/afermg/nix-config) configurations to consolidate Linux and MacOS into one.
