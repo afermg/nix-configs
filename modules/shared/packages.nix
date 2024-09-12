@@ -3,6 +3,7 @@ with pkgs; [
 
   # base
   gawk
+  coreutils
   gnumake # Necessary for emacs' vterm
   libtool # Necessary for emacs' vterm
   gnused # The one and only sed
