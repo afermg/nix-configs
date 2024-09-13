@@ -2,7 +2,7 @@
 {
   imports = [
     ./home.nix
-    ./dev
-    ./secrets
+    # ./packages.nix
+#    ./secrets
   ];
 }

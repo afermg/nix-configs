@@ -1,4 +1,6 @@
 { outputs, ... }:
+let user="alan";
+in
 {
   nixpkgs = {
     overlays = [
@@ -6,8 +8,9 @@
     ];
   };
 
-  home.username = "amunoz";
-  home.homeDirectory = "/home/amunoz";
+  home.username = "${user}";
+  # home.homeDirectory = "/home/alan";
+  home.homeDirectory = "/Users/${user}";
 
   home.stateVersion = "24.05";
   
@@ -74,4 +77,5 @@
         ];
   };
   programs.home-manager.enable = true;
+  
 }
