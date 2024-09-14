@@ -49,17 +49,8 @@ let user = "alan"; in
   # Load configuration that is shared across systems
   environment.systemPackages = with pkgs; [
     emacs
-    # (emacs-unstable-pgtk.override({
-    #   withX = false;
-    #   withXwidgets=false;
-    #   withTreeSitter=true;
-    #   withNS=false;
-    #   withGTK3=true;
-    #   withPgtk=true;
-    # }))
     (pkgs.writeShellScriptBin "glibtool" "exec ${pkgs.libtool}/bin/libtool $@")
-  ] ++ (import ../../modules/shared/packages.nix { inherit pkgs; });
-  # (import ../../modules/shared/packages.nix { inherit pkgs; });
+  ]; # ++ (import ../../modules/shared/packages.nix { inherit pkgs; });
 
   launchd.user.agents.emacs.path = [ config.environment.systemPath ];
   launchd.user.agents.emacs.serviceConfig = {
@@ -161,8 +152,11 @@ let user = "alan"; in
       extraSpecialArgs = {inherit inputs outputs;};
       users.${user}= {
         imports = [
-          ../../homes/amunoz/darwin001.nix
+          ../../homes/amunoz/home.nix
         ];
+        home= {
+          packages = pkgs.callPackage ../../modules/darwin/packages.nix {};
+              };
       programs = {
         # This is important! Removing this will break your shell and thus your system
         # This is needed even if you enable zsh in home manager
