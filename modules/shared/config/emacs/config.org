@@ -188,13 +188,16 @@ Various helpers and packages I find useful for window management.
 **** Buffers
 #+NAME: next-buffer
 #+BEGIN_SRC emacs-lisp
+  (defun kill-current-buffer ()
+    (interactive)
+    ;; kill-buffer does not always work
+    (kill-buffer (current-buffer))
+    )
+  
   (global-set-key (kbd "<C-tab>") 'next-buffer)
-  (global-set-key (kbd "C-x k") 'kill-this-buffer)
-  (global-set-key (kbd "C-x K") 'kill-bffer)
+  (global-set-key (kbd "C-x k") 'kill-current-buffer)
+  (global-set-key (kbd "C-x K") 'kill-buffer)
 #+END_SRC
-
-#+RESULTS: next-buffer
-: kill-bffer
 
 *** Remote-exclusive modes
 #+begin_src emacs-lisp
@@ -213,266 +216,277 @@ Various helpers and packages I find useful for window management.
 ** Navigation and editing
 *** Modal editing 
 #+begin_src emacs-lisp
-  (use-package meow
-    :config
-    (defun meow-setup ()
-     ;; -------------------- ;;
-     ;;         UTILS        ;;
-     ;; -------------------- ;;
-     (defun meow-word ()
-       "Expand word/symbol under cursor."
-       (interactive)
-       (if (and (use-region-p)
-                (equal (car (region-bounds))
-                       (bounds-of-thing-at-point 'word)))
-           (meow-mark-symbol 1)
-         (progn
-           (when (and (mark)
-                      (equal (car (region-bounds))
-                             (bounds-of-thing-at-point 'symbol)))
-             (meow-pop-selection))
-           (meow-mark-word 1))))
+    (use-package meow
+      :config
+      (defun meow-setup ()
+       ;; -------------------- ;;
+       ;;         UTILS        ;;
+       ;; -------------------- ;;
+       (defun meow-word ()
+         "Expand word/symbol under cursor."
+         (interactive)
+         (if (and (use-region-p)
+                  (equal (car (region-bounds))
+                         (bounds-of-thing-at-point 'word)))
+             (meow-mark-symbol 1)
+           (progn
+             (when (and (mark)
+                        (equal (car (region-bounds))
+                               (bounds-of-thing-at-point 'symbol)))
+               (meow-pop-selection))
+             (meow-mark-word 1))))
 
-     (defun meow-kill-line ()
-       "Kill till the end of line."
-       (interactive)
-       (let ((select-enable-clipboard meow-use-clipboard))
-         (kill-line)))
+       (defun meow-kill-line ()
+         "Kill till the end of line."
+         (interactive)
+         (let ((select-enable-clipboard meow-use-clipboard))
+           (kill-line)))
 
-     (defun meow-change-line ()
-       "Kill till end of line and switch to INSERT state."
-       (interactive)
-       (meow--cancel-selection)
-       (meow-end-of-thing
-        (car (rassoc 'line meow-char-thing-table)))
-       (meow-change))
+       (defun meow-change-line ()
+         "Kill till end of line and switch to INSERT state."
+         (interactive)
+         (meow--cancel-selection)
+         (meow-end-of-thing
+          (car (rassoc 'line meow-char-thing-table)))
+         (meow-change))
 
-     (defun meow-save-clipboard ()
-       "Copy in clipboard."
-       (interactive)
-       (let ((meow-use-clipboard t))
-         (meow-save)))
+       (defun meow-save-clipboard ()
+         "Copy in clipboard."
+         (interactive)
+         (let ((meow-use-clipboard t))
+           (meow-save)))
 
-     (defvar meow--trim-yank nil)
+       (defvar meow--trim-yank nil)
 
-     (defun meow-insert-for-yank-advice (orig-fn str)
-       "Advice for `insert-for-yank' function to correctly insert lines."
-       (when meow--trim-yank
-         (set 'str (string-trim-right str "\n")))
-       (if (and (not (eq (point) (+ 1 (line-end-position 0))))
-                (string-match-p "^.+\n$" str))
-           (save-excursion
-             (beginning-of-line)
-             (funcall orig-fn str))
-         (funcall orig-fn str)))
+       (defun meow-insert-for-yank-advice (orig-fn str)
+         "Advice for `insert-for-yank' function to correctly insert lines."
+         (when meow--trim-yank
+           (set 'str (string-trim-right str "\n")))
+         (if (and (not (eq (point) (+ 1 (line-end-position 0))))
+                  (string-match-p "^.+\n$" str))
+             (save-excursion
+               (beginning-of-line)
+               (funcall orig-fn str))
+           (funcall orig-fn str)))
 
-     (defun meow-yank-dwim ()
-       "Smart yank."
-       (interactive)
-       (advice-add 'insert-for-yank :around 'meow-insert-for-yank-advice)
-       (if (use-region-p)
-           (let ((meow--trim-yank t))
-             (delete-region (region-beginning) (region-end))
-             (meow-yank))
-         (meow-yank))
-       (advice-remove 'insert-for-yank 'meow-insert-for-yank-advice))
+       (defun meow-yank-dwim ()
+         "Smart yank."
+         (interactive)
+         (advice-add 'insert-for-yank :around 'meow-insert-for-yank-advice)
+         (if (use-region-p)
+             (let ((meow--trim-yank t))
+               (delete-region (region-beginning) (region-end))
+               (meow-yank))
+           (meow-yank))
+         (advice-remove 'insert-for-yank 'meow-insert-for-yank-advice))
 
-     (defun meow-yank-pop-dwim ()
-       "Smart yank pop."
-       (interactive)
-       (advice-add 'insert-for-yank :around 'meow-insert-for-yank-advice)
-       (if (use-region-p)
-           (let ((meow--trim-yank t))
-             (delete-region (region-beginning) (region-end))
-             (meow-yank-pop))
-         (meow-yank-pop))
-       (advice-remove 'insert-for-yank 'meow-insert-for-yank-advice))
+       (defun meow-yank-pop-dwim ()
+         "Smart yank pop."
+         (interactive)
+         (advice-add 'insert-for-yank :around 'meow-insert-for-yank-advice)
+         (if (use-region-p)
+             (let ((meow--trim-yank t))
+               (delete-region (region-beginning) (region-end))
+               (meow-yank-pop))
+           (meow-yank-pop))
+         (advice-remove 'insert-for-yank 'meow-insert-for-yank-advice))
 
-     (defun meow-smart-reverse ()
-       "Reverse selection or begin negative argument."
-       (interactive)
-       (if (use-region-p)
-           (meow-reverse)
-         (negative-argument nil)))
+       (defun meow-smart-reverse ()
+         "Reverse selection or begin negative argument."
+         (interactive)
+         (if (use-region-p)
+             (meow-reverse)
+           (negative-argument nil)))
 
-     (defun meow-kmacro ()
-       "Toggle recording of kmacro."
-       (interactive)
-       (if defining-kbd-macro
-           (meow-end-kmacro)
-         (meow-start-kmacro)))
+       (defun meow-kmacro ()
+         "Toggle recording of kmacro."
+         (interactive)
+         (if defining-kbd-macro
+             (meow-end-kmacro)
+           (meow-start-kmacro)))
 
-     (defun meow-eldoc ()
-       "Toggle the display of the eldoc window."
-       (interactive)
-       (if (get-buffer-window eldoc--doc-buffer)
-           (delete-window (get-buffer-window eldoc--doc-buffer))
-         (eldoc-doc-buffer t)))
+       (defun meow-eldoc ()
+         "Toggle the display of the eldoc window."
+         (interactive)
+         (if (get-buffer-window eldoc--doc-buffer)
+             (delete-window (get-buffer-window eldoc--doc-buffer))
+           (eldoc-doc-buffer t)))
 
-     ;; -------------------- ;;
-     ;;       VARIABLES      ;;
-     ;; -------------------- ;;
-     (meow-thing-register 'angle
-                          '(pair ("<") (">"))
-                          '(pair ("<") (">")))
+       ;; -------------------- ;;
+       ;;       VARIABLES      ;;
+       ;; -------------------- ;;
+       (meow-thing-register 'angle
+                            '(pair ("<") (">"))
+                            '(pair ("<") (">")))
 
-     (setq meow-char-thing-table
-           '((?f . round)
-             (?d . square)
-             (?s . curly)
-             (?a . angle)
-             (?r . string)
-             (?v . paragraph)
-             (?c . line)
-             (?x . buffer)))
+       (setq meow-char-thing-table
+             '((?f . round)
+               (?d . square)
+               (?s . curly)
+               (?a . angle)
+               (?r . string)
+               (?v . paragraph)
+               (?c . line)
+               (?x . buffer)))
 
-     (setq meow-selection-command-fallback
-           '((meow-change . meow-change-char)
-             (meow-kill . meow-delete)
-             (meow-cancel-selection . keyboard-quit)
-             (meow-pop-selection . meow-pop-grab)
-             (meow-beacon-change . meow-beacon-change-char)))
+       (setq meow-selection-command-fallback
+             '((meow-change . meow-change-char)
+               (meow-kill . meow-delete)
+               (meow-cancel-selection . keyboard-quit)
+               (meow-pop-selection . meow-pop-grab)
+               (meow-beacon-change . meow-beacon-change-char)))
 
-     ;; -------------------- ;;
-     ;;       MAPPINGS       ;;
-     ;; -------------------- ;;
-     (meow-define-keys 'normal
-      ; expansion
-      '("0" . meow-expand-0)
-      '("1" . meow-expand-1)
-      '("2" . meow-expand-2)
-      '("3" . meow-expand-3)
-      '("4" . meow-expand-4)
-      '("5" . meow-expand-5)
-      '("6" . meow-expand-6)
-      '("7" . meow-expand-7)
-      '("8" . meow-expand-8)
-      '("9" . meow-expand-9)
-      '("'" . meow-smart-reverse)
+       ;; -------------------- ;;
+       ;;       MAPPINGS       ;;
+       ;; -------------------- ;;
+       (meow-define-keys 'normal
+        ; expansion
+        '("0" . meow-expand-0)
+        '("1" . meow-expand-1)
+        '("2" . meow-expand-2)
+        '("3" . meow-expand-3)
+        '("4" . meow-expand-4)
+        '("5" . meow-expand-5)
+        '("6" . meow-expand-6)
+        '("7" . meow-expand-7)
+        '("8" . meow-expand-8)
+        '("9" . meow-expand-9)
+        '("'" . meow-smart-reverse)
 
-      ; movement
-      '("i" . meow-prev)
-      '("k" . meow-next)
-      '("j" . meow-left)
-      '("l" . meow-right)
+        ; movement
+        '("i" . meow-prev)
+        '("k" . meow-next)
+        '("j" . meow-left)
+        '("l" . meow-right)
 
-      '("y" . meow-search)
-      ;; '("/" . meow-visit)
-      '("/" . consult-line)
+        '("y" . meow-search)
+        ;; '("/" . meow-visit)
+        '("/" . consult-line)
 
-      ; expansion
-      '("I" . meow-prev-expand)
-      '("K" . meow-next-expand)
-      '("J" . meow-left-expand)
-      '("L" . meow-right-expand)
+        ; expansion
+        '("I" . meow-prev-expand)
+        '("K" . meow-next-expand)
+        '("J" . meow-left-expand)
+        '("L" . meow-right-expand)
 
-      '("u" . meow-back-word)
-      '("U" . meow-back-symbol)
-      '("o" . meow-next-word)
-      '("O" . meow-next-symbol)
+        '("u" . meow-back-word)
+        '("U" . meow-back-symbol)
+        '("o" . meow-next-word)
+        '("O" . meow-next-symbol)
 
-      '("a" . meow-word)
-      '("s" . meow-line)
-      '("w" . meow-block)
-      '("q" . meow-join)
-      '("g" . meow-grab)
-      '("G" . meow-pop-grab)
-      '("p" . meow-cancel-selection)
-      '("P" . meow-pop-selection)
+        '("a" . meow-word)
+        '("s" . meow-line)
+        '("w" . meow-block)
+        '("q" . meow-join)
+        '("g" . meow-grab)
+        '("G" . meow-pop-grab)
+        '("p" . meow-cancel-selection)
+        '("P" . meow-pop-selection)
 
-      '("x" . meow-till)
-      '("X" . meow-find)
+        '("x" . meow-till)
+        '("X" . meow-find)
 
-      '("," . meow-beginning-of-thing)
-      '("." . meow-end-of-thing)
-      '("<" . meow-inner-of-thing)
-      '(">" . meow-bounds-of-thing)
+        '("," . meow-beginning-of-thing)
+        '("." . meow-end-of-thing)
+        '("<" . meow-inner-of-thing)
+        '(">" . meow-bounds-of-thing)
 
-      '("[" . indent-rigidly-left-to-tab-stop)
-      '("]" . indent-rigidly-right-to-tab-stop)
+        '("[" . indent-rigidly-left-to-tab-stop)
+        '("]" . indent-rigidly-right-to-tab-stop)
 
-      ; editing
-      '("b" . open-line)
-      '("B" . split-line)
-      '("d" . meow-kill)
-      '("D" . meow-kill-line)
-      '("f" . meow-change)
-      '("F" . meow-change-line)
-      '("c" . meow-save)
-      '("C" . meow-save-clipboard)
-      '("v" . meow-yank-dwim)
-      '("V" . meow-yank-pop-dwim)
+        ; editing
+        '("b" . open-line)
+        '("B" . split-line)
+        '("d" . meow-kill)
+        '("D" . meow-kill-line)
+        '("f" . meow-change)
+        '("F" . meow-change-line)
+        '("c" . meow-save)
+        '("C" . meow-save-clipboard)
+        '("v" . meow-yank-dwim)
+        '("V" . meow-yank-pop-dwim)
 
-      '("e" . meow-insert)
-      '("E" . meow-open-above)
-      '("r" . meow-append)
-      '("R" . meow-open-below)
+        '("e" . meow-insert)
+        '("E" . meow-open-above)
+        '("r" . meow-append)
+        '("R" . meow-open-below)
 
-      '("z" . query-replace-regexp)
+        '("z" . query-replace-regexp)
 
-      '("h" . undo-only)
-      '("H" . undo-redo)
+        '("h" . undo-only)
+        '("H" . undo-redo)
 
-      '("m"  . meow-kmacro)
-      '("M"  . kmacro-call-macro)
-      '("nm" . kmacro-edit-macro) ;; 'n' prefix is for editing commands
+        '("m"  . meow-kmacro)
+        '("M"  . kmacro-call-macro)
+        '("nm" . kmacro-edit-macro) ;; 'n' prefix is for editing commands
 
-      '("nf" . meow-comment)
+        '("nf" . meow-comment)
 
-      '("N"  . upcase-dwim)
-      '("nn" . downcase-dwim)
-      '("nN" . capitalize-dwim)
+        '("N"  . upcase-dwim)
+        '("nn" . downcase-dwim)
+        '("nN" . capitalize-dwim)
 
-      ; eldoc
-      '("t" . eldoc-box-help-at-point)
-      '("T" . meow-eldoc)
+        '("ns" . meow-swap-grab)
+        
+        ; eldoc
+        '("t" . eldoc-box-help-at-point)
+        '("T" . meow-eldoc)
 
-      ; general
-      '(";F" . save-some-buffers)
-      '(";g" . goto-last-change)
-      '("Q" . meow-quit)
-      '(";c" . duplicate-dwim)
-      '(";C" . copy-and-comment-region)
-      '(";fr" . recentf)
-      '(";hq" . restart-emacs)
-      '(";hr" . dl/reload-emacs)
-      '(";hn" . dl/load-buffer-with-nix-config)
-      '(";hp" . dl/load-buffer-with-emacs-config)
-      '(";ot" . toggle-vterm-window)
-      '(";oT" . +vterm/here)
-      '(";ox" . toggle-scratch-buffer)
-      '(";lf" . dl/lsp-find-references-other-window)
-      '(";lc" . dl/lsp-find-implementation-other-window)
-      '(";ls" . lsp-treemacs-symbols)
-      '(";le" . list-flycheck-errors)
-      '(";lh" . lsp-treemacs-call-hierarchy)
-      '(";lF" . lsp-format-buffer)
-      '(";li" . lsp-organize-imports)
-      '(";ll" . lsp)
-      '(";lr" . lsp-rename)
-      '(";ld" . dl/lsp-find-definition-other-window)
-      '(";lt" . org-toggle-link-display)
-      '(";," . dl/insert-header)
-      '(";<" . dl/insert-current-time)
-      '(";>" . dl/insert-current-date-prompt)
-      '(";b" . bufler-switch-buffer)
-      '(";B" . bufler-list)
-      '(";rw" . rotate-window)
-      '(";rl" . rotate-layout)
-      '(";sr" . python-shell-send-region-or-line)
-      '(";sb" . python-shell-send-buffer)
-      '(";sd" . python-shell-send-defun)
-      '(";se" . code-cells-eval)
+        ; general
+        '(";F" . save-some-buffers)
+        '(";g" . goto-last-change)
+        '("Q" . meow-quit)
+        '(";c" . duplicate-dwim)
+        '(";C" . copy-and-comment-region)
+        '(";fr" . recentf)
+        '(";hq" . restart-emacs)
+        '(";hr" . dl/reload-emacs)
+        '(";hn" . dl/load-buffer-with-nix-config)
+        '(";hp" . dl/load-buffer-with-emacs-config)
+        '(";ot" . projectile-run-vterm-other-window)
+        '(";oT" . +vterm/here)
+        '(";ox" . toggle-scratch-buffer)
+        '(";lf" . dl/lsp-find-references-other-window)
+        '(";lc" . dl/lsp-find-implementation-other-window)
+        '(";ls" . lsp-treemacs-symbols)
+        '(";le" . list-flycheck-errors)
+        '(";lh" . lsp-treemacs-call-hierarchy)
+        '(";lF" . lsp-format-buffer)
+        '(";li" . lsp-organize-imports)
+        '(";ll" . lsp)
+        '(";lr" . lsp-rename)
+        '(";ld" . dl/lsp-find-definition-other-window)
+        '(";lt" . org-toggle-link-display)
+        '(";," . dl/insert-header)
+        '(";<" . dl/insert-current-time)
+        '(";>" . dl/insert-current-date-prompt)
+        '(";b" . bufler-switch-buffer)
+        '(";B" . bufler-list)
+        
+        ; Rotation
+        '(";rw" . rotate-window)
+        '(";rl" . rotate-layout)
+
+        ;; Version control
+        '(";tg" . git-timemachine-toggle)
+        
+        ; Python
+        '(";sr" . python-shell-send-region-or-line)
+        '(";sb" . python-shell-send-buffer)
+        '(";sd" . python-shell-send-defun)
+        '(";se" . code-cells-eval)
+        
+        '(";y" . realgud:pdb)
+        '(";a"  . realgud:attach-source-buffer)
+        
+       '("<escape>" . ignore)) ; ignore escape
+       )
+      (setq meow-use-cursor-position-hack t
+    	meow-use-enhanced-selection-effect t) 
       
-      
-     '("<escape>" . ignore)) ; ignore escape
-     )
-    (setq meow-use-cursor-position-hack t
-  	meow-use-enhanced-selection-effect t) 
-    
-      (meow-setup)
-      (meow-global-mode 1)
-      )
+        (meow-setup)
+        (meow-global-mode 1)
+        )
 #+end_src
 
 *** Meow+vterm support
@@ -485,6 +499,20 @@ Various helpers and packages I find useful for window management.
     :config
     (meow-vterm-enable)
     )
+#+end_src
+
+*** RE builder
+#+begin_src emacs-lisp
+  (use-package re-builder
+    :defer t)
+
+  (use-package casual-re-builder
+    :straight (:host github :repo "kickingvegas/casual-re-builder")
+    :bind (:map
+           reb-mode-map ("C-o" . casual-re-builder-tmenu)
+           :map
+           reb-lisp-mode-map ("C-o" . casual-re-builder-tmenu))
+    :after (re-builder))
 #+end_src
 
 ** Conveniences
@@ -507,7 +535,7 @@ See `comment-region' for behavior of a prefix arg."
   (use-package goto-chg)
 #+end_src
 
-*** Beacon mode
+*** COMMENT Beacon mode
 Highlights the line temporarily when the cursor moves windows.
 #+begin_src emacs-lisp
   (use-package beacon
@@ -1293,10 +1321,6 @@ These are templates used to create new notes.
                                            "* Log\n"))))))
 #+END_SRC
 
-#+RESULTS: :org-roam-templates
-| d | default | entry | * %? | :if-new | (file+head %<%Y-%m-%d>.org (lambda nil (concat :PROPERTIES: |
-
-
 ***** Extending Roam
 Here we add additional function to ~org-roam~ to either do something specific for more workflow, or otherwise make ~org-roam~ more full featured.
 
@@ -1726,14 +1750,13 @@ Configuration related to filesystem, either basic IO and interaction from emacs 
     (setq dirvish-subtree-state-style 'nerd)
     '(add-to-list 'dired-compress-file-suffixes
   		'("\\.zip\\'" ".zip" "unzip"))
-
     :bind ; Bind `dirvish|dirvish-side|dirvish-dwim' as you see fit
     (("C-c f" . dirvish-fd)
      :map dirvish-mode-map ; Dirvish inherits `dired-mode-map'
-     ("j" . dired-up-directory)
-     ("l" . dired-find-file)
-     ("i" . dired-previous-line)
-     ("k" . dired-next-line)
+       ("j" . dired-up-directory)
+       ("l" . dired-find-file)
+       ("i" . dired-previous-line)
+       ("k" . dired-next-line)
      ;; ("a"   . dirvish-quick-access)
      ;; ("f"   . dirvish-file-info-menu)
      ;; ("y"   . dirvish-yank-menu)
@@ -1755,9 +1778,6 @@ Configuration related to filesystem, either basic IO and interaction from emacs 
      )
     :hook (dired-mode . auto-revert-mode))
 #+end_src
-
-#+RESULTS:
-: -al --group-directories-first
 
 **** Quick shortcuts for common file tasks
 #+NAME::buffer-and-file-movement
@@ -2197,6 +2217,17 @@ Set XeLaTex as our compiler
 
 #+end_src emacs-lisp
 
+*** COMMENT LSP
+#+begin_src emacs-lisp
+  (use-package markdown-mode
+    :hook (markdown-mode . lsp)
+    :config
+    (require 'lsp-marksman))
+#+end_src
+
+#+RESULTS:
+| lsp |
+
 ** Coding
 *** Compile buffers
 Everything related to M-x compile.
@@ -2222,47 +2253,49 @@ This is my IDE. It includes the same engine that powers VS Code, in addition to 
 
 #+NAME: lsp-mode
 #+BEGIN_SRC emacs-lisp
-  (use-package lsp-mode
-    :commands lsp lsp-deferred
-    :init
-      (setq lsp-keymap-prefix "C-c l")
-      ;;(setq lsp-keep-workspace-alive nil)
-      ;;(setq lsp-restart 'ignore)
-      (setq lsp-headerline-breadcrumb-enable nil)
-      (setq lsp-auto-guess-root t)
-      (setq lsp-enable-which-key-integration t)
-      :hook
-  	(envrc-mode . lsp))
+    (use-package lsp-mode
+      :commands lsp lsp-deferred
+      :init
+        (setq lsp-keymap-prefix "C-c l")
+        ;;(setq lsp-keep-workspace-alive nil)
+        ;;(setq lsp-restart 'ignore)
+        (setq lsp-headerline-breadcrumb-enable nil)
+        (setq lsp-auto-guess-root t)
+        (setq lsp-enable-which-key-integration t)
+        (setq lsp-warn-no-matched-clients nil) ; remove warnings
+        :hook
+    	(envrc-mode . lsp)
+  	)
 
 
-  (use-package lsp-ui
-    :hook (lsp-mode . lsp-ui-mode)
-    :custom
-      (lsp-ui-doc-position 'bottom))
+    (use-package lsp-ui
+      :hook (lsp-mode . lsp-ui-mode)
+      :custom
+        (lsp-ui-doc-position 'bottom))
 
-  (use-package lsp-treemacs
-    :after lsp)
+    (use-package lsp-treemacs
+      :after lsp)
 
-  (use-package company
-    :after lsp-mode
-    :hook (lsp-mode . company-mode)
-    :bind (:map company-active-map
-          ("<tab>" . company-complete-selection))
-          (:map lsp-mode-map
-          ("<tab>" . company-indent-or-complete-common))
-     :custom
-       (company-minimum-prefix-length 1)
-       (company-idle-delay 0.0))
+    (use-package company
+      :after lsp-mode
+      :hook (lsp-mode . company-mode)
+      :bind (:map company-active-map
+            ("<tab>" . company-complete-selection))
+            (:map lsp-mode-map
+            ("<tab>" . company-indent-or-complete-common))
+       :custom
+         (company-minimum-prefix-length 1)
+         (company-idle-delay 0.0))
 
-  (use-package company-box
-    :hook (company-mode . company-box-mode))
+    (use-package company-box
+      :hook (company-mode . company-box-mode))
 
-(use-package lsp-pyright
-  :ensure t
-  :hook (python-mode . (lambda ()
-                          (require 'lsp-pyright)
-                          (lsp))))  ; or lsp-deferred
-  ;; (add-hook 'lsp-mode-hook #'lsp-headerline-breadcrumb-mode)
+  (use-package lsp-pyright
+    :ensure t
+    :hook (python-mode . (lambda ()
+                            (require 'lsp-pyright)
+                            (lsp))))  ; or lsp-deferred
+    ;; (add-hook 'lsp-mode-hook #'lsp-headerline-breadcrumb-mode)
 #+END_SRC
 
 **** Shortcuts
@@ -2421,115 +2454,110 @@ Very useful for interactive parsing
 *** Git
 #+NAME: magit-git
 #+BEGIN_SRC emacs-lisp
-  (use-package magit
-    :commands (magit-status magit-get-current-branch)
-    ;; :config
-    ;; (define-key magit-hunk-section-map (kbd "RET") 'magit-diff-visit-file-other-window)
-    ;; (delete 'git-commit-mode evil-emacs-state-modes)
-    ;; :bind
-    ;; (:map evil-normal-state-map
-    ;;       (", g g" . 'magit-status))
-    :config
-    (dir-locals-set-class-variables
-     'huge-git-repository
-     '((nil
-        . ((magit-refresh-buffer . nil)
-  	 (magit-revision-insert-related-refs . nil)))
-       (magit-status-mode
-        . ((eval . (magit-disable-section-inserter 'magit-insert-tags-header))
-           (eval . (magit-disable-section-inserter 'magit-insert-recent-commits))
-           (eval . (magit-disable-section-inserter 'magit-insert-unpushed-to-pushremote))
-           (eval . (magit-disable-section-inserter 'magit-insert-unpushed-to-upstream-or-recent))
-           (eval . (magit-disable-section-inserter 'magit-insert-unpulled-from-pushremote))
-           (eval . (magit-disable-section-inserter 'magit-insert-unpulled-from-pushremote))
-           (eval . (magit-disable-section-inserter 'magit-insert-unpulled-from-upstream))
+      (use-package magit
+        :commands (magit-status magit-get-current-branch)
+        ;; :config
+        ;; (define-key magit-hunk-section-map (kbd "RET") 'magit-diff-visit-file-other-window)
+        ;; (delete 'git-commit-mode evil-emacs-state-modes)
+        ;; :bind
+        ;; (:map evil-normal-state-map
+        ;;       (", g g" . 'magit-status))
+        
+        :config
+        (dir-locals-set-class-variables
+         'huge-git-repository
+         '((nil
+            . ((magit-refresh-buffer . nil)
+      	 (magit-revision-insert-related-refs . nil)))
+           (magit-status-mode
+            . ((eval . (magit-disable-section-inserter 'magit-insert-tags-header))
+               (eval . (magit-disable-section-inserter 'magit-insert-recent-commits))
+               (eval . (magit-disable-section-inserter 'magit-insert-unpushed-to-pushremote))
+               (eval . (magit-disable-section-inserter 'magit-insert-unpushed-to-upstream-or-recent))
+               (eval . (magit-disable-section-inserter 'magit-insert-unpulled-from-pushremote))
+               (eval . (magit-disable-section-inserter 'magit-insert-unpulled-from-pushremote))
+               (eval . (magit-disable-section-inserter 'magit-insert-unpulled-from-upstream))
+               ))
            ))
-       ))
+        (setq ediff-window-setup-function 'ediff-setup-windows-plain)
+        (dir-locals-set-directory-class
+         "~/reference-repos/nixpkgs/" 'huge-git-repository))
 
-    (dir-locals-set-directory-class
-     "~/reference-repos/nixpkgs/" 'huge-git-repository))
+      (defun +magit-display-buffer-fn (buffer)
+        "Same as `magit-display-buffer-traditional', except...
 
-  (defun +magit-display-buffer-fn (buffer)
-    "Same as `magit-display-buffer-traditional', except...
+            - If opened from a commit window, it will open below it.
+            - Magit process windows are always opened in small windows below the current.
+            - Everything else will reuse the same window."
+        (let ((buffer-mode (buffer-local-value 'major-mode buffer)))
+          (display-buffer
+           buffer (cond
+                   ((and (eq buffer-mode 'magit-status-mode)
+                         (get-buffer-window buffer))
+                    '(display-buffer-reuse-window))
+                   ;; Any magit buffers opened from a commit window should open below
+                   ;; it. Also open magit process windows below.
+                   ((or (bound-and-true-p git-commit-mode)
+                        (eq buffer-mode 'magit-process-mode))
+                    (let ((size (if (eq buffer-mode 'magit-process-mode)
+                                    0.35
+                                  0.7)))
+                      `(display-buffer-below-selected
+                        . ((window-height . ,(truncate (* (window-height) size)))))))
 
-        - If opened from a commit window, it will open below it.
-        - Magit process windows are always opened in small windows below the current.
-        - Everything else will reuse the same window."
-    (let ((buffer-mode (buffer-local-value 'major-mode buffer)))
-      (display-buffer
-       buffer (cond
-               ((and (eq buffer-mode 'magit-status-mode)
-                     (get-buffer-window buffer))
-                '(display-buffer-reuse-window))
-               ;; Any magit buffers opened from a commit window should open below
-               ;; it. Also open magit process windows below.
-               ((or (bound-and-true-p git-commit-mode)
-                    (eq buffer-mode 'magit-process-mode))
-                (let ((size (if (eq buffer-mode 'magit-process-mode)
-                                0.35
-                              0.7)))
-                  `(display-buffer-below-selected
-                    . ((window-height . ,(truncate (* (window-height) size)))))))
+                   ;; Everything else should reuse the current window.
+                   ((or (not (derived-mode-p 'magit-mode))
+                        (not (memq (with-current-buffer buffer major-mode)
+                                   '(magit-process-mode
+                                     magit-revision-mode
+                                     magit-diff-mode
+                                     magit-stash-mode
+                                     magit-status-mode))))
+                    '(display-buffer-same-window))
 
-               ;; Everything else should reuse the current window.
-               ((or (not (derived-mode-p 'magit-mode))
-                    (not (memq (with-current-buffer buffer major-mode)
-                               '(magit-process-mode
-                                 magit-revision-mode
-                                 magit-diff-mode
-                                 magit-stash-mode
-                                 magit-status-mode))))
-                '(display-buffer-same-window))
+                   ('(+magit--display-buffer-in-direction))))))
 
-               ('(+magit--display-buffer-in-direction))))))
+      (defun +magit--display-buffer-in-direction (buffer alist)
+        "`display-buffer-alist' handler that opens BUFFER in a direction.
 
-  (defun +magit--display-buffer-in-direction (buffer alist)
-    "`display-buffer-alist' handler that opens BUFFER in a direction.
-
-        This differs from `display-buffer-in-direction' in one way: it will try to use a
-        window that already exists in that direction. It will split otherwise."
-    (let ((direction (or (alist-get 'direction alist)
-                         'right))
-          (origin-window (selected-window)))
-      (if-let (window (window-in-direction direction))
+            This differs from `display-buffer-in-direction' in one way: it will try to use a
+            window that already exists in that direction. It will split otherwise."
+        (let ((direction (or (alist-get 'direction alist)
+                             'right))
+              (origin-window (selected-window)))
+          (if-let (window (window-in-direction direction))
+              (unless magit-display-buffer-noselect
+                (select-window window))
+            (if-let (window (and (not (one-window-p))
+                                 (window-in-direction
+                                  (pcase direction
+                                    (`right 'left)
+                                    (`left 'right)
+                                    ((or `up `above) 'down)
+                                    ((or `down `below) 'up)))))
+                (unless magit-display-buffer-noselect
+                  (select-window window))
+              (let ((window (split-window nil nil direction)))
+                (when (and (not magit-display-buffer-noselect)
+                           (memq direction '(right down below)))
+                  (select-window window))
+                (display-buffer-record-window 'reuse window buffer)
+                (set-window-buffer window buffer)
+                (set-window-parameter window 'quit-restore (list 'window 'window origin-window buffer))
+                (set-window-prev-buffers window nil))))
           (unless magit-display-buffer-noselect
-            (select-window window))
-        (if-let (window (and (not (one-window-p))
-                             (window-in-direction
-                              (pcase direction
-                                (`right 'left)
-                                (`left 'right)
-                                ((or `up `above) 'down)
-                                ((or `down `below) 'up)))))
-            (unless magit-display-buffer-noselect
-              (select-window window))
-          (let ((window (split-window nil nil direction)))
-            (when (and (not magit-display-buffer-noselect)
-                       (memq direction '(right down below)))
-              (select-window window))
-            (display-buffer-record-window 'reuse window buffer)
-            (set-window-buffer window buffer)
-            (set-window-parameter window 'quit-restore (list 'window 'window origin-window buffer))
-            (set-window-prev-buffers window nil))))
-      (unless magit-display-buffer-noselect
-        (switch-to-buffer buffer t t)
-        (selected-window))))
+            (switch-to-buffer buffer t t)
+            (selected-window))))
 
-  (setq transient-display-buffer-action '(display-buffer-below-selected)
-        magit-display-buffer-function #'+magit-display-buffer-fn
-        magit-bury-buffer-function #'magit-mode-quit-window)
+      (setq transient-display-buffer-action '(display-buffer-below-selected)
+            magit-display-buffer-function #'+magit-display-buffer-fn
+            magit-bury-buffer-function #'magit-mode-quit-window)
 
-  (use-package git-timemachine
-    ;; :bind
-    ;; (:map evil-normal-state-map
-    ;;       (", g t" . 'git-timemachine)))
+      (use-package git-timemachine
+        )
 
-  ;; (with-eval-after-load 'evil
-  ;;   (add-hook 'git-commit-mode-hook 'evil-insert-state)
-    )
-
-  ;Track =mv= with git
-  (setq dired-vc-rename-file t)
+      ;Track =mv= with git
+      (setq dired-vc-rename-file t)
   #+end_src
 
 #+RESULTS: magit-git
@@ -2726,7 +2754,21 @@ Indentation
     ;; (after! elfeed
     ;;   (setq elfeed-search-filter "@2-weeks-ago +unread")
     ;;   (add-hook 'elfeed-search-mode-hook #'elfeed-update)
+(defun elfeed-entry-other-window ()
+  "In elfeed-search mode, open elfeed entry in the other window
+if other window is present, else sensibly splits the frame if
+there is only a single window and opens the elfeed entry in the
+other window."
 
+  (interactive)
+  (if (get-buffer "*elfeed-search*")
+      (progn
+	(split-window-sensibly (selected-window))
+	(switch-to-buffer-other-window "*elfeed-search*")
+	(call-interactively #'elfeed-search-show-entry)
+	(other-window 1)
+	(forward-line))
+    (message "Start elfeed first!")))
 
     (defun find-in-elfeed-org-file ()
       "Find elfeed-show-entry in the first elfeed-org file"
@@ -3384,9 +3426,7 @@ TODO: make this lazy-loaded again
   (use-package org-web-tools)
 #+end_src
 
-#+RESULTS:
-
-*** Monitor-specific size
+*** COMMENT Monitor-specific size
 #+begin_src emacs-lisp
   (defun td/adapt-font-size (&optional frame)
     (when (display-graphic-p)

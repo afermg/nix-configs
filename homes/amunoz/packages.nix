@@ -129,8 +129,6 @@
 
       # specific needs
       haskellPackages.xml-to-json-fast
-
-
     ];
 
     programs.git = {
