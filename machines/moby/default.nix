@@ -135,6 +135,20 @@
 
   # Default system wide packages
   environment.systemPackages = with pkgs; [
+      # base
+      gawk
+      gnumake # Necessary for emacs' vterm
+      libtool # Necessary for emacs' vterm
+      gnused # The one and only sed
+      wget # fetch stuff
+      ps # processes
+      killall # kill all the processes by name
+      screen # ssh in and out of a server
+      lsof # Files and their processes
+      moreutils # e.g. sponge
+      git
+      ripgrep # faster grep in rust
+      
       gnomeExtensions.forge
       gnomeExtensions.appindicator
   ];

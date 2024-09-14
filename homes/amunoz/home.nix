@@ -1,5 +1,5 @@
 { outputs, ... }:
-let user="alan";
+let user="amunoz";
 in
 {
   nixpkgs = {
@@ -9,9 +9,8 @@ in
   };
 
   home.username = "${user}";
-  # home.homeDirectory = "/home/alan";
-  home.homeDirectory = "/Users/${user}";
-
+  home.homeDirectory = "/home/${user}";
+                       
   home.stateVersion = "24.05";
   
   services.syncthing = {
