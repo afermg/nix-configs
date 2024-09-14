@@ -1,5 +1,10 @@
-{ outputs, ... }:
-let user="amunoz";
+{ outputs, pkgs, ... }:
+let user = if pkgs.stdenv.isLinux
+           then "amunoz"
+           else "alan";
+    home_parent = if pkgs.stdenv.isLinux
+                  then "home"
+                  else "Users";
 in
 {
   nixpkgs = {
@@ -9,7 +14,7 @@ in
   };
 
   home.username = "${user}";
-  home.homeDirectory = "/home/${user}";
+  home.homeDirectory = "/${home_parent}/${user}";
                        
   home.stateVersion = "24.05";
   

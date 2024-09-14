@@ -110,7 +110,7 @@ with pkgs; [
   # docs
   pdftk
   # (gnumeric.overrideAttrs(p: { buildInputs = p.buildInputs ++ [ zlib12 ]; }))
-
+  
   # specific needs
   haskellPackages.xml-to-json-fast
-    ]
+]
