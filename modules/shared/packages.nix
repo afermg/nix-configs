@@ -59,6 +59,8 @@ with pkgs; [
   # python
   python310 # the standard python
   poetry # python package management
+  # pyright
+  # ruff
 
   # containers
   podman  # for container needs
@@ -103,7 +105,6 @@ with pkgs; [
   yaml-language-server
   semgrep
   nodePackages.bash-language-server
-  # pyright
   lemminx
 
   # docs
@@ -112,6 +113,4 @@ with pkgs; [
 
   # specific needs
   haskellPackages.xml-to-json-fast
-
-
     ]
