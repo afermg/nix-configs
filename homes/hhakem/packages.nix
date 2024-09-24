@@ -1,22 +1,8 @@
 { pkgs, config, inputs, ...}:
-
+  let shared-packages = import ../../modules/shared/packages.nix { inherit pkgs; }; in
 {
 
   home.packages = with pkgs; [
-      
-    # base
-    gawk
-    coreutils
-    gnumake # Necessary for emacs' vterm
-    libtool # Necessary for emacs' vterm
-    gnused # The one and only sed
-    wget # fetch stuff
-    ps # processes
-    killall # kill all the processes by name
-    screen # ssh in and out of a server
-    lsof # Files and their processes
-    moreutils # e.g. sponge
-    btop
 
     # To support pdbpp in emacs
     autoconf
@@ -39,7 +25,7 @@
 
     python310 # the standard python
     pyright
-];
+] ++ shared-packages;
   programs.git = {
     enable = true;
     userName = "HugoHakem";
