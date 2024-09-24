@@ -13,7 +13,7 @@
     fd # faster find
     difftastic # better diffs
     dua # better du
-    dust # interactive du in tust
+    dust # interactive du in rust
     bottom # network top
 
     # langs
