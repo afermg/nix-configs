@@ -484,9 +484,64 @@ Various helpers and packages I find useful for window management.
       (setq meow-use-cursor-position-hack t
     	meow-use-enhanced-selection-effect t) 
       
-        (meow-setup)
-        (meow-global-mode 1)
-        )
+      ; eldoc
+      '("t" . eldoc-box-help-at-point)
+      '("T" . meow-eldoc)
+
+      ; general
+      '(";F" . save-some-buffers)
+      '(";g" . goto-last-change)
+      '("Q" . meow-quit)
+      '(";c" . duplicate-dwim)
+      '(";C" . copy-and-comment-region)
+
+      '(";fr" . recentf)
+      '(";hq" . restart-emacs)
+      '(";hr" . dl/reload-emacs)
+      '(";hn" . dl/load-buffer-with-nix-config)
+      '(";hp" . dl/load-buffer-with-emacs-config)
+      '(";ot" . projectile-run-vterm-other-window)
+      '(";oT" . +vterm/here)
+      '(";ox" . toggle-scratch-buffer)
+      '(";lf" . dl/lsp-find-references-other-window)
+      '(";lc" . dl/lsp-find-implementation-other-window)
+      '(";ls" . lsp-treemacs-symbols)
+      '(";le" . list-flycheck-errors)
+      '(";lh" . lsp-treemacs-call-hierarchy)
+      '(";lF" . lsp-format-buffer)
+      '(";li" . lsp-organize-imports)
+      '(";ll" . lsp)
+      '(";lr" . lsp-rename)
+      '(";ld" . dl/lsp-find-definition-other-window)
+      '(";lt" . org-toggle-link-display)
+      '(";," . dl/insert-header)
+      '(";<" . dl/insert-current-time)
+      '(";>" . dl/insert-current-date-prompt)
+      '(";b" . bufler-switch-buffer)
+      '(";B" . bufler-list)
+      '(";K" . kill-buffer-and-window)
+
+      ; Rotation
+      '(";rw" . rotate-window)
+      '(";rl" . rotate-layout)
+
+      ;; Version control
+      '(";tg" . git-timemachine-toggle)
+      
+      ; Python
+      '(";sr" . python-shell-send-region-or-line)
+      '(";sb" . python-shell-send-buffer)
+      '(";sd" . python-shell-send-defun)
+      '(";se" . code-cells-eval)
+      '(";y" . realgud:pdb)
+      '(";a"  . realgud:attach-source-buffer)
+      
+     '("<escape>" . ignore)) ; ignore escape
+    (setq meow-use-cursor-position-hack t
+  	meow-use-enhanced-selection-effect t) 
+    
+      (meow-setup)
+      (meow-global-mode 1)
 #+end_src
 
 *** Meow+vterm support
@@ -2208,12 +2263,12 @@ Set XeLaTex as our compiler
   ;;       '("latexmk -pdflatex='lualatex -interaction nonstopmode' -shell-escape -pdf -bibtex --synctex=1 -f %f"))
   (setq latex-run-command "xelatex")
   (setq org-latex-pdf-process
-        '("latexmk -pdflatex='xelatex -interaction nonstopmode ' -shell-escape -pdf -f %f "
-          ;; "makeglossaries %b"
+        '("latexmk -pdflatex='xelatex -shell-escape -interaction nonstopmode ' -shell-escape -pdf -f %f "
+          ;; "makeglossaries %
           ;; "biber %b"
           ;; "makeindex %b"
-          "latexmk -pdflatex='xelatex -interaction nonstopmode ' -shell-escape -pdf -f %f "
-          "latexmk -pdflatex='xelatex -interaction nonstopmode ' -shell-escape -pdf -f %f "))
+          "latexmk -pdflatex='xelatex -interaction -shell-escape nonstopmode ' -shell-escape -pdf -f %f "
+          "latexmk -pdflatex='xelatex -shell-escape -interaction nonstopmode ' -shell-escape -pdf -f %f "))
 
 #+end_src emacs-lisp
 
@@ -2638,7 +2693,6 @@ Nix is my package manager and operating system of choice; this mode enables me t
     :mode "\\.nix\\'")
 #+end_src
 
-
 *** Debugger
 ***** DAP
 Debugger Adapter Protocol. 
@@ -2667,7 +2721,7 @@ Simple debugger. Does its job just fine most of the time.
       (realgud:cmd-info-value (concat (thing-at-point 'word) "\n")))
     :bind (:map realgud:shortkey-mode-map
       	       ("_" . #'describe-at-cursor)
-      	       ("a" . #'realgud:attach-source-buffer))) 
+      	       ("a" . #'realgud:attach-cmd-buffer))) 
 
 
   ;; (evil-define-key '(normal visual) python-mode-map
