@@ -2729,7 +2729,8 @@ Simple debugger. Does its job just fine most of the time.
     ;; (setq realgud:pdb-command-name "pytest -s --trace")
     (defun realgud-pdb-pytest nil
       (interactive)
-      (realgud:pdb (concat "pytest --trace --color=yes " buffer-file-name)))
+      ;; (realgud:pdb (concat "pytest -pdb --trace --color=yes " buffer-file-name)))  
+    (realgud:pdb (concat "pytest --pdb --trace --color=yes " buffer-file-name)))
     (defun describe-at-cursor()
       "Describe variable at cursor when using debugger"
       (interactive)
