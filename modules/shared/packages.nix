@@ -18,6 +18,9 @@ with pkgs; [
   autoconf
   automake
 
+  # browser
+  firefox
+
   # faster/better X
   ripgrep # faster grep in rust
   fd # faster find
@@ -113,4 +116,5 @@ with pkgs; [
   
   # specific needs
   haskellPackages.xml-to-json-fast
+  direnv
 ]

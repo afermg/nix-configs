@@ -14,25 +14,34 @@
 
         };
     }));
+    shared-packages = import ../../modules/shared/packages.nix { inherit pkgs; };
   in
-    with pkgs; [
+    # shared-packages
+   
 
-      # base
-      gawk
-      gnumake # Necessary for emacs' vterm
-      libtool # Necessary for emacs' vterm
-      gnused # The one and only sed
-      wget # fetch stuff
-      ps # processes
-      killall # kill all the processes by name
-      screen # ssh in and out of a server
-      lsof # Files and their processes
-      moreutils # e.g. sponge
+  programs.git = {
+    enable = true;
+    userName = "Alan Munoz";
+    userEmail = "afer.mg@gmail.com";
+    #extraConfig = {
+    # Sign all commits using ssh key
+    #    commit.gpgsign = true;
+    #    gpg.format = "ssh";
+    #    gpg.ssh.allowedSignersFile = "~/.ssh/allowed_signers";
+    #    user.signingkey = "~/.ssh/id_ed25519.pub";
+    #  };
+  };
 
-      # To support pdbpp in emacs
-      autoconf
-      automake
+  programs.direnv = {
+    enable = true;
+    nix-direnv.enable = true;
+  };
 
+  xdg = {
+    enable = true;
+    configFile."doom"= {
+      source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/clouds/homes/amunoz/config/doom";
+      recursive = true;
       # faster/better X
       ripgrep # faster grep in rust
       fd # faster find
@@ -47,6 +56,7 @@
       cmake # c compiler
       clang # c language
       clang-tools # tools for c language
+      sbcl # useful for git-timemachine
 
       # files
       gnutar # The one and only tar
@@ -84,6 +94,7 @@
       texliveFull # all the stuff for tex writing  # TODO try to reduce footprint
       (aspellWithDicts (dicts: with dicts; [ en en-computers en-science ]))
       pandoc
+      zotero_7
 
       # convenience
       gnuplot # no-fuss plotting
@@ -143,25 +154,13 @@
       #    user.signingkey = "~/.ssh/id_ed25519.pub";
       #  };
     };
-
-    programs.direnv = {
-      enable = true;
-      nix-direnv.enable = true;
+    configFile."pypoetry"= {
+      source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/clouds/homes/amunoz/config/pypoetry";
+      recursive = true;
     };
-
-    xdg = {
-      enable = true;
-      configFile."doom"= {
-     	  source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/clouds/homes/amunoz/config/doom";
-        recursive = true;
-      };
-      configFile."pypoetry"= {
-     	  source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/clouds/homes/amunoz/config/pypoetry";
-        recursive = true;
-      };
-      #     configFile."ipython"= {
-      #   	source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/clouds/homes/amunoz/config/ipython";
-      #      recursive = true;
-      # };
-    };
+    #     configFile."ipython"= {
+    #   	source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/clouds/homes/amunoz/config/ipython";
+    #      recursive = true;
+    # };
+  };
 }

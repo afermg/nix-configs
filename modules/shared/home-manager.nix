@@ -1,7 +1,9 @@
 { config, pkgs, lib, ... }:
 
 let name = "Alán F. Muñoz";
-    user = "alan";
+    user = if pkgs.stdenv.isLinux
+           then "amunoz"
+           else "alan";
     email = "afer.mg@gmail.com"; in
 {
   # Shared shell configuration

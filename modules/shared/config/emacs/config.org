@@ -484,9 +484,64 @@ Various helpers and packages I find useful for window management.
       (setq meow-use-cursor-position-hack t
     	meow-use-enhanced-selection-effect t) 
       
-        (meow-setup)
-        (meow-global-mode 1)
-        )
+      ; eldoc
+      '("t" . eldoc-box-help-at-point)
+      '("T" . meow-eldoc)
+
+      ; general
+      '(";F" . save-some-buffers)
+      '(";g" . goto-last-change)
+      '("Q" . meow-quit)
+      '(";c" . duplicate-dwim)
+      '(";C" . copy-and-comment-region)
+
+      '(";fr" . recentf)
+      '(";hq" . restart-emacs)
+      '(";hr" . dl/reload-emacs)
+      '(";hn" . dl/load-buffer-with-nix-config)
+      '(";hp" . dl/load-buffer-with-emacs-config)
+      '(";ot" . projectile-run-vterm-other-window)
+      '(";oT" . +vterm/here)
+      '(";ox" . toggle-scratch-buffer)
+      '(";lf" . dl/lsp-find-references-other-window)
+      '(";lc" . dl/lsp-find-implementation-other-window)
+      '(";ls" . lsp-treemacs-symbols)
+      '(";le" . list-flycheck-errors)
+      '(";lh" . lsp-treemacs-call-hierarchy)
+      '(";lF" . lsp-format-buffer)
+      '(";li" . lsp-organize-imports)
+      '(";ll" . lsp)
+      '(";lr" . lsp-rename)
+      '(";ld" . dl/lsp-find-definition-other-window)
+      '(";lt" . org-toggle-link-display)
+      '(";," . dl/insert-header)
+      '(";<" . dl/insert-current-time)
+      '(";>" . dl/insert-current-date-prompt)
+      '(";b" . bufler-switch-buffer)
+      '(";B" . bufler-list)
+      '(";K" . kill-buffer-and-window)
+
+      ; Rotation
+      '(";rw" . rotate-window)
+      '(";rl" . rotate-layout)
+
+      ;; Version control
+      '(";tg" . git-timemachine-toggle)
+      
+      ; Python
+      '(";sr" . python-shell-send-region-or-line)
+      '(";sb" . python-shell-send-buffer)
+      '(";sd" . python-shell-send-defun)
+      '(";se" . code-cells-eval)
+      '(";y" . realgud:pdb)
+      '(";a"  . realgud:attach-source-buffer)
+      
+     '("<escape>" . ignore)) ; ignore escape
+    (setq meow-use-cursor-position-hack t
+  	meow-use-enhanced-selection-effect t) 
+    
+      (meow-setup)
+      (meow-global-mode 1)
 #+end_src
 
 *** Meow+vterm support
@@ -2137,7 +2192,7 @@ For bibliography and citations
 #+RESULTS:
 : t
 
-*** latex
+*** Latex
 
 #+begin_src emacs-lisp
   (defun org/parse-headings (backend)
@@ -2148,7 +2203,6 @@ For bibliography and citations
              (insert-string "#+LATEX: \\newpage")))
 
          "+newpage")))
-
 
   (add-hook 'org-export-before-parsing-hook 'org/parse-headings)
 #+end_src
@@ -2162,23 +2216,39 @@ Make use of extarticle by default
 
 Captions and cdlatex
 #+begin_src emacs-lisp 
-;;  (add-hook 'org-mode #'(cdlatex-mode))
+  ;;  (add-hook 'org-mode #'(cdlatex-mode))
 
 
-  (setq org-latex-prefer-user-labels t
-        org-latex-caption-above nil
-        org-latex-listings 'minted
-        )
+    (setq org-latex-prefer-user-labels t
+          org-latex-caption-above nil
+          org-latex-listings 'minted
+          )
 
 
-;(after! org
-  ;;Colours
-;(add-to-list 'org-latex-packages-alist '("" "minted"))
-;(add-to-list 'org-latex-packages-alist '("" "tabularx"))
-;(plist-put org-format-latex-options :scale 1.75        )
-;(add-to-list 'org-latex-packages-alist '("" "unicode-math")))
-  ;; Temporarily increase margins
-  ;; (add-to-list 'org-latex-packages-alist '("margin=2cm" "geometry"))
+    ;;Colours
+  (add-to-list 'org-latex-packages-alist '("" "minted"))
+  ;(add-to-list 'org-latex-packages-alist '("" "tabularx"))
+  ;(plist-put org-format-latex-options :scale 1.75        )
+  ;(add-to-list 'org-latex-packages-alist '("" "unicode-math")))
+   (add-to-list 'org-latex-classes
+         '("beamerposter"
+           "\\documentclass[final]{beamer}
+           \\usepackage[T1]{fontenc}
+           \\usepackage{lmodern}
+           \\usepackage[size=custom,width=120,height=91,scale=1.0]{beamerposter}
+           \\usepackage{graphicx}
+           \\usepackage{booktabs}
+           \\usepackage{tikz}
+           \\usepackage{pgfplots}
+           \\pgfplotsset{compat=1.14}
+           \\usepackage{anyfontsize}
+           [NO-DEFAULT-PACKAGES]"))
+ (add-to-list 'org-latex-classes
+         '("extarticle"
+                 "\\documentclass{extarticle}"
+                 ("\\section{%s}" . "\\section*{%s}")
+                 ("\\subsection{%s}" . "\\subsection*{%s}")
+                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
 #+end_src
 
 #+RESULTS:
@@ -2208,12 +2278,12 @@ Set XeLaTex as our compiler
   ;;       '("latexmk -pdflatex='lualatex -interaction nonstopmode' -shell-escape -pdf -bibtex --synctex=1 -f %f"))
   (setq latex-run-command "xelatex")
   (setq org-latex-pdf-process
-        '("latexmk -pdflatex='xelatex -interaction nonstopmode ' -shell-escape -pdf -f %f "
-          ;; "makeglossaries %b"
+        '("latexmk -pdflatex='xelatex -shell-escape -interaction nonstopmode ' -shell-escape -pdf -f %f "
+          ;; "makeglossaries %
           ;; "biber %b"
           ;; "makeindex %b"
-          "latexmk -pdflatex='xelatex -interaction nonstopmode ' -shell-escape -pdf -f %f "
-          "latexmk -pdflatex='xelatex -interaction nonstopmode ' -shell-escape -pdf -f %f "))
+          "latexmk -pdflatex='xelatex -interaction -shell-escape nonstopmode ' -shell-escape -pdf -f %f "
+          "latexmk -pdflatex='xelatex -shell-escape -interaction nonstopmode ' -shell-escape -pdf -f %f "))
 
 #+end_src emacs-lisp
 
@@ -2638,7 +2708,6 @@ Nix is my package manager and operating system of choice; this mode enables me t
     :mode "\\.nix\\'")
 #+end_src
 
-
 *** Debugger
 ***** DAP
 Debugger Adapter Protocol. 
@@ -2660,14 +2729,15 @@ Simple debugger. Does its job just fine most of the time.
     ;; (setq realgud:pdb-command-name "pytest -s --trace")
     (defun realgud-pdb-pytest nil
       (interactive)
-      (realgud:pdb (concat "pytest --trace --color=yes " buffer-file-name)))
+      ;; (realgud:pdb (concat "pytest -pdb --trace --color=yes " buffer-file-name)))  
+    (realgud:pdb (concat "pytest --pdb --trace --color=yes " buffer-file-name)))
     (defun describe-at-cursor()
       "Describe variable at cursor when using debugger"
       (interactive)
       (realgud:cmd-info-value (concat (thing-at-point 'word) "\n")))
     :bind (:map realgud:shortkey-mode-map
       	       ("_" . #'describe-at-cursor)
-      	       ("a" . #'realgud:attach-source-buffer))) 
+      	       ("a" . #'realgud:attach-cmd-buffer))) 
 
 
   ;; (evil-define-key '(normal visual) python-mode-map

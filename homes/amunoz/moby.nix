@@ -2,7 +2,8 @@
 {
   imports = [
     ./home.nix
-    ./packages.nix
+    #./packages.nix
+#    ../../modules/shared/packages.nix
 #    ./secrets
     ./browsers
 #    ./network

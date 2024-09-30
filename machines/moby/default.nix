@@ -224,12 +224,13 @@
 
 
   # USER HOMES
-  home-manager.users.amunoz = {
-    imports = [
-     inputs.agenix.homeManagerModules.default
-     ../../homes/amunoz/moby.nix
-    ];
-  };
+  home-manager.users.amunoz = import ../../modules/nixos/home-manager.nix;
+  # {
+  #   imports = [
+  #    inputs.agenix.homeManagerModules.default
+  #    ../../homes/amunoz/moby.nix
+  #   ];
+  # };
 
   home-manager.users.llanos = {
     imports = [
