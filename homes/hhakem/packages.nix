@@ -25,6 +25,7 @@
 
     python310 # the standard python
     pyright
+    nvtop
 ] ++ shared-packages;
   programs.git = {
     enable = true;
