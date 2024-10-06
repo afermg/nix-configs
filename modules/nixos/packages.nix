@@ -3,6 +3,9 @@
 with pkgs;
 let shared-packages = import ../shared/packages.nix { inherit pkgs; }; in
 shared-packages ++ [
+  # browser
+  firefox
+
   # Monitor GPU
   nvitop # top for gpus (prefered)
   nvtopPackages.full # another top for gpus
