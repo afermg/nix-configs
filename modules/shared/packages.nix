@@ -20,7 +20,9 @@ with pkgs; [
 
   # browser
   firefox
-
+  # office
+  libreoffice-qt6-fresh
+  
   # faster/better X
   ripgrep # faster grep in rust
   fd # faster find
@@ -72,6 +74,7 @@ with pkgs; [
   texliveFull # all the stuff for tex writing  # TODO try to reduce footprint
   (aspellWithDicts (dicts: with dicts; [ en en-computers en-science ]))
   pandoc
+  inkscape
 
   # convenience
   gnuplot # no-fuss plotting
@@ -101,7 +104,6 @@ with pkgs; [
   # AI
   #openai-whisper-cpp
   #piper-tts
-  # pkgs.unstable.ollama
 
   # LSP
   nil
