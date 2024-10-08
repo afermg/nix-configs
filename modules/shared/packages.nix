@@ -18,8 +18,6 @@ with pkgs; [
   autoconf
   automake
 
-  # browser
-  firefox
   # office
   libreoffice-qt6-fresh
   
@@ -118,4 +116,5 @@ with pkgs; [
   
   # specific needs
   haskellPackages.xml-to-json-fast
+  direnv
 ]

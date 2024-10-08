@@ -1,22 +1,32 @@
 { pkgs, config, inputs, ...}:
-
+  let shared-packages = import ../../modules/shared/packages.nix { inherit pkgs; }; in
 {
 
   home.packages = with pkgs; [
-    tldr # useful use cases for libs
-    git
-    killall
-    gawk
-    gnused # The one and only sed
-    wget # fetch stuff
-    killall # kill all the processes by name
-    screen # ssh in and out of a server
-    nvtopPackages.full
-    lsof
+
+    # To support pdbpp in emacs
+    autoconf
+    automake
+
+    # faster/better X
+    ripgrep # faster grep in rust
+    fd # faster find
+    difftastic # better diffs
+    dua # better du
+    dust # interactive du in rust
+    bottom # network top
+
+    # langs
+    cargo # rust packages
+    rustc # rust compiler
+    cmake # c compiler
+    clang # c language
+    clang-tools # tools for c language
 
     python310 # the standard python
     pyright
-];
+    nvtop
+] ++ shared-packages;
   programs.git = {
     enable = true;
     userName = "HugoHakem";
