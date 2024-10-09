@@ -39,3 +39,4 @@ System-wide Darwin packages is not supported yet.
 - Adding multiple configs for multiple Darwin computers
 - Modify things so they are closer to [[https://github.com/dustinlyons/nixos-config][nixos-config]] than neusis.
 - Add support to user-based config update
+- Isolate GPU packages and services
