@@ -1,0 +1,41 @@
+#+TITLE: Nix Configuration
+
+* Overview
+This is my NixOS + MacOS Nix shared configuration. It is based on merging two configurations:
+
+- [[https://github.com/dustinlyons/nixos-config][nixos-config]]: This facilitates sharing packages between computers, I strongly recommend it as a base configuration to use as a base.
+- [[https://github.com/leoank/neusis][neusis]]: This is the config used for multiple servers in at the Broad Institute's Imaging Platform. I use it to support multiple users on NixOS alongside Darwin.
+* Set up
+I haven't set it up from scratch in a new set of computers, but I will update it once I do.
+  
+* Usage
+Both require superuser permissions, but in Darwin will be asked for when installing brew-based packages.
+
+Replace =moby= or =darwin001= with the file you want to use on =machines/=
+
+** NixOS
+#+begin_src bash
+sudo nixos-rebuild switch --flake .#moby
+#+end_src
+
+** Darwin
+#+begin_src bash
+darwin-rebuild switch --flake .#darwin001
+#+end_src
+
+
+* Where should I add packages?
+Relative to the root folder of the repo.
+
+|        | System-wide                 | home                                  |
+|--------+-----------------------------+---------------------------------------|
+| NixOS  | modules/nixos/packages.nix  | homes/$USER/packages.nix              |
+| Darwin |                             | modules/darwin/packages.nix           |
+| Both   | modules/shared/packages.nix | [WIP] modules/shared/home-manager.nix |
+
+System-wide Darwin packages is not supported yet.
+* Current work
+- Trimming the fat
+- Adding multiple configs for multiple Darwin computers
+- Modify things so they are closer to [[https://github.com/dustinlyons/nixos-config][nixos-config]] than neusis.
+- Add support to user-based config update
