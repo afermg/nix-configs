@@ -110,6 +110,10 @@ with pkgs; [
   nodePackages.bash-language-server
   lemminx
 
+  # Non-LSP code helpers
+  shellcheck
+  shfmt
+  
   # docs
   pdftk
   # (gnumeric.overrideAttrs(p: { buildInputs = p.buildInputs ++ [ zlib12 ]; }))
