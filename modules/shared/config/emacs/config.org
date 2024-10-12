@@ -632,6 +632,18 @@ Browse from anywhere
 #+RESULTS:
 : t
 
+*** Multiple cursors
+#+begin_src elisp
+    (use-package multiple-cursors
+      :bind (:map global-mode-map
+      ("C-S-c C-S-c" . mc/edit-lines)
+      ("C->" . mc/mark-next-like-this)
+      ("C-<" . mc/mark-previous-like-this)
+      ("C-c C-<" . mc/mark-all-like-this)
+      )
+  )
+#+end_src
+
 ** Completion
 #+NAME: completion
 #+begin_src elisp
