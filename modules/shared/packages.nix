@@ -18,9 +18,9 @@ with pkgs; [
   autoconf
   automake
 
-  # browser
-  firefox
-
+  # office
+  libreoffice-qt6-fresh
+  
   # faster/better X
   ripgrep # faster grep in rust
   fd # faster find
@@ -72,6 +72,7 @@ with pkgs; [
   texliveFull # all the stuff for tex writing  # TODO try to reduce footprint
   (aspellWithDicts (dicts: with dicts; [ en en-computers en-science ]))
   pandoc
+  inkscape
 
   # convenience
   gnuplot # no-fuss plotting
@@ -101,7 +102,6 @@ with pkgs; [
   # AI
   #openai-whisper-cpp
   #piper-tts
-  # pkgs.unstable.ollama
 
   # LSP
   nil
@@ -110,6 +110,10 @@ with pkgs; [
   nodePackages.bash-language-server
   lemminx
 
+  # Non-LSP code helpers
+  shellcheck
+  shfmt
+  
   # docs
   pdftk
   # (gnumeric.overrideAttrs(p: { buildInputs = p.buildInputs ++ [ zlib12 ]; }))

@@ -71,14 +71,14 @@
   };
   
   # Ollama service
-  # services.ollama = {
-  #   enable = true;
-  #   package = pkgs.unstable.ollama;
-  #   acceleration = "cuda";
-  #   # environmentVariables = {
-  #   #   CUDA_VISIBLE_DEVICES = "0";
-  #   #   LD_LIBRARY_PATH = "${pkgs.cudaPackages.cudatoolkit}/lib:${pkgs.cudaPackages.cudatoolkit}/lib64";    };
-  # };
+  services.ollama = {
+    enable = true;
+    package = pkgs.unstable.ollama;
+    acceleration = "cuda";
+    environmentVariables = {
+      CUDA_VISIBLE_DEVICES = "0";
+      LD_LIBRARY_PATH = "${pkgs.unstable.cudaPackages.cudatoolkit}/lib:${pkgs.unstable.cudaPackages.cudatoolkit}/lib64";    };
+  };
     
   nixpkgs = {
     # You can add overlays here

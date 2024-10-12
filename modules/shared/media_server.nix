@@ -11,5 +11,5 @@ with pkgs; [
   # jellyseerr # centralised content search
   # audiobookshelf # audiobooks
   # kavita # books
-  (bazarr.overrideAttrs(p: { unpackPhase = "unzip -o $src"; }))
+  pkgs.unstable.bazarr
 ]
