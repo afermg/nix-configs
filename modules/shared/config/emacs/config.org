@@ -2157,7 +2157,7 @@ Everything related to spell and grammar checking.
 *** Spell
 #+begin_src emacs-lisp 
 (setq synosaurus-choose-method 'popup)
-(setq org-M-RET-may-split-line t)
+(setq org-M-RET-may-split-line nil)
 (setf org-blank-before-new-entry '((heading . auto) (plain-list-item . nil)))
 #+end_src
 
