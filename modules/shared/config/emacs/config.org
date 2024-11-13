@@ -570,6 +570,13 @@ Various helpers and packages I find useful for window management.
     :after (re-builder))
 #+end_src
 
+*** Modal
+#+begin_src elisp
+(use-package surround
+  :ensure t
+  :bind-keymap ("M-'" . surround-keymap))
+#+end_src
+
 ** Conveniences
 #+begin_src emacs-lisp
 (defun copy-and-comment-region (beg end &optional arg)
