@@ -1535,6 +1535,14 @@ Important export backends.
 #+RESULTS:
 : t
 
+**** ox-extra
+#+begin_src elisp
+    (use-package org-contrib
+    :config
+    (require 'ox-extra)
+    (ox-extras-activate '(ignore-headlines)))
+#+end_src
+
 *** Babel
 **** Languages
 ***** Mermaid
