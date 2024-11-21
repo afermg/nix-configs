@@ -216,6 +216,15 @@
     ];
   };
   
+  users.users.akalinin = {
+    shell = pkgs.zsh;
+    isNormalUser = true;
+    description = "Alex Kalinin";
+    extraGroups = [ "networkmanager" "wheel" "libvirtd" "qemu-libvirtd" "input"];
+    openssh.authorizedKeys.keyFiles = [
+    ];
+  };
+  
   # Enable home-manager for users
   home-manager.useGlobalPkgs = true;
   home-manager.useUserPackages = true;

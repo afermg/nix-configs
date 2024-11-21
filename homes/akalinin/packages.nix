@@ -29,8 +29,8 @@
 ] ++ shared-packages;
   programs.git = {
     enable = true;
-    userName = "HugoHakem";
-    userEmail = "hugo.hakem@berkeley.edu";
+    userName = "Alex Kalinin";
+    userEmail = "akalinin@broadinstitute.org";
   };
 
   programs.direnv = {
