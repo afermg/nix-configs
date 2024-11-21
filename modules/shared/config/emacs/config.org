@@ -428,6 +428,9 @@ Various helpers and packages I find useful for window management.
 
       '("ns" . meow-swap-grab)
       
+      ; External packages
+      '("nr" . surround-insert)
+      
       ; eldoc
       '("t" . eldoc-box-help-at-point)
       '("T" . meow-eldoc)
@@ -556,6 +559,13 @@ Various helpers and packages I find useful for window management.
     )
 #+end_src
 
+*** Surround
+#+begin_src elisp
+(use-package surround
+  :ensure t
+  :bind-keymap ("M-'" . surround-keymap))
+#+end_src
+
 *** RE builder
 #+begin_src emacs-lisp
   (use-package re-builder
@@ -568,13 +578,6 @@ Various helpers and packages I find useful for window management.
            :map
            reb-lisp-mode-map ("C-o" . casual-re-builder-tmenu))
     :after (re-builder))
-#+end_src
-
-*** Modal
-#+begin_src elisp
-(use-package surround
-  :ensure t
-  :bind-keymap ("M-'" . surround-keymap))
 #+end_src
 
 ** Conveniences
@@ -1803,7 +1806,7 @@ If on a:
 
 *** Tables
 #+begin_src elisp
-  (require 'tables)
+  ;; (require 'tables)
 #+end_src
 ** Managing files
 Configuration related to filesystem, either basic IO and interaction from emacs or directly moving files around where it makes sense.
@@ -2203,7 +2206,7 @@ Get synonyms on the fly.
 For bibliography and citations
 #+begin_src emacs-lisp
  (use-package citar
-   :no-require
+   :ensure t
    :custom
    (org-cite-global-bibliography (cl-remove-if-not #'f-exists?' ("~/Documents/sync/bibliography/bibliography.bib" "~/Documents/sync/bibliography/mac_bibliography.bib" "~/Documents/broad/bibliography/bibliography.bib")))
    (org-cite-insert-processor 'citar)
@@ -2212,12 +2215,6 @@ For bibliography and citations
    (citar-bibliography org-cite-global-bibliography)
    (org-cite-csl-styles-dir
     (expand-file-name "~/Zotero/styles/")))
-(use-package citeproc-org)
-  (use-package citeproc-org
-    :config
-    (citeproc-org-setup)
-    (require 'oc-csl))
-
 #+end_src
 
 #+RESULTS:
@@ -2248,43 +2245,44 @@ Make use of extarticle by default
 
 Captions and cdlatex
 #+begin_src emacs-lisp 
-  ;;  (add-hook 'org-mode #'(cdlatex-mode))
+    ;;  (add-hook 'org-mode #'(cdlatex-mode))
 
 
-    (setq org-latex-prefer-user-labels t
-          org-latex-caption-above nil
-          org-latex-listings 'minted
-          )
+      (setq org-latex-prefer-user-labels t
+            org-latex-caption-above nil
+            ;; org-latex-listings 'minted
+            org-latex-listings nil
+            )
 
 
-    ;;Colours
-  (add-to-list 'org-latex-packages-alist '("" "minted"))
-  ;(add-to-list 'org-latex-packages-alist '("" "tabularx"))
-  ;(plist-put org-format-latex-options :scale 1.75        )
-  ;(add-to-list 'org-latex-packages-alist '("" "unicode-math")))
+      ;;Colours
+    ;; (add-to-list 'org-latex-packages-alist '("" "minted"))
+    ;(add-to-list 'org-latex-packages-alist '("" "tabularx"))
+    ;(plist-put org-format-latex-options :scale 1.75        )
+    ;(add-to-list 'org-latex-packages-alist '("" "unicode-math")))
+     (add-to-list 'org-latex-classes
+           '("beamerposter"
+             "\\documentclass[final]{beamer}
+             \\usepackage[T1]{fontenc}
+             \\usepackage{lmodern}
+             \\usepackage[size=custom,width=84.1,height=118.9,scale=1.0]{beamerposter}  
+             \\usepackage{graphicx}
+             \\usepackage{booktabs}
+             \\usepackage{tikz}
+             \\usepackage{pgfplots}
+             \\pgfplotsset{compat=1.18}
+             \\usepackage{anyfontsize}
+             [NO-DEFAULT-PACKAGES]"))
    (add-to-list 'org-latex-classes
-         '("beamerposter"
-           "\\documentclass[final]{beamer}
-           \\usepackage[T1]{fontenc}
-           \\usepackage{lmodern}
-           \\usepackage[size=custom,width=120,height=91,scale=1.0]{beamerposter}
-           \\usepackage{graphicx}
-           \\usepackage{booktabs}
-           \\usepackage{tikz}
-           \\usepackage{pgfplots}
-           \\pgfplotsset{compat=1.14}
-           \\usepackage{anyfontsize}
-           [NO-DEFAULT-PACKAGES]"))
- (add-to-list 'org-latex-classes
-         '("extarticle"
-                 "\\documentclass{extarticle}"
-                 ("\\section{%s}" . "\\section*{%s}")
-                 ("\\subsection{%s}" . "\\subsection*{%s}")
-                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
+           '("extarticle"
+                   "\\documentclass{extarticle}"
+                   ("\\section{%s}" . "\\section*{%s}")
+                   ("\\subsection{%s}" . "\\subsection*{%s}")
+                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
 #+end_src
 
 #+RESULTS:
-: time
+| beamerposter | \documentclass[final]{beamer} |
 
 Set XeLaTex as our compiler
 #+begin_src emacs-lisp :tangle yes
@@ -2317,7 +2315,10 @@ Set XeLaTex as our compiler
           "latexmk -pdflatex='xelatex -interaction -shell-escape nonstopmode ' -shell-escape -pdf -f %f "
           "latexmk -pdflatex='xelatex -shell-escape -interaction nonstopmode ' -shell-escape -pdf -f %f "))
 
-#+end_src emacs-lisp
+#+end_src
+
+#+RESULTS:
+| latexmk -pdflatex='xelatex -shell-escape -interaction nonstopmode ' -shell-escape -pdf -f %f | latexmk -pdflatex='xelatex -interaction -shell-escape nonstopmode ' -shell-escape -pdf -f %f | latexmk -pdflatex='xelatex -shell-escape -interaction nonstopmode ' -shell-escape -pdf -f %f |
 
 *** COMMENT LSP
 #+begin_src emacs-lisp
@@ -2365,6 +2366,7 @@ This is my IDE. It includes the same engine that powers VS Code, in addition to 
         (setq lsp-auto-guess-root t)
         (setq lsp-enable-which-key-integration t)
         (setq lsp-warn-no-matched-clients nil) ; remove warnings
+        (setq lsp-ruff-server-command '("ruff" "server" "--preview"))
         :hook
     	(envrc-mode . lsp)
   	)
@@ -3530,21 +3532,21 @@ TODO: make this lazy-loaded again
 
 *** COMMENT Monitor-specific size
 #+begin_src emacs-lisp
-  (defun td/adapt-font-size (&optional frame)
-    (when (display-graphic-p)
-      (let* ((default-height 200)
-             (attrs (frame-monitor-attributes frame))
-             (size (alist-get 'mm-size attrs))
-             (geometry (alist-get 'geometry attrs))
-             (ppi (/ (caddr geometry) (/ (car size) 25.4))))
-        ;; (message "PPI: %s" ppi)
-        (if (> ppi 65)
-            (set-face-attribute 'default (selected-frame) :height default-height)
-          (set-face-attribute 'default (selected-frame) :height (* default-height (/ 694 612)))))))
+  ;; (defun td/adapt-font-size (&optional frame)
+  ;;   (when (display-graphic-p)
+  ;;     (let* ((default-height 200)
+  ;;            (attrs (frame-monitor-attributes frame))
+  ;;            (size (alist-get 'mm-size attrs))
+  ;;            (geometry (alist-get 'geometry attrs))
+  ;;            (ppi (/ (caddr geometry) (/ (car size) 25.4))))
+  ;;       ;; (message "PPI: %s" ppi)
+  ;;       (if (> ppi 65)
+  ;;           (set-face-attribute 'default (selected-frame) :height default-height)
+  ;;         (set-face-attribute 'default (selected-frame) :height (* default-height (/ 694 612)))))))
 
 
-  (add-function :after after-focus-change-function #'td/adapt-font-size)
-  (add-hook 'after-make-frame-functions #'td/adapt-font-size)
+  ;; (add-function :after after-focus-change-function #'td/adapt-font-size)
+  ;; (add-hook 'after-make-frame-functions #'td/adapt-font-size)
 #+end_src
 
 ** COMMENT
