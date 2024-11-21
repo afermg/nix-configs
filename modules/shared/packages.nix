@@ -121,4 +121,5 @@ with pkgs; [
   # specific needs
   haskellPackages.xml-to-json-fast
   direnv
+  qrtool # encode and decode qr codes
 ]
