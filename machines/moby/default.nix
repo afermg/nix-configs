@@ -222,6 +222,7 @@
     description = "Alex Kalinin";
     extraGroups = [ "networkmanager" "wheel" "libvirtd" "qemu-libvirtd" "input"];
     openssh.authorizedKeys.keyFiles = [
+      ../../homes/akalinin/id_rsa.pub
     ];
   };
   
