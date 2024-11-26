@@ -18,6 +18,11 @@ Replace =moby= or =darwin001= with the file you want to use on =machines/=
 nixos-rebuild switch --flake .#moby
 #+end_src
 
+*** Update home only
+If you just want to update your home configuration and packages use this command.
+#+begin_src bash
+home-manager --flake .#your-username@your-hostname
+#+end_src
 ** Darwin
 #+begin_src bash
 darwin-rebuild switch --flake .#darwin001
