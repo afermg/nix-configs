@@ -1,4 +1,3 @@
-
 #+TITLE: Emacs
 #+STARTUP: content
 
@@ -2952,25 +2951,32 @@ Completion
 #+end_src
 **** GPTel-magit
 #+begin_src emacs-lisp
-(use-package magit-gptcommit
-  :straight t
-  :demand t
-  :after magit
-  :bind (:map git-commit-mode-map
-              ("C-c C-g" . magit-gptcommit-commit-accept))
-  :custom
-  (magit-gptcommit-llm-provider (make-llm-ollama :host  "localhost:11434" :chat-model "llama3.3:70b"))
+  (use-package magit-gptcommit
+    :straight t
+    :demand t
+    :after magit
+    :bind (:map git-commit-mode-map
+                ("C-c C-g" . magit-gptcommit-commit-accept))
+    :custom
+    (magit-gptcommit-llm-provider
+     (make-llm-ollama :embedding-model "llama3.3:70b" :chat-model "llama3.3:70b" :default-chat-temperature 0.1))
+     ;; (make-llm-ollama
+     ;;  :chat-model "llama3.3:70b"
+     ;;  :embedding-model "llama3.3:70b"))
 
-  :config
-  ;; Enable magit-gptcommit-mode to watch staged changes and generate commit message automatically in magit status buffer
-  ;; This mode is optional, you can also use `magit-gptcommit-generate' to generate commit message manually
-  ;; `magit-gptcommit-generate' should only execute on magit status buffer currently
-  (magit-gptcommit-mode 1)
+    :config
+    ;; Enable magit-gptcommit-mode to watch staged changes and generate commit message automatically in magit status buffer
+    ;; This mode is optional, you can also use `magit-gptcommit-generate' to generate commit message manually
+    ;; `magit-gptcommit-generate' should only execute on magit status buffer currently
+    (magit-gptcommit-mode 1)
 
-  ;; Add gptcommit transient commands to `magit-commit'
-  ;; Eval (transient-remove-suffix 'magit-commit '(1 -1)) to remove gptcommit transient commands
-  (magit-gptcommit-status-buffer-setup))
+    ;; Add gptcommit transient commands to `magit-commit'
+    ;; Eval (transient-remove-suffix 'magit-commit '(1 -1)) to remove gptcommit transient commands
+    (magit-gptcommit-status-buffer-setup))
   #+end_src
+
+  #+RESULTS:
+  : magit-gptcommit-commit-accept
 
 **** Speech-to-text (whisper-cpp)
 I use whisper to record notes to text. Its use-case is limited but worth a test. It is also an example on how I can integrate AI models into my workflow.
