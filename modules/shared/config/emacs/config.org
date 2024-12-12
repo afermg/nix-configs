@@ -2960,9 +2960,6 @@ Completion
     :custom
     (magit-gptcommit-llm-provider
      (make-llm-ollama :embedding-model "llama3.3:70b" :chat-model "llama3.3:70b" :default-chat-temperature 0.1))
-     ;; (make-llm-ollama
-     ;;  :chat-model "llama3.3:70b"
-     ;;  :embedding-model "llama3.3:70b"))
 
     :config
     ;; Enable magit-gptcommit-mode to watch staged changes and generate commit message automatically in magit status buffer
