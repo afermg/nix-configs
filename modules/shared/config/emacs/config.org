@@ -2941,12 +2941,16 @@ Completion
 **** GPTel
 #+begin_src emacs-lisp
   (use-package gptel
-    :init
-    (gptel-make-ollama "Ollama"             ;Any name of your choosing
-      :host "localhost:11434"               ;Where it's running
-      :stream t                             ;Stream responses
-      :models '(mistral:latest)))          ;List of models)
+    :config
+    (setq gptel-default-mode #'org-mode)
+    (setq gptel-backend
+  	(gptel-make-ollama "Ollama"	;Any name of your choosing
+  	  :host "localhost:11434"	;Where it's running
+  	  :stream t			;Stream responses
+  	  :models '(mistral:latest llama3.3:70b))) ;List of models)
+    (setq  gptel-model 'llama3.3:70b))      
 #+end_src
+
 
 **** Speech-to-text (whisper-cpp)
 I use whisper to record notes to text. Its use-case is limited but worth a test. It is also an example on how I can integrate AI models into my workflow.
@@ -3300,26 +3304,26 @@ TODO: make this lazy-loaded again
   ;;   (:host github
   ;;    :repo "dalanicolai/image-roll.el"))
 
-  ;; (package! hnreader)
-  (package! fzf) ; fuzzy finder
-  ;; (package! elfeed-score)
-  ;; (package! highlight)
-  (package! gnuplot)
-  (package! gnuplot-mode)
-  (package! kkp)
-
-  (package! langtool)                     ; Grammar correction
-  ;; (package! org-chef)
-  (package! orgtbl-aggregate)
-  ;; (package! phscroll
-  ;;   :recipe
-  ;;   (:host github
-  ;;    :repo "misohena/phscroll"))
-  (package! quarto-mode)
-  ;; (package! org-present)
-  ;; (package! scad-mode)                    ; proper linting for .scad files
-  ;; (package! sly-quicklisp)
-  (package! unfill)
+(package! fzf) ; fuzzy finder
+(package! gnuplot)
+(package! gnuplot-mode)
+(package! kkp)
+(package! langtool)                     ; Grammar correction
+(package! orgtbl-aggregate)
+(package! quarto-mode)
+(package! unfill)
+;; (package! hnreader)
+;; (package! elfeed-score)
+;; (package! highlight)
+;; (package! org-chef)
+;; (package! phscroll 
+;;   :recipe 
+;;   (:host github 
+;;    :repo "misohena/phscroll"))
+;; (package! org-present)
+;; (package! scad-mode)                    ; proper linting for .scad files
+;; (package! sly-quicklisp)
+  
 #+end_src
 
 
