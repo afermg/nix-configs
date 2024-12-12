@@ -2845,7 +2845,8 @@ Indentation
            (elfeed-default-org-file (car rmh-elfeed-org-files))
            (elfeed-window (get-buffer-window (file-name-nondirectory elfeed-default-org-file))))
       
-  	  (find-file elfeed-default-org-file)
+  	  (save-window-excursion
+  	    (find-file elfeed-default-org-file)
 
   	  ;; Find, tag and refile 
   	  (or ;; Search pattern forward and backward
@@ -2854,7 +2855,7 @@ Indentation
   		  (org-refile))
   		  
   	   (message
-  	    (concat elfeed-show-entry-id " not found in elfeed-org file " elfeed-default-org-file)))))
+  	    (concat elfeed-show-entry-id " not found in elfeed-org file " elfeed-default-org-file))))))
 
   (defun elfeed-eww-about ()
     "Open about page of elfeed entry in eww."
