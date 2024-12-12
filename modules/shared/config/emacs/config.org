@@ -216,273 +216,220 @@ Various helpers and packages I find useful for window management.
 ** Navigation and editing
 *** Modal editing 
 #+begin_src emacs-lisp
-    (use-package meow
-      :config
-      (defun meow-setup ()
-       ;; -------------------- ;;
-       ;;         UTILS        ;;
-       ;; -------------------- ;;
-       (defun meow-word ()
-         "Expand word/symbol under cursor."
-         (interactive)
-         (if (and (use-region-p)
-                  (equal (car (region-bounds))
-                         (bounds-of-thing-at-point 'word)))
-             (meow-mark-symbol 1)
-           (progn
-             (when (and (mark)
-                        (equal (car (region-bounds))
-                               (bounds-of-thing-at-point 'symbol)))
-               (meow-pop-selection))
-             (meow-mark-word 1))))
+  (use-package meow
+    :config
+    (defun meow-setup ()
+     ;; -------------------- ;;
+     ;;         UTILS        ;;
+     ;; -------------------- ;;
+     (defun meow-word ()
+       "Expand word/symbol under cursor."
+       (interactive)
+       (if (and (use-region-p)
+                (equal (car (region-bounds))
+                       (bounds-of-thing-at-point 'word)))
+           (meow-mark-symbol 1)
+         (progn
+           (when (and (mark)
+                      (equal (car (region-bounds))
+                             (bounds-of-thing-at-point 'symbol)))
+             (meow-pop-selection))
+           (meow-mark-word 1))))
 
-       (defun meow-kill-line ()
-         "Kill till the end of line."
-         (interactive)
-         (let ((select-enable-clipboard meow-use-clipboard))
-           (kill-line)))
+     (defun meow-kill-line ()
+       "Kill till the end of line."
+       (interactive)
+       (let ((select-enable-clipboard meow-use-clipboard))
+         (kill-line)))
 
-       (defun meow-change-line ()
-         "Kill till end of line and switch to INSERT state."
-         (interactive)
-         (meow--cancel-selection)
-         (meow-end-of-thing
-          (car (rassoc 'line meow-char-thing-table)))
-         (meow-change))
+     (defun meow-change-line ()
+       "Kill till end of line and switch to INSERT state."
+       (interactive)
+       (meow--cancel-selection)
+       (meow-end-of-thing
+        (car (rassoc 'line meow-char-thing-table)))
+       (meow-change))
 
-       (defun meow-save-clipboard ()
-         "Copy in clipboard."
-         (interactive)
-         (let ((meow-use-clipboard t))
-           (meow-save)))
+     (defun meow-save-clipboard ()
+       "Copy in clipboard."
+       (interactive)
+       (let ((meow-use-clipboard t))
+         (meow-save)))
 
-       (defvar meow--trim-yank nil)
+     (defvar meow--trim-yank nil)
 
-       (defun meow-insert-for-yank-advice (orig-fn str)
-         "Advice for `insert-for-yank' function to correctly insert lines."
-         (when meow--trim-yank
-           (set 'str (string-trim-right str "\n")))
-         (if (and (not (eq (point) (+ 1 (line-end-position 0))))
-                  (string-match-p "^.+\n$" str))
-             (save-excursion
-               (beginning-of-line)
-               (funcall orig-fn str))
-           (funcall orig-fn str)))
+     (defun meow-insert-for-yank-advice (orig-fn str)
+       "Advice for `insert-for-yank' function to correctly insert lines."
+       (when meow--trim-yank
+         (set 'str (string-trim-right str "\n")))
+       (if (and (not (eq (point) (+ 1 (line-end-position 0))))
+                (string-match-p "^.+\n$" str))
+           (save-excursion
+             (beginning-of-line)
+             (funcall orig-fn str))
+         (funcall orig-fn str)))
 
-       (defun meow-yank-dwim ()
-         "Smart yank."
-         (interactive)
-         (advice-add 'insert-for-yank :around 'meow-insert-for-yank-advice)
-         (if (use-region-p)
-             (let ((meow--trim-yank t))
-               (delete-region (region-beginning) (region-end))
-               (meow-yank))
-           (meow-yank))
-         (advice-remove 'insert-for-yank 'meow-insert-for-yank-advice))
+     (defun meow-yank-dwim ()
+       "Smart yank."
+       (interactive)
+       (advice-add 'insert-for-yank :around 'meow-insert-for-yank-advice)
+       (if (use-region-p)
+           (let ((meow--trim-yank t))
+             (delete-region (region-beginning) (region-end))
+             (meow-yank))
+         (meow-yank))
+       (advice-remove 'insert-for-yank 'meow-insert-for-yank-advice))
 
-       (defun meow-yank-pop-dwim ()
-         "Smart yank pop."
-         (interactive)
-         (advice-add 'insert-for-yank :around 'meow-insert-for-yank-advice)
-         (if (use-region-p)
-             (let ((meow--trim-yank t))
-               (delete-region (region-beginning) (region-end))
-               (meow-yank-pop))
-           (meow-yank-pop))
-         (advice-remove 'insert-for-yank 'meow-insert-for-yank-advice))
+     (defun meow-yank-pop-dwim ()
+       "Smart yank pop."
+       (interactive)
+       (advice-add 'insert-for-yank :around 'meow-insert-for-yank-advice)
+       (if (use-region-p)
+           (let ((meow--trim-yank t))
+             (delete-region (region-beginning) (region-end))
+             (meow-yank-pop))
+         (meow-yank-pop))
+       (advice-remove 'insert-for-yank 'meow-insert-for-yank-advice))
 
-       (defun meow-smart-reverse ()
-         "Reverse selection or begin negative argument."
-         (interactive)
-         (if (use-region-p)
-             (meow-reverse)
-           (negative-argument nil)))
+     (defun meow-smart-reverse ()
+       "Reverse selection or begin negative argument."
+       (interactive)
+       (if (use-region-p)
+           (meow-reverse)
+         (negative-argument nil)))
 
-       (defun meow-kmacro ()
-         "Toggle recording of kmacro."
-         (interactive)
-         (if defining-kbd-macro
-             (meow-end-kmacro)
-           (meow-start-kmacro)))
+     (defun meow-kmacro ()
+       "Toggle recording of kmacro."
+       (interactive)
+       (if defining-kbd-macro
+           (meow-end-kmacro)
+         (meow-start-kmacro)))
 
-       (defun meow-eldoc ()
-         "Toggle the display of the eldoc window."
-         (interactive)
-         (if (get-buffer-window eldoc--doc-buffer)
-             (delete-window (get-buffer-window eldoc--doc-buffer))
-           (eldoc-doc-buffer t)))
+     (defun meow-eldoc ()
+       "Toggle the display of the eldoc window."
+       (interactive)
+       (if (get-buffer-window eldoc--doc-buffer)
+           (delete-window (get-buffer-window eldoc--doc-buffer))
+         (eldoc-doc-buffer t)))
 
-       ;; -------------------- ;;
-       ;;       VARIABLES      ;;
-       ;; -------------------- ;;
-       (meow-thing-register 'angle
-                            '(pair ("<") (">"))
-                            '(pair ("<") (">")))
+     ;; -------------------- ;;
+     ;;       VARIABLES      ;;
+     ;; -------------------- ;;
+     (meow-thing-register 'angle
+                          '(pair ("<") (">"))
+                          '(pair ("<") (">")))
 
-       (setq meow-char-thing-table
-             '((?f . round)
-               (?d . square)
-               (?s . curly)
-               (?a . angle)
-               (?r . string)
-               (?v . paragraph)
-               (?c . line)
-               (?x . buffer)))
+     (setq meow-char-thing-table
+           '((?f . round)
+             (?d . square)
+             (?s . curly)
+             (?a . angle)
+             (?r . string)
+             (?v . paragraph)
+             (?c . line)
+             (?x . buffer)))
 
-       (setq meow-selection-command-fallback
-             '((meow-change . meow-change-char)
-               (meow-kill . meow-delete)
-               (meow-cancel-selection . keyboard-quit)
-               (meow-pop-selection . meow-pop-grab)
-               (meow-beacon-change . meow-beacon-change-char)))
+     (setq meow-selection-command-fallback
+           '((meow-change . meow-change-char)
+             ;; (meow-kill . meow-delete)
+             (meow-cancel-selection . keyboard-quit)
+             (meow-pop-selection . meow-pop-grab)
+             (meow-beacon-change . meow-beacon-change-char)))
 
-       ;; -------------------- ;;
-       ;;       MAPPINGS       ;;
-       ;; -------------------- ;;
-       (meow-define-keys 'normal
-        ; expansion
-        '("0" . meow-expand-0)
-        '("1" . meow-expand-1)
-        '("2" . meow-expand-2)
-        '("3" . meow-expand-3)
-        '("4" . meow-expand-4)
-        '("5" . meow-expand-5)
-        '("6" . meow-expand-6)
-        '("7" . meow-expand-7)
-        '("8" . meow-expand-8)
-        '("9" . meow-expand-9)
-        '("'" . meow-smart-reverse)
+     ;; -------------------- ;;
+     ;;       MAPPINGS       ;;
+     ;; -------------------- ;;
+     (meow-define-keys 'normal
+      ; expansion
+      '("0" . meow-expand-0)
+      '("1" . meow-expand-1)
+      '("2" . meow-expand-2)
+      '("3" . meow-expand-3)
+      '("4" . meow-expand-4)
+      '("5" . meow-expand-5)
+      '("6" . meow-expand-6)
+      '("7" . meow-expand-7)
+      '("8" . meow-expand-8)
+      '("9" . meow-expand-9)
+      '("'" . meow-smart-reverse)
 
-        ; movement
-        '("i" . meow-prev)
-        '("k" . meow-next)
-        '("j" . meow-left)
-        '("l" . meow-right)
+      ; movement
+      '("i" . meow-prev)
+      '("k" . meow-next)
+      '("j" . meow-left)
+      '("l" . meow-right)
 
-        '("y" . meow-search)
-        ;; '("/" . meow-visit)
-        '("/" . consult-line)
+      '("y" . meow-search)
+      ;; '("/" . meow-visit)
+      '("/" . consult-line)
 
-        ; expansion
-        '("I" . meow-prev-expand)
-        '("K" . meow-next-expand)
-        '("J" . meow-left-expand)
-        '("L" . meow-right-expand)
+      ; expansion
+      '("I" . meow-prev-expand)
+      '("K" . meow-next-expand)
+      '("J" . meow-left-expand)
+      '("L" . meow-right-expand)
 
-        '("u" . meow-back-word)
-        '("U" . meow-back-symbol)
-        '("o" . meow-next-word)
-        '("O" . meow-next-symbol)
+      '("u" . meow-back-word)
+      '("U" . meow-back-symbol)
+      '("o" . meow-next-word)
+      '("O" . meow-next-symbol)
 
-        '("a" . meow-word)
-        '("s" . meow-line)
-        '("w" . meow-block)
-        '("q" . meow-join)
-        '("g" . meow-grab)
-        '("G" . meow-pop-grab)
-        '("p" . meow-cancel-selection)
-        '("P" . meow-pop-selection)
+      '("a" . meow-word)
+      '("s" . meow-line)
+      '("w" . meow-block)
+      '("q" . meow-join)
+      '("g" . meow-grab)
+      '("G" . meow-pop-grab)
+      '("p" . meow-cancel-selection)
+      '("P" . meow-pop-selection)
 
-        '("x" . meow-till)
-        '("X" . meow-find)
+      '("x" . meow-till)
+      '("X" . meow-find)
 
-        '("," . meow-beginning-of-thing)
-        '("." . meow-end-of-thing)
-        '("<" . meow-inner-of-thing)
-        '(">" . meow-bounds-of-thing)
+      '("," . meow-beginning-of-thing)
+      '("." . meow-end-of-thing)
+      '("<" . meow-inner-of-thing)
+      '(">" . meow-bounds-of-thing)
 
-        '("[" . indent-rigidly-left-to-tab-stop)
-        '("]" . indent-rigidly-right-to-tab-stop)
+      '("[" . indent-rigidly-left-to-tab-stop)
+      '("]" . indent-rigidly-right-to-tab-stop)
 
-        ; editing
-        '("b" . open-line)
-        '("B" . split-line)
-        '("d" . meow-kill)
-        '("D" . meow-kill-line)
-        '("f" . meow-change)
-        '("F" . meow-change-line)
-        '("c" . meow-save)
-        '("C" . meow-save-clipboard)
-        '("v" . meow-yank-dwim)
-        '("V" . meow-yank-pop-dwim)
+      ; editing
+      '("b" . open-line)
+      '("B" . split-line)
+      '("d" . meow-kill)
+      '("D" . meow-kill-line)
+      '("f" . meow-change)
+      '("F" . meow-change-line)
+      '("c" . meow-save)
+      '("C" . meow-save-clipboard)
+      '("v" . meow-yank-dwim)
+      '("V" . meow-yank-pop-dwim)
 
-        '("e" . meow-insert)
-        '("E" . meow-open-above)
-        '("r" . meow-append)
-        '("R" . meow-open-below)
+      '("e" . meow-insert)
+      '("E" . meow-open-above)
+      '("r" . meow-append)
+      '("R" . meow-open-below)
 
-        '("z" . query-replace-regexp)
+      '("z" . query-replace-regexp)
 
-        '("h" . undo-only)
-        '("H" . undo-redo)
+      '("h" . undo-only)
+      '("H" . undo-redo)
 
-        '("m"  . meow-kmacro)
-        '("M"  . kmacro-call-macro)
-        '("nm" . kmacro-edit-macro) ;; 'n' prefix is for editing commands
+      '("m"  . meow-kmacro)
+      '("M"  . kmacro-call-macro)
+      '("nm" . kmacro-edit-macro) ;; 'n' prefix is for editing commands
 
-        '("nf" . meow-comment)
+      '("nf" . meow-comment)
 
-        '("N"  . upcase-dwim)
-        '("nn" . downcase-dwim)
-        '("nN" . capitalize-dwim)
+      '("N"  . upcase-dwim)
+      '("nn" . downcase-dwim)
+      '("nN" . capitalize-dwim)
 
-        '("ns" . meow-swap-grab)
-        
-        ; eldoc
-        '("t" . eldoc-box-help-at-point)
-        '("T" . meow-eldoc)
-
-        ; general
-        '(";F" . save-some-buffers)
-        '(";g" . goto-last-change)
-        '("Q" . meow-quit)
-        '(";c" . duplicate-dwim)
-        '(";C" . copy-and-comment-region)
-        '(";fr" . recentf)
-        '(";hq" . restart-emacs)
-        '(";hr" . dl/reload-emacs)
-        '(";hn" . dl/load-buffer-with-nix-config)
-        '(";hp" . dl/load-buffer-with-emacs-config)
-        '(";ot" . projectile-run-vterm-other-window)
-        '(";oT" . +vterm/here)
-        '(";ox" . toggle-scratch-buffer)
-        '(";lf" . dl/lsp-find-references-other-window)
-        '(";lc" . dl/lsp-find-implementation-other-window)
-        '(";ls" . lsp-treemacs-symbols)
-        '(";le" . list-flycheck-errors)
-        '(";lh" . lsp-treemacs-call-hierarchy)
-        '(";lF" . lsp-format-buffer)
-        '(";li" . lsp-organize-imports)
-        '(";ll" . lsp)
-        '(";lr" . lsp-rename)
-        '(";ld" . dl/lsp-find-definition-other-window)
-        '(";lt" . org-toggle-link-display)
-        '(";," . dl/insert-header)
-        '(";<" . dl/insert-current-time)
-        '(";>" . dl/insert-current-date-prompt)
-        '(";b" . bufler-switch-buffer)
-        '(";B" . bufler-list)
-        
-        ; Rotation
-        '(";rw" . rotate-window)
-        '(";rl" . rotate-layout)
-
-        ;; Version control
-        '(";tg" . git-timemachine-toggle)
-        
-        ; Python
-        '(";sr" . python-shell-send-region-or-line)
-        '(";sb" . python-shell-send-buffer)
-        '(";sd" . python-shell-send-defun)
-        '(";se" . code-cells-eval)
-        
-        '(";y" . realgud:pdb)
-        '(";a"  . realgud:attach-source-buffer)
-        
-       '("<escape>" . ignore)) ; ignore escape
-       )
-      (setq meow-use-cursor-position-hack t
-    	meow-use-enhanced-selection-effect t) 
+      '("ns" . meow-swap-grab)
+      
+      ; External packages
+      '("nr" . surround-insert)
       
       ; eldoc
       '("t" . eldoc-box-help-at-point)
@@ -494,7 +441,6 @@ Various helpers and packages I find useful for window management.
       '("Q" . meow-quit)
       '(";c" . duplicate-dwim)
       '(";C" . copy-and-comment-region)
-
       '(";fr" . recentf)
       '(";hq" . restart-emacs)
       '(";hr" . dl/reload-emacs)
@@ -519,8 +465,7 @@ Various helpers and packages I find useful for window management.
       '(";>" . dl/insert-current-date-prompt)
       '(";b" . bufler-switch-buffer)
       '(";B" . bufler-list)
-      '(";K" . kill-buffer-and-window)
-
+      
       ; Rotation
       '(";rw" . rotate-window)
       '(";rl" . rotate-layout)
@@ -533,15 +478,73 @@ Various helpers and packages I find useful for window management.
       '(";sb" . python-shell-send-buffer)
       '(";sd" . python-shell-send-defun)
       '(";se" . code-cells-eval)
+      
       '(";y" . realgud:pdb)
       '(";a"  . realgud:attach-source-buffer)
       
      '("<escape>" . ignore)) ; ignore escape
+     )
     (setq meow-use-cursor-position-hack t
   	meow-use-enhanced-selection-effect t) 
     
-      (meow-setup)
-      (meow-global-mode 1)
+    ; eldoc
+    '("t" . eldoc-box-help-at-point)
+    '("T" . meow-eldoc)
+
+    ; general
+    '(";F" . save-some-buffers)
+    '(";g" . goto-last-change)
+    '("Q" . meow-quit)
+    '(";c" . duplicate-dwim)
+    '(";C" . copy-and-comment-region)
+
+    '(";fr" . recentf)
+    '(";hq" . restart-emacs)
+    '(";hr" . dl/reload-emacs)
+    '(";hn" . dl/load-buffer-with-nix-config)
+    '(";hp" . dl/load-buffer-with-emacs-config)
+    '(";ot" . projectile-run-vterm-other-window)
+    '(";oT" . +vterm/here)
+    '(";ox" . toggle-scratch-buffer)
+    '(";lf" . dl/lsp-find-references-other-window)
+    '(";lc" . dl/lsp-find-implementation-other-window)
+    '(";ls" . lsp-treemacs-symbols)
+    '(";le" . list-flycheck-errors)
+    '(";lh" . lsp-treemacs-call-hierarchy)
+    '(";lF" . lsp-format-buffer)
+    '(";li" . lsp-organize-imports)
+    '(";ll" . lsp)
+    '(";lr" . lsp-rename)
+    '(";ld" . dl/lsp-find-definition-other-window)
+    '(";lt" . org-toggle-link-display)
+    '(";," . dl/insert-header)
+    '(";<" . dl/insert-current-time)
+    '(";>" . dl/insert-current-date-prompt)
+    '(";b" . bufler-switch-buffer)
+    '(";B" . bufler-list)
+    '(";K" . kill-buffer-and-window)
+
+    ; Rotation
+    '(";rw" . rotate-window)
+    '(";rl" . rotate-layout)
+
+    ;; Version control
+    '(";tg" . git-timemachine-toggle)
+    
+    ; Python
+    '(";sr" . python-shell-send-region-or-line)
+    '(";sb" . python-shell-send-buffer)
+    '(";sd" . python-shell-send-defun)
+    '(";se" . code-cells-eval)
+    '(";y" . realgud:pdb)
+    '(";a"  . realgud:attach-source-buffer)
+    
+   '("<escape>" . ignore)) ; ignore escape
+  (setq meow-use-cursor-position-hack t
+  	meow-use-enhanced-selection-effect t) 
+
+    (meow-setup)
+    (meow-global-mode 1)
 #+end_src
 
 *** Meow+vterm support
@@ -554,6 +557,13 @@ Various helpers and packages I find useful for window management.
     :config
     (meow-vterm-enable)
     )
+#+end_src
+
+*** Surround
+#+begin_src elisp
+(use-package surround
+  :ensure t
+  :bind-keymap ("M-'" . surround-keymap))
 #+end_src
 
 *** RE builder
@@ -631,6 +641,18 @@ Browse from anywhere
 
 #+RESULTS:
 : t
+
+*** Multiple cursors
+#+begin_src elisp
+    (use-package multiple-cursors
+      :bind (:map global-mode-map
+      ("C-S-c C-S-c" . mc/edit-lines)
+      ("C->" . mc/mark-next-like-this)
+      ("C-<" . mc/mark-previous-like-this)
+      ("C-c C-<" . mc/mark-all-like-this)
+      )
+  )
+#+end_src
 
 ** Completion
 #+NAME: completion
@@ -1516,6 +1538,14 @@ Important export backends.
 #+RESULTS:
 : t
 
+**** ox-extra
+#+begin_src elisp
+    (use-package org-contrib
+    :config
+    (require 'ox-extra)
+    (ox-extras-activate '(ignore-headlines)))
+#+end_src
+
 *** Babel
 **** Languages
 ***** Mermaid
@@ -1774,6 +1804,10 @@ If on a:
 
 #+end_src
 
+*** Tables
+#+begin_src elisp
+  ;; (require 'tables)
+#+end_src
 ** Managing files
 Configuration related to filesystem, either basic IO and interaction from emacs or directly moving files around where it makes sense.
 *** File browser
@@ -2126,7 +2160,7 @@ Everything related to spell and grammar checking.
 *** Spell
 #+begin_src emacs-lisp 
 (setq synosaurus-choose-method 'popup)
-(setq org-M-RET-may-split-line t)
+(setq org-M-RET-may-split-line nil)
 (setf org-blank-before-new-entry '((heading . auto) (plain-list-item . nil)))
 #+end_src
 
@@ -2172,21 +2206,15 @@ Get synonyms on the fly.
 For bibliography and citations
 #+begin_src emacs-lisp
  (use-package citar
-   :no-require
+   :ensure t
    :custom
-   (org-cite-global-bibliography '("~/Documents/sync/bibliography/bibliography.bib" "~/Documents/sync/bibliography/mac_bibliography.bib"))
+   (org-cite-global-bibliography (cl-remove-if-not #'f-exists?' ("~/Documents/sync/bibliography/bibliography.bib" "~/Documents/sync/bibliography/mac_bibliography.bib" "~/Documents/broad/bibliography/bibliography.bib")))
    (org-cite-insert-processor 'citar)
    (org-cite-follow-processor 'citar)
    (org-cite-activate-processor 'citar)
    (citar-bibliography org-cite-global-bibliography)
    (org-cite-csl-styles-dir
     (expand-file-name "~/Zotero/styles/")))
-(use-package citeproc-org)
-  (use-package citeproc-org
-    :config
-    (citeproc-org-setup)
-    (require 'oc-csl))
-
 #+end_src
 
 #+RESULTS:
@@ -2206,6 +2234,7 @@ For bibliography and citations
 
   (add-hook 'org-export-before-parsing-hook 'org/parse-headings)
 #+end_src
+
 Make use of extarticle by default
 #+begin_src emacs-lisp 
 (setq org-latex-default-class "extarticle") 
@@ -2216,43 +2245,44 @@ Make use of extarticle by default
 
 Captions and cdlatex
 #+begin_src emacs-lisp 
-  ;;  (add-hook 'org-mode #'(cdlatex-mode))
+    ;;  (add-hook 'org-mode #'(cdlatex-mode))
 
 
-    (setq org-latex-prefer-user-labels t
-          org-latex-caption-above nil
-          org-latex-listings 'minted
-          )
+      (setq org-latex-prefer-user-labels t
+            org-latex-caption-above nil
+            ;; org-latex-listings 'minted
+            org-latex-listings nil
+            )
 
 
-    ;;Colours
-  (add-to-list 'org-latex-packages-alist '("" "minted"))
-  ;(add-to-list 'org-latex-packages-alist '("" "tabularx"))
-  ;(plist-put org-format-latex-options :scale 1.75        )
-  ;(add-to-list 'org-latex-packages-alist '("" "unicode-math")))
+      ;;Colours
+    ;; (add-to-list 'org-latex-packages-alist '("" "minted"))
+    ;(add-to-list 'org-latex-packages-alist '("" "tabularx"))
+    ;(plist-put org-format-latex-options :scale 1.75        )
+    ;(add-to-list 'org-latex-packages-alist '("" "unicode-math")))
+     (add-to-list 'org-latex-classes
+           '("beamerposter"
+             "\\documentclass[final]{beamer}
+             \\usepackage[T1]{fontenc}
+             \\usepackage{lmodern}
+             \\usepackage[size=custom,width=84.1,height=118.9,scale=1.0]{beamerposter}  
+             \\usepackage{graphicx}
+             \\usepackage{booktabs}
+             \\usepackage{tikz}
+             \\usepackage{pgfplots}
+             \\pgfplotsset{compat=1.18}
+             \\usepackage{anyfontsize}
+             [NO-DEFAULT-PACKAGES]"))
    (add-to-list 'org-latex-classes
-         '("beamerposter"
-           "\\documentclass[final]{beamer}
-           \\usepackage[T1]{fontenc}
-           \\usepackage{lmodern}
-           \\usepackage[size=custom,width=120,height=91,scale=1.0]{beamerposter}
-           \\usepackage{graphicx}
-           \\usepackage{booktabs}
-           \\usepackage{tikz}
-           \\usepackage{pgfplots}
-           \\pgfplotsset{compat=1.14}
-           \\usepackage{anyfontsize}
-           [NO-DEFAULT-PACKAGES]"))
- (add-to-list 'org-latex-classes
-         '("extarticle"
-                 "\\documentclass{extarticle}"
-                 ("\\section{%s}" . "\\section*{%s}")
-                 ("\\subsection{%s}" . "\\subsection*{%s}")
-                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
+           '("extarticle"
+                   "\\documentclass{extarticle}"
+                   ("\\section{%s}" . "\\section*{%s}")
+                   ("\\subsection{%s}" . "\\subsection*{%s}")
+                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
 #+end_src
 
 #+RESULTS:
-: time
+| beamerposter | \documentclass[final]{beamer} |
 
 Set XeLaTex as our compiler
 #+begin_src emacs-lisp :tangle yes
@@ -2285,7 +2315,10 @@ Set XeLaTex as our compiler
           "latexmk -pdflatex='xelatex -interaction -shell-escape nonstopmode ' -shell-escape -pdf -f %f "
           "latexmk -pdflatex='xelatex -shell-escape -interaction nonstopmode ' -shell-escape -pdf -f %f "))
 
-#+end_src emacs-lisp
+#+end_src
+
+#+RESULTS:
+| latexmk -pdflatex='xelatex -shell-escape -interaction nonstopmode ' -shell-escape -pdf -f %f | latexmk -pdflatex='xelatex -interaction -shell-escape nonstopmode ' -shell-escape -pdf -f %f | latexmk -pdflatex='xelatex -shell-escape -interaction nonstopmode ' -shell-escape -pdf -f %f |
 
 *** COMMENT LSP
 #+begin_src emacs-lisp
@@ -2333,6 +2366,7 @@ This is my IDE. It includes the same engine that powers VS Code, in addition to 
         (setq lsp-auto-guess-root t)
         (setq lsp-enable-which-key-integration t)
         (setq lsp-warn-no-matched-clients nil) ; remove warnings
+        (setq lsp-ruff-server-command '("ruff" "server" "--preview"))
         :hook
     	(envrc-mode . lsp)
   	)
@@ -2730,7 +2764,7 @@ Simple debugger. Does its job just fine most of the time.
     (defun realgud-pdb-pytest nil
       (interactive)
       ;; (realgud:pdb (concat "pytest -pdb --trace --color=yes " buffer-file-name)))  
-    (realgud:pdb (concat "pytest --pdb --trace --color=yes " buffer-file-name)))
+    (realgud:pdb (concat "pytest --pdb --color=yes " buffer-file-name)))
     (defun describe-at-cursor()
       "Describe variable at cursor when using debugger"
       (interactive)
@@ -3494,21 +3528,21 @@ TODO: make this lazy-loaded again
 
 *** COMMENT Monitor-specific size
 #+begin_src emacs-lisp
-  (defun td/adapt-font-size (&optional frame)
-    (when (display-graphic-p)
-      (let* ((default-height 200)
-             (attrs (frame-monitor-attributes frame))
-             (size (alist-get 'mm-size attrs))
-             (geometry (alist-get 'geometry attrs))
-             (ppi (/ (caddr geometry) (/ (car size) 25.4))))
-        ;; (message "PPI: %s" ppi)
-        (if (> ppi 65)
-            (set-face-attribute 'default (selected-frame) :height default-height)
-          (set-face-attribute 'default (selected-frame) :height (* default-height (/ 694 612)))))))
+  ;; (defun td/adapt-font-size (&optional frame)
+  ;;   (when (display-graphic-p)
+  ;;     (let* ((default-height 200)
+  ;;            (attrs (frame-monitor-attributes frame))
+  ;;            (size (alist-get 'mm-size attrs))
+  ;;            (geometry (alist-get 'geometry attrs))
+  ;;            (ppi (/ (caddr geometry) (/ (car size) 25.4))))
+  ;;       ;; (message "PPI: %s" ppi)
+  ;;       (if (> ppi 65)
+  ;;           (set-face-attribute 'default (selected-frame) :height default-height)
+  ;;         (set-face-attribute 'default (selected-frame) :height (* default-height (/ 694 612)))))))
 
 
-  (add-function :after after-focus-change-function #'td/adapt-font-size)
-  (add-hook 'after-make-frame-functions #'td/adapt-font-size)
+  ;; (add-function :after after-focus-change-function #'td/adapt-font-size)
+  ;; (add-hook 'after-make-frame-functions #'td/adapt-font-size)
 #+end_src
 
 ** COMMENT

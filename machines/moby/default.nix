@@ -71,14 +71,14 @@
   };
   
   # Ollama service
-  # services.ollama = {
-  #   enable = true;
-  #   package = pkgs.unstable.ollama;
-  #   acceleration = "cuda";
-  #   # environmentVariables = {
-  #   #   CUDA_VISIBLE_DEVICES = "0";
-  #   #   LD_LIBRARY_PATH = "${pkgs.cudaPackages.cudatoolkit}/lib:${pkgs.cudaPackages.cudatoolkit}/lib64";    };
-  # };
+  services.ollama = {
+    enable = true;
+    package = pkgs.unstable.ollama;
+    acceleration = "cuda";
+    environmentVariables = {
+      CUDA_VISIBLE_DEVICES = "0";
+      LD_LIBRARY_PATH = "${pkgs.unstable.cudaPackages.cudatoolkit}/lib:${pkgs.unstable.cudaPackages.cudatoolkit}/lib64";    };
+  };
     
   nixpkgs = {
     # You can add overlays here
@@ -213,6 +213,16 @@
     extraGroups = [ "networkmanager" "wheel" "libvirtd" "qemu-libvirtd" "input"];
     openssh.authorizedKeys.keyFiles = [
       ../../homes/hhakem/id_rsa.pub
+    ];
+  };
+  
+  users.users.akalinin = {
+    shell = pkgs.zsh;
+    isNormalUser = true;
+    description = "Alex Kalinin";
+    extraGroups = [ "networkmanager" "wheel" "libvirtd" "qemu-libvirtd" "input"];
+    openssh.authorizedKeys.keyFiles = [
+      ../../homes/akalinin/id_rsa.pub
     ];
   };
   
