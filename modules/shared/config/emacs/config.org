@@ -2819,58 +2819,53 @@ Indentation
     :config
     (setq rmh-elfeed-org-files (list (concat org-directory "personal/rss/elfeed.org"))))
 
-    
+  ;; (after! elfeed
+  ;;   (setq elfeed-search-filter "@2-weeks-ago +unread")
+  ;;   (add-hook 'elfeed-search-mode-hook #'elfeed-update)
+  (defun elfeed-entry-other-window ()
+    "In elfeed-search mode, open elfeed entry in the other window
+  if other window is present, else sensibly splits the frame if
+  there is only a single window and opens the elfeed entry in the
+  other window."
 
-    ;; (after! elfeed
-    ;;   (setq elfeed-search-filter "@2-weeks-ago +unread")
-    ;;   (add-hook 'elfeed-search-mode-hook #'elfeed-update)
-(defun elfeed-entry-other-window ()
-  "In elfeed-search mode, open elfeed entry in the other window
-if other window is present, else sensibly splits the frame if
-there is only a single window and opens the elfeed entry in the
-other window."
+    (interactive)
+    (if (get-buffer "*elfeed-search*")
+        (progn
+  	(split-window-sensibly (selected-window))
+  	(switch-to-buffer-other-window "*elfeed-search*")
+  	(call-interactively #'elfeed-search-show-entry)
+  	(other-window 1)
+  	(forward-line))
+      (message "Start elfeed first!")))
 
-  (interactive)
-  (if (get-buffer "*elfeed-search*")
-      (progn
-	(split-window-sensibly (selected-window))
-	(switch-to-buffer-other-window "*elfeed-search*")
-	(call-interactively #'elfeed-search-show-entry)
-	(other-window 1)
-	(forward-line))
-    (message "Start elfeed first!")))
+  (defun elfeed-entry-find-tag-refile ()
+    "Find elfeed-show-entry in the first elfeed-org file"
+    (interactive)
+    (let* ((elfeed-show-entry-id (car (elfeed-entry-id elfeed-show-entry)))
+           (elfeed-default-org-file (car rmh-elfeed-org-files))
+           (elfeed-window (get-buffer-window (file-name-nondirectory elfeed-default-org-file))))
+      
+  	  (find-file elfeed-default-org-file)
 
-    (defun find-in-elfeed-org-file ()
-      "Find elfeed-show-entry in the first elfeed-org file"
-          (interactive)
-          (let* ((elfeed-show-entry-id (car (elfeed-entry-id elfeed-show-entry)))
-                (elfeed-default-org-file (car rmh-elfeed-org-files))
-                (elfeed-window (get-buffer-window (file-name-nondirectory elfeed-default-org-file))))
+  	  ;; Find, tag and refile 
+  	  (or ;; Search pattern forward and backward
+  	   (progn (or (search-forward elfeed-show-entry-id nil t) (search-backward elfeed-show-entry-id nil t))
+  		  (org-set-tags-command)
+  		  (org-refile))
+  		  
+  	   (message
+  	    (concat elfeed-show-entry-id " not found in elfeed-org file " elfeed-default-org-file)))))
 
-           (if (not elfeed-window) ; Open elfeed org file if not visible
-             (progn
-               (select-window (get-buffer-window "*elfeed-search*"))
-               (let ((w (split-window-below)))
-                 (select-window w)
-                 (find-file elfeed-default-org-file)))
-             (select-window elfeed-window))
+  (defun elfeed-eww-about ()
+    "Open about page of elfeed entry in eww."
+    (interactive)
+    (eww-browse-url (concat "https://" (car (elfeed-entry-id elfeed-show-entry)) "/about")))
 
-           (or ;; Search pattern forward and backward
-            (or (search-forward elfeed-show-entry-id nil t)
-                   (search-backward elfeed-show-entry-id nil t))
-              (message
-               (concat elfeed-show-entry-id " not found in elfeed-org file " elfeed-default-org-file)))))
+  (setq elfeed-goodies/entry-pane-size 0.6)
+  (setq elfeed-goodies/log-window-size 0.4)
 
-    (defun elfeed-eww-about ()
-      "Open about page of elfeed entry in eww."
-      (interactive)
-      (eww-browse-url (concat "https://" (car (elfeed-entry-id elfeed-show-entry)) "/about")))
-
-      (setq elfeed-goodies/entry-pane-size 0.6)
-      (setq elfeed-goodies/log-window-size 0.4)
-
-    ;; (after! elfeed
-    ;;  (setq elfeed-score-serde-score-file (substitute-in-file-name "$HOME/.doom.d/elfeed.score")))
+  ;; (after! elfeed
+  ;;  (setq elfeed-score-serde-score-file (substitute-in-file-name "$HOME/.doom.d/elfeed.score")))
 #+end_src
 
 #+RESULTS:
