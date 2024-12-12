@@ -1,3 +1,4 @@
+
 #+TITLE: Emacs
 #+STARTUP: content
 
@@ -2322,6 +2323,8 @@ Leader keys for lsp-mode.
   ;;   ",sd" #'python-shell-send-defun
   ;;   ",se" #'code-cells-eval)
 
+  ; TODO ensure this is running, had to re-run cell
+
   (defun
       add-lsp-before-save-hooks ()
     (add-hook 'before-save-hook #'lsp-format-buffer nil 'local)
@@ -2613,9 +2616,11 @@ Simple debugger. Does its job just fine most of the time.
 
 *** Cells
 #+begin_src emacs-lisp
-  (use-package code-cells
-    :config
-    (add-hook 'prog-mode-hook 'code-cells-mode-maybe))
+     (use-package code-cells
+       :config
+       (add-hook 'prog-mode-hook 'code-cells-mode-maybe)
+       (add-to-list 'code-cells-eval-region-commands '(python-ts-mode . python-shell-send-region))
+       )
 #+end_src
 
 
@@ -2933,48 +2938,14 @@ Completion
 #+end_src
 
 *** NN-based tools
-**** Ollama 
+**** GPTel
 #+begin_src emacs-lisp
-  (use-package ellama
+  (use-package gptel
     :init
-    ;; setup key bindings
-    (setopt ellama-keymap-prefix "C-c e")
-    ;; language you want ellama to translate to
-    (setopt ellama-language "english")
-    ;; could be llm-openai for example
-    (setopt ellama-auto-scroll t)
-    (require 'llm-ollama)
-    ;; Predefined llm providers for interactive switching.
-    ;; You shouldn't add ollama providers here - it can be selected interactively
-    ;; without it. It is just example.
-    (setopt ellama-providers
-  	  '(("zephyr7b" . (make-llm-ollama
-  			 :chat-model "zephyr:7b-beta-q6_K"
-  			 :embedding-model "zephyr:7b-beta-q6_K"))
-  	    ("llama8b" . (make-llm-ollama
-  			  :chat-model "llama3:8b-instruct-q8_0"
-  			  :embedding-model "nomic-embed-text"))
-  	    ("llama70b_remote" . (make-llm-ollama
-  			 :port 11435
-  			 :chat-model "llama3.1:70b"
-  			 :embedding-model "llama3:70b"))
-  	    ("llama70b" . (make-llm-ollama
-  			 :chat-model "llama3.1:70b"
-  			 :embedding-model "llama3:70b"))
-  	    ("mistral" . (make-llm-ollama
-  			  :chat-model "mistral:7b-instruct-v0.2-q6_K"
-  			  :embedding-model "mistral:7b-instruct-v0.2-q6_K"))
-  	    ("mixtral" . (make-llm-ollama
-  			  :chat-model "mixtral:8x7b-instruct-v0.1-q3_K_M-4k"
-  			  :embedding-model "mixtral:8x7b-instruct-v0.1-q3_K_M-4k"))))
-    ;; Default provider
-    (setopt ellama-provider
-  	  (apply #'funcall (cdr (assoc (if (system-is-linux) "llama70b" "llama70b_remote") ellama-providers))))
-    ;; Translation llm provider
-    (setopt ellama-translation-provider (make-llm-ollama
-  				       :chat-model "phi3:14b-medium-128k-instruct-q6_K"
-  				       :embedding-model "nomic-embed-text")))
-  (setopt ellama-naming-scheme 'ellama-generate-name-by-llm)
+    (gptel-make-ollama "Ollama"             ;Any name of your choosing
+      :host "localhost:11434"               ;Where it's running
+      :stream t                             ;Stream responses
+      :models '(mistral:latest)))          ;List of models)
 #+end_src
 
 **** Speech-to-text (whisper-cpp)
