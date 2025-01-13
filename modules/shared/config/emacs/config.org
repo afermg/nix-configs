@@ -2963,8 +2963,9 @@ Completion
     :after magit
     :bind (:map git-commit-mode-map
                 ("C-c C-g" . magit-gptcommit-commit-accept))
-    :custom
+    :init
     (require 'llm-ollama)
+    :custom
     (magit-gptcommit-llm-provider
      (make-llm-ollama :embedding-model "llama3.3:70b" :chat-model "llama3.3:70b" :default-chat-temperature 0.1))
 
