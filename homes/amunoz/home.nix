@@ -22,7 +22,7 @@ in
       enable = true;
       # overrideFolders = false;
       # overrideDevices = false;
-      # user = "amunoz";
+      user = "amunoz";
   };
 
   

@@ -510,7 +510,13 @@ Various helpers and packages I find useful for window management.
     '(";y" . realgud:pdb)
     '(";a"  . realgud:attach-source-buffer)
     
-   '("<escape>" . ignore)) ; ignore escape
+    ;; gptel
+    '(";dr" . gptel-rewrite)
+    '(";da" . gptel-add)
+
+    
+    '("<escape>" . ignore)) ; ignore escape
+  
   (setq meow-use-cursor-position-hack t
   	meow-use-enhanced-selection-effect t) 
 
@@ -2958,6 +2964,7 @@ Completion
     :bind (:map git-commit-mode-map
                 ("C-c C-g" . magit-gptcommit-commit-accept))
     :custom
+    (require 'llm-ollama)
     (magit-gptcommit-llm-provider
      (make-llm-ollama :embedding-model "llama3.3:70b" :chat-model "llama3.3:70b" :default-chat-temperature 0.1))
 
