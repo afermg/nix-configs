@@ -18,12 +18,13 @@ in
                        
   home.stateVersion = "24.05";
   
-  services.syncthing = {
-      enable = true;
-      # overrideFolders = false;
-      # overrideDevices = false;
-      user = "amunoz";
-  };
+  # This breaks the macos config
+  # services.syncthing = {
+  #     enable = true;
+  #     # overrideFolders = false;
+  #     # overrideDevices = false;
+  #     user = "amunoz";
+  # };
 
   
   dconf.settings = {

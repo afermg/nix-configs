@@ -5,6 +5,9 @@ let shared-packages = import ../shared/packages.nix { inherit pkgs; }; in
 shared-packages ++ [
   # browser
   firefox
+  
+  # office
+  libreoffice-qt6
 
   # Monitor GPU
   nvitop # top for gpus (prefered)

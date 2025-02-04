@@ -18,9 +18,6 @@ with pkgs; [
   autoconf
   automake
 
-  # office
-  libreoffice-qt6-fresh
-  
   # faster/better X
   ripgrep # faster grep in rust
   fd # faster find
