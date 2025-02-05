@@ -67,6 +67,7 @@ with pkgs; [
 
   # writing
   texliveFull # all the stuff for tex writing  # TODO try to reduce footprint
+  python311Packages.pygments # Needed for my usual Tex templates
   (aspellWithDicts (dicts: with dicts; [ en en-computers en-science ]))
   pandoc
   inkscape
