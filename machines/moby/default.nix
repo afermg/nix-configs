@@ -194,7 +194,7 @@
     description = "Alan Munoz";
     extraGroups = [ "networkmanager" "wheel" "libvirtd" "qemu-libvirtd" "input" ];
     openssh.authorizedKeys.keyFiles = [
-      ../../homes/amunoz/network/pub/id_ed255519.pub
+      ../../homes/amunoz/network/pub/id_ed25519.pub
     ];
   };
 
