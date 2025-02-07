@@ -2726,7 +2726,7 @@ Indentation
 
 **** elfeed-web
 Deploy a web server to read feed from my phone. 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package elfeed-web)
 #+end_src
 **** COMMENT Style
