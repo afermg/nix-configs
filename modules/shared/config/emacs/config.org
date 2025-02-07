@@ -543,7 +543,7 @@ Various helpers and packages I find useful for window management.
   :bind-keymap ("M-'" . surround-keymap))
 #+end_src
 
-*** RE builder
+*** COMMENT RE builder
 #+begin_src emacs-lisp
   (use-package re-builder
     :defer t)

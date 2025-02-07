@@ -102,6 +102,7 @@
     self,
     nixpkgs,
     home-manager,
+    agenix,
     systems,
     flake-utils,
     ...
@@ -133,7 +134,7 @@
     # Available through 'nixos-rebuild --flake .#your-hostname'
     nixosConfigurations = {
       moby = lib.nixosSystem {
-        modules = [./machines/moby];
+        modules = [./machines/moby agenix.nixosModules.default];
         specialArgs = {inherit inputs outputs;};
       };
 
