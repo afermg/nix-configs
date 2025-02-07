@@ -15,7 +15,9 @@
       onShutdown = "shutdown";
     };
 
-    containers.enable = true;
+    containers = {
+     enable = true; 
+    };
     # oci-containers = {
     #   backend = "podman";
     #   containers = {
@@ -24,11 +26,11 @@
     # };
     podman = {
       enable = true;
-      enableNvidia = true;
       dockerCompat = true;
       defaultNetwork.settings.dns_enabled = true;
     };
   };
+  hardware.nvidia-container-toolkit.enable = true;
 
   environment.extraInit = ''
     if [ -z "$DOCKER_HOST" -a -n "$XDG_RUNTIME_DIR" ]; then

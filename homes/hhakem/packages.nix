@@ -25,7 +25,7 @@
 
     python310 # the standard python
     pyright
-    nvtop
+    nvtopPackages.full # another top for gpus
 ] ++ shared-packages;
   programs.git = {
     enable = true;
