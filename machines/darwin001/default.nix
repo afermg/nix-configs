@@ -123,10 +123,9 @@ let user = "alan"; in
     isHidden = false;
     #initialPassword = "password";
     shell = pkgs.fish;
-    # openssh.authorizedKeys.keyFiles = [
-    #   ../../homes/ank/id_rsa.pub
-    #   ../../homes/ank/id_ed25519.pub
-    # ];
+    openssh.authorizedKeys.keyFiles = [
+      ../../homes/amunoz/id_ed25519.pub
+    ];
   };
 
 
