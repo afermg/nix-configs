@@ -124,7 +124,7 @@ let user = "alan"; in
     #initialPassword = "password";
     shell = pkgs.fish;
     openssh.authorizedKeys.keyFiles = [
-      ../../homes/amunoz/id_ed25519.pub
+      ../../homes/amunoz/network/pub/id_ed25519.pub
     ];
   };
 
