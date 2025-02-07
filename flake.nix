@@ -150,7 +150,7 @@
     # Standalone home-manager configuration entrypoint
     # Available through 'home-manager --flake .#your-username@your-hostname'
     # homeConfigurations = {
-    #   "alan@moby" = lib.homeManagerConfiguration {
+    #   "amunoz@moby" = lib.homeManagerConfiguration {
     #     pkgs = pkgsFor.x86_64-linux;
     #     extraSpecialArgs = {inherit inputs outputs;};
     #     # > Our main home-manager configuration file <

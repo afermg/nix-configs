@@ -1,7 +1,7 @@
 { outputs, pkgs, ... }:
 let user = if pkgs.stdenv.isLinux
            then "amunoz"
-           else "alan";
+           else "amunozgo";
     home_parent = if pkgs.stdenv.isLinux
                   then "home"
                   else "Users";

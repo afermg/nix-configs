@@ -52,7 +52,7 @@
   # '';
 
   systemd.tmpfiles.rules = [
-    "f /dev/shm/looking-glass 0660 alan qemu-libvirtd -"
-    "f /dev/shm/scream 0660 alan qemu-libvirtd -"
+    "f /dev/shm/looking-glass 0660 amunoz qemu-libvirtd -"
+    "f /dev/shm/scream 0660 amunoz qemu-libvirtd -"
   ];
 }

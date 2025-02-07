@@ -3,7 +3,7 @@
 let name = "Alán F. Muñoz";
     user = if pkgs.stdenv.isLinux
            then "amunoz"
-           else "alan";
+           else "amunozgo";
     email = "afer.mg@gmail.com"; in
 {
   # Shared shell configuration
