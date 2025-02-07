@@ -190,7 +190,7 @@
   users.users.amunoz = {
     shell = pkgs.fish;
     isNormalUser = true;
-    initialPassword = "password";
+    initialPassword = "changeme";
     description = "Alan Munoz";
     extraGroups = [ "networkmanager" "wheel" "libvirtd" "qemu-libvirtd" "input" ];
     openssh.authorizedKeys.keyFiles = [
