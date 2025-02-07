@@ -13,7 +13,6 @@
     # If you want to use modules from other flakes (such as nixos-hardware):
     inputs.hardware.nixosModules.common-pc-ssd
     inputs.home-manager.nixosModule
-    inputs.nix-ld.nixosModules.nix-ld
     # Import your generated (nixos-generate-config) hardware configuration
 
     # Disko configuration
@@ -37,7 +36,8 @@
   ];
 
   # FHS
-  # programs.nix-ld.enable = true;
+  programs.nix-ld.enable = true;
+  
 
   # Enable the X11 windowing system.
   services.xserver = {
@@ -152,7 +152,7 @@
       gnomeExtensions.forge
       gnomeExtensions.appindicator
   ];
-
+  
   environment.shells = [ pkgs.zsh pkgs.fish ];
   programs.zsh.enable = true;
   programs.fish.enable = true;
@@ -162,6 +162,10 @@
   networking.hostId = "5a08e8de";
   # networking.bridges.br0.interfaces = [ "enp2s0" "wlp131s0" ];
   services.tailscale.enable = true;
+  # enable the netbird service
+  services.netbird.enable = true;
+  # environment.systemPackages = [ pkgs.netbird-ui ]; # for GUI
+
   # services.syncthing = {
   #   enable = true;
   #   #user = "syncthing";

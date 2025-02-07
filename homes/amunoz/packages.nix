@@ -124,7 +124,7 @@
       # AI
       openai-whisper-cpp
       piper-tts
-      pkgs.unstable.ollama
+      pkgs.unstable.ollama # TODO move to service
 
       # LSP
       nil
@@ -140,6 +140,8 @@
 
       # specific needs
       haskellPackages.xml-to-json-fast
+      # Academia
+      zotero_7
     ];
 
     programs.git = {

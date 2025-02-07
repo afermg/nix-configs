@@ -24,7 +24,6 @@ with pkgs; [
   difftastic # better diffs
   dua # better du
   dust # interactive du in tust
-  bottom # network top
 
   # langs
   cargo # rust packages
@@ -67,6 +66,7 @@ with pkgs; [
 
   # writing
   texliveFull # all the stuff for tex writing  # TODO try to reduce footprint
+  python311Packages.pygments # Needed for my usual Tex templates
   (aspellWithDicts (dicts: with dicts; [ en en-computers en-science ]))
   pandoc
   inkscape
@@ -92,7 +92,7 @@ with pkgs; [
 
   # testing
   luajitPackages.fennel # lua in fennel
-  monolith # download whole html websites
+  shiori # download whole html websites
   xclip # clipboard manipulation tool
   magic-wormhole # easy sharing
 

@@ -7,15 +7,12 @@ shared-packages ++ [
   firefox
   
   # office
-  libreoffice-qt6
+  # libreoffice-qt6
 
   # Monitor GPU
   nvitop # top for gpus (prefered)
   nvtopPackages.full # another top for gpus
   # pkgs.unstable.ollama
-
-  # Screenshot and recording tools
-  flameshot
 
   # Text and terminal utilities
   # feh # Manage wallpapers
