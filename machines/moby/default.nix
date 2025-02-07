@@ -218,16 +218,6 @@
     ];
   };
   
-  users.users.akalinin = {
-    shell = pkgs.zsh;
-    isNormalUser = true;
-    description = "Alex Kalinin";
-    extraGroups = [ "networkmanager" "wheel" "libvirtd" "qemu-libvirtd" "input"];
-    openssh.authorizedKeys.keyFiles = [
-      ../../homes/akalinin/id_rsa.pub
-    ];
-  };
-  
   # Enable home-manager for users
   home-manager.useGlobalPkgs = true;
   home-manager.useUserPackages = true;
