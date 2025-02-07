@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: text_latex
-# key: tl
-# --
-:results raw :display text/latex
