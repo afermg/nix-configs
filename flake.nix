@@ -137,7 +137,7 @@ nixosConfigurations = {
 };
 
 # Darwin configuration entrypoint
-ailable through 'darwin-rebuild --flake .#your-hostname'
+# Available through 'darwin-rebuild --flake .#your-hostname'
     darwinConfigurations = {
       darwin001 = inputs.darwin.lib.darwinSystem {
         system = "aarch64-darwin";
