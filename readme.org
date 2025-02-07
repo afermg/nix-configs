@@ -5,6 +5,7 @@ This is my NixOS + MacOS Nix shared configuration. It is based on merging two co
 
 - [[https://github.com/dustinlyons/nixos-config][nixos-config]]: This facilitates sharing packages between computers, I strongly recommend it as a base configuration to use as a base.
 - [[https://github.com/leoank/neusis][neusis]]: This is the config used for multiple servers in at the Broad Institute's Imaging Platform. I use it to support multiple users on NixOS alongside Darwin.
+  
 * Set up
 I haven't set it up from scratch in a new set of computers, but I will update it once I do.
   
@@ -24,6 +25,13 @@ If you just want to update your home configuration and packages use this command
 home-manager --flake .#your-username@your-hostname
 #+end_src
 ** Darwin
+If darwin-rebuild is not available run this
+
+#+begin_src bash
+nix run nix-darwin -- switch --flake .#darwin001
+#+end_src
+
+Otherwise
 #+begin_src bash
 darwin-rebuild switch --flake .#darwin001
 #+end_src
