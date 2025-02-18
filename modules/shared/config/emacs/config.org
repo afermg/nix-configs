@@ -2557,7 +2557,8 @@ Simple debugger. Does its job just fine most of the time.
     (defalias 'realgud-window-src-undisturb-cmd #'cb-gud--setup-realgud-windows)
     
     (add-to-list 'display-buffer-alist
-                 `(,(rx bos "*" "pdb " (+? nonl) "*" eos)
+  	       ; Generalise to other py debuggers
+                 `(,(rx bos "*" "trepan3k " (+? nonl) "*" eos)
                    (display-buffer-in-side-window)
                    (reusable-frames . visible)
                    (side            . right)
@@ -2576,8 +2577,9 @@ Simple debugger. Does its job just fine most of the time.
     
     (defun cb-gud--realgud-command-for-mode (mode)
       (pcase mode
-        (`python-ts-mode
-         #'dispatch-realgud-python-debugger)))
+        ; todo remove duplication
+        (`python-mode #'dispatch-realgud-python-debugger)
+        (`python-ts-mode #'dispatch-realgud-python-debugger)))
     
 
     (defun realgud ()
