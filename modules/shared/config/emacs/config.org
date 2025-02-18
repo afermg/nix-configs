@@ -189,340 +189,292 @@ Various helpers and packages I find useful for window management.
   (use-package meow
     :config
     (defun meow-setup ()
-     ;; -------------------- ;;
-     ;;         UTILS        ;;
-     ;; -------------------- ;;
-     (defun meow-word ()
-       "Expand word/symbol under cursor."
-       (interactive)
-       (if (and (use-region-p)
-                (equal (car (region-bounds))
-                       (bounds-of-thing-at-point 'word)))
-           (meow-mark-symbol 1)
-         (progn
-           (when (and (mark)
-                      (equal (car (region-bounds))
-                             (bounds-of-thing-at-point 'symbol)))
-             (meow-pop-selection))
-           (meow-mark-word 1))))
+      ;; -------------------- ;;
+      ;;         UTILS        ;;
+      ;; -------------------- ;;
+      (defun meow-word ()
+        "Expand word/symbol under cursor."
+        (interactive)
+        (if (and (use-region-p)
+                 (equal (car (region-bounds))
+  		      (bounds-of-thing-at-point 'word)))
+            (meow-mark-symbol 1)
+          (progn
+            (when (and (mark)
+                       (equal (car (region-bounds))
+                              (bounds-of-thing-at-point 'symbol)))
+              (meow-pop-selection))
+            (meow-mark-word 1))))
 
-     (defun meow-kill-line ()
-       "Kill till the end of line."
-       (interactive)
-       (let ((select-enable-clipboard meow-use-clipboard))
-         (kill-line)))
+      (defun meow-kill-line ()
+        "Kill till the end of line."
+        (interactive)
+        (let ((select-enable-clipboard meow-use-clipboard))
+          (kill-line)))
 
-     (defun meow-change-line ()
-       "Kill till end of line and switch to INSERT state."
-       (interactive)
-       (meow--cancel-selection)
-       (meow-end-of-thing
-        (car (rassoc 'line meow-char-thing-table)))
-       (meow-change))
+      (defun meow-change-line ()
+        "Kill till end of line and switch to INSERT state."
+        (interactive)
+        (meow--cancel-selection)
+        (meow-end-of-thing
+         (car (rassoc 'line meow-char-thing-table)))
+        (meow-change))
 
-     (defun meow-save-clipboard ()
-       "Copy in clipboard."
-       (interactive)
-       (let ((meow-use-clipboard t))
-         (meow-save)))
+      (defun meow-save-clipboard ()
+        "Copy in clipboard."
+        (interactive)
+        (let ((meow-use-clipboard t))
+          (meow-save)))
 
-     (defvar meow--trim-yank nil)
+      (defvar meow--trim-yank nil)
 
-     (defun meow-insert-for-yank-advice (orig-fn str)
-       "Advice for `insert-for-yank' function to correctly insert lines."
-       (when meow--trim-yank
-         (set 'str (string-trim-right str "\n")))
-       (if (and (not (eq (point) (+ 1 (line-end-position 0))))
-                (string-match-p "^.+\n$" str))
-           (save-excursion
-             (beginning-of-line)
-             (funcall orig-fn str))
-         (funcall orig-fn str)))
+      (defun meow-insert-for-yank-advice (orig-fn str)
+        "Advice for `insert-for-yank' function to correctly insert lines."
+        (when meow--trim-yank
+          (set 'str (string-trim-right str "\n")))
+        (if (and (not (eq (point) (+ 1 (line-end-position 0))))
+                 (string-match-p "^.+\n$" str))
+            (save-excursion
+              (beginning-of-line)
+              (funcall orig-fn str))
+          (funcall orig-fn str)))
 
-     (defun meow-yank-dwim ()
-       "Smart yank."
-       (interactive)
-       (advice-add 'insert-for-yank :around 'meow-insert-for-yank-advice)
-       (if (use-region-p)
-           (let ((meow--trim-yank t))
-             (delete-region (region-beginning) (region-end))
-             (meow-yank))
-         (meow-yank))
-       (advice-remove 'insert-for-yank 'meow-insert-for-yank-advice))
+      (defun meow-yank-dwim ()
+        "Smart yank."
+        (interactive)
+        (advice-add 'insert-for-yank :around 'meow-insert-for-yank-advice)
+        (if (use-region-p)
+            (let ((meow--trim-yank t))
+              (delete-region (region-beginning) (region-end))
+              (meow-yank))
+          (meow-yank))
+        (advice-remove 'insert-for-yank 'meow-insert-for-yank-advice))
 
-     (defun meow-yank-pop-dwim ()
-       "Smart yank pop."
-       (interactive)
-       (advice-add 'insert-for-yank :around 'meow-insert-for-yank-advice)
-       (if (use-region-p)
-           (let ((meow--trim-yank t))
-             (delete-region (region-beginning) (region-end))
-             (meow-yank-pop))
-         (meow-yank-pop))
-       (advice-remove 'insert-for-yank 'meow-insert-for-yank-advice))
+      (defun meow-yank-pop-dwim ()
+        "Smart yank pop."
+        (interactive)
+        (advice-add 'insert-for-yank :around 'meow-insert-for-yank-advice)
+        (if (use-region-p)
+            (let ((meow--trim-yank t))
+              (delete-region (region-beginning) (region-end))
+              (meow-yank-pop))
+          (meow-yank-pop))
+        (advice-remove 'insert-for-yank 'meow-insert-for-yank-advice))
 
-     (defun meow-smart-reverse ()
-       "Reverse selection or begin negative argument."
-       (interactive)
-       (if (use-region-p)
-           (meow-reverse)
-         (negative-argument nil)))
+      (defun meow-smart-reverse ()
+        "Reverse selection or begin negative argument."
+        (interactive)
+        (if (use-region-p)
+            (meow-reverse)
+          (negative-argument nil)))
 
-     (defun meow-kmacro ()
-       "Toggle recording of kmacro."
-       (interactive)
-       (if defining-kbd-macro
-           (meow-end-kmacro)
-         (meow-start-kmacro)))
+      (defun meow-kmacro ()
+        "Toggle recording of kmacro."
+        (interactive)
+        (if defining-kbd-macro
+            (meow-end-kmacro)
+          (meow-start-kmacro)))
 
-     (defun meow-eldoc ()
-       "Toggle the display of the eldoc window."
-       (interactive)
-       (if (get-buffer-window eldoc--doc-buffer)
-           (delete-window (get-buffer-window eldoc--doc-buffer))
-         (eldoc-doc-buffer t)))
+      (defun meow-eldoc ()
+        "Toggle the display of the eldoc window."
+        (interactive)
+        (if (get-buffer-window eldoc--doc-buffer)
+            (delete-window (get-buffer-window eldoc--doc-buffer))
+          (eldoc-doc-buffer t)))
 
-     ;; -------------------- ;;
-     ;;       VARIABLES      ;;
-     ;; -------------------- ;;
-     (meow-thing-register 'angle
-                          '(pair ("<") (">"))
-                          '(pair ("<") (">")))
+      ;; -------------------- ;;
+      ;;       VARIABLES      ;;
+      ;; -------------------- ;;
+      (meow-thing-register 'angle
+                           '(pair ("<") (">"))
+                           '(pair ("<") (">")))
 
-     (setq meow-char-thing-table
-           '((?f . round)
-             (?d . square)
-             (?s . curly)
-             (?a . angle)
-             (?r . string)
-             (?v . paragraph)
-             (?c . line)
-             (?x . buffer)))
+      (setq meow-char-thing-table
+            '((?f . round)
+              (?d . square)
+              (?s . curly)
+              (?a . angle)
+              (?r . string)
+              (?v . paragraph)
+              (?c . line)
+              (?x . buffer)))
 
-     (setq meow-selection-command-fallback
-           '((meow-change . meow-change-char)
-             ;; (meow-kill . meow-delete)
-             (meow-cancel-selection . keyboard-quit)
-             (meow-pop-selection . meow-pop-grab)
-             (meow-beacon-change . meow-beacon-change-char)))
+      (setq meow-selection-command-fallback
+            '((meow-change . meow-change-char)
+              ;; (meow-kill . meow-delete)
+              (meow-cancel-selection . keyboard-quit)
+              (meow-pop-selection . meow-pop-grab)
+              (meow-beacon-change . meow-beacon-change-char)))
 
-     ;; -------------------- ;;
-     ;;       MAPPINGS       ;;
-     ;; -------------------- ;;
-     (meow-define-keys 'normal
-      ; expansion
-      '("0" . meow-expand-0)
-      '("1" . meow-expand-1)
-      '("2" . meow-expand-2)
-      '("3" . meow-expand-3)
-      '("4" . meow-expand-4)
-      '("5" . meow-expand-5)
-      '("6" . meow-expand-6)
-      '("7" . meow-expand-7)
-      '("8" . meow-expand-8)
-      '("9" . meow-expand-9)
-      '("'" . meow-smart-reverse)
+      ;; -------------------- ;;
+      ;;       MAPPINGS       ;;
+      ;; -------------------- ;;
+      (meow-define-keys 'normal
+  					; expansion
+        '("0" . meow-expand-0)
+        '("1" . meow-expand-1)
+        '("2" . meow-expand-2)
+        '("3" . meow-expand-3)
+        '("4" . meow-expand-4)
+        '("5" . meow-expand-5)
+        '("6" . meow-expand-6)
+        '("7" . meow-expand-7)
+        '("8" . meow-expand-8)
+        '("9" . meow-expand-9)
+        '("'" . meow-smart-reverse)
 
-      ; movement
-      '("i" . meow-prev)
-      '("k" . meow-next)
-      '("j" . meow-left)
-      '("l" . meow-right)
+  					; movement
+        '("i" . meow-prev)
+        '("k" . meow-next)
+        '("j" . meow-left)
+        '("l" . meow-right)
 
-      '("y" . meow-search)
-      ;; '("/" . meow-visit)
-      '("/" . consult-line)
+        '("y" . meow-search)
+        ;; '("/" . meow-visit)
+        '("/" . consult-line)
 
-      ; expansion
-      '("I" . meow-prev-expand)
-      '("K" . meow-next-expand)
-      '("J" . meow-left-expand)
-      '("L" . meow-right-expand)
+  					; expansion
+        '("I" . meow-prev-expand)
+        '("K" . meow-next-expand)
+        '("J" . meow-left-expand)
+        '("L" . meow-right-expand)
 
-      '("u" . meow-back-word)
-      '("U" . meow-back-symbol)
-      '("o" . meow-next-word)
-      '("O" . meow-next-symbol)
+        '("u" . meow-back-word)
+        '("U" . meow-back-symbol)
+        '("o" . meow-next-word)
+        '("O" . meow-next-symbol)
 
-      '("a" . meow-word)
-      '("s" . meow-line)
-      '("w" . meow-block)
-      '("q" . meow-join)
-      '("g" . meow-grab)
-      '("G" . meow-pop-grab)
-      '("p" . meow-cancel-selection)
-      '("P" . meow-pop-selection)
+        '("a" . meow-word)
+        '("s" . meow-line)
+        '("w" . meow-block)
+        '("q" . meow-join)
+        '("g" . meow-grab)
+        '("G" . meow-pop-grab)
+        '("p" . meow-cancel-selection)
+        '("P" . meow-pop-selection)
 
-      '("x" . meow-till)
-      '("X" . meow-find)
+        '("x" . meow-till)
+        '("X" . meow-find)
 
-      '("," . meow-beginning-of-thing)
-      '("." . meow-end-of-thing)
-      '("<" . meow-inner-of-thing)
-      '(">" . meow-bounds-of-thing)
+        '("," . meow-beginning-of-thing)
+        '("." . meow-end-of-thing)
+        '("<" . meow-inner-of-thing)
+        '(">" . meow-bounds-of-thing)
 
-      '("[" . indent-rigidly-left-to-tab-stop)
-      '("]" . indent-rigidly-right-to-tab-stop)
+        '("[" . indent-rigidly-left-to-tab-stop)
+        '("]" . indent-rigidly-right-to-tab-stop)
 
-      ; editing
-      '("b" . open-line)
-      '("B" . split-line)
-      '("d" . meow-kill)
-      '("D" . meow-kill-line)
-      '("f" . meow-change)
-      '("F" . meow-change-line)
-      '("c" . meow-save)
-      '("C" . meow-save-clipboard)
-      '("v" . meow-yank-dwim)
-      '("V" . meow-yank-pop-dwim)
+  					; editing
+        '("b" . open-line)
+        '("B" . split-line)
+        '("d" . meow-kill)
+        '("D" . meow-kill-line)
+        '("f" . meow-change)
+        '("F" . meow-change-line)
+        '("c" . meow-save)
+        '("C" . meow-save-clipboard)
+        '("v" . meow-yank-dwim)
+        '("V" . meow-yank-pop-dwim)
 
-      '("e" . meow-insert)
-      '("E" . meow-open-above)
-      '("r" . meow-append)
-      '("R" . meow-open-below)
+        '("e" . meow-insert)
+        '("E" . meow-open-above)
+        '("r" . meow-append)
+        '("R" . meow-open-below)
 
-      '("z" . query-replace-regexp)
+        '("z" . query-replace-regexp)
 
-      '("h" . undo-only)
-      '("H" . undo-redo)
+        '("h" . undo-only)
+        '("H" . undo-redo)
 
-      '("m"  . meow-kmacro)
-      '("M"  . kmacro-call-macro)
-      '("nm" . kmacro-edit-macro) ;; 'n' prefix is for editing commands
+        '("m"  . meow-kmacro)
+        '("M"  . kmacro-call-macro)
+        '("nm" . kmacro-edit-macro) ;; 'n' prefix is for editing commands
 
-      '("nf" . meow-comment)
+        '("nf" . meow-comment)
 
-      '("N"  . upcase-dwim)
-      '("nn" . downcase-dwim)
-      '("nN" . capitalize-dwim)
+        '("N"  . upcase-dwim)
+        '("nn" . downcase-dwim)
+        '("nN" . capitalize-dwim)
 
-      '("ns" . meow-swap-grab)
+        '("ns" . meow-swap-grab)
+        
+  					; External packages
+        '("nr" . surround-insert)
+        
+  					; eldoc
+        '("t" . eldoc-box-help-at-point)
+        '("T" . meow-eldoc)
+
+  					; general
+        '(";F" . save-some-buffers)
+        '(";g" . goto-last-change)
+        '("Q" . meow-quit)
+        '(";c" . duplicate-dwim)
+        '(";C" . copy-and-comment-region)
+        '(";fr" . recentf)
+        '(";hq" . restart-emacs)
+        '(";hr" . dl/reload-emacs)
+        '(";hn" . dl/load-buffer-with-nix-config)
+        '(";hp" . dl/load-buffer-with-emacs-config)
+        '(";ot" . projectile-run-vterm-other-window)
+        '(";oT" . +vterm/here)
+        '(";ox" . toggle-scratch-buffer)
+        '(";lf" . dl/lsp-find-references-other-window)
+        '(";lc" . dl/lsp-find-implementation-other-window)
+        '(";ls" . lsp-treemacs-symbols)
+        '(";le" . list-flycheck-errors)
+        '(";lh" . lsp-treemacs-call-hierarchy)
+        '(";lF" . lsp-format-buffer)
+        '(";li" . lsp-organize-imports)
+        '(";ll" . lsp)
+        '(";lr" . lsp-rename)
+        '(";ld" . dl/lsp-find-definition-other-window)
+        '(";lt" . org-toggle-link-display)
+        '(";," . dl/insert-header)
+        '(";<" . dl/insert-current-time)
+        '(";>" . dl/insert-current-date-prompt)
+        '(";b" . bufler-switch-buffer)
+        '(";B" . bufler-list)
+        '(";k" . yank-from-kill-ring)
+        
+  					; Rotation
+        '(";rw" . rotate-window)
+        '(";rl" . rotate-layout)
+
+        ;; Version control
+        '(";tg" . git-timemachine-toggle)
+        
+  					; Python
+        '(";sr" . python-shell-send-region-or-line)
+        '(";sb" . python-shell-send-buffer)
+        '(";sd" . python-shell-send-defun)
+        '(";se" . code-cells-eval)
+        '(";y" . realgud)
+        
+        '("<escape>" . ignore))		; ignore escape
       
-      ; External packages
-      '("nr" . surround-insert)
-      
-      ; eldoc
-      '("t" . eldoc-box-help-at-point)
-      '("T" . meow-eldoc)
-
-      ; general
-      '(";F" . save-some-buffers)
-      '(";g" . goto-last-change)
-      '("Q" . meow-quit)
-      '(";c" . duplicate-dwim)
-      '(";C" . copy-and-comment-region)
-      '(";fr" . recentf)
-      '(";hq" . restart-emacs)
-      '(";hr" . dl/reload-emacs)
-      '(";hn" . dl/load-buffer-with-nix-config)
-      '(";hp" . dl/load-buffer-with-emacs-config)
-      '(";ot" . projectile-run-vterm-other-window)
-      '(";oT" . +vterm/here)
-      '(";ox" . toggle-scratch-buffer)
-      '(";lf" . dl/lsp-find-references-other-window)
-      '(";lc" . dl/lsp-find-implementation-other-window)
-      '(";ls" . lsp-treemacs-symbols)
-      '(";le" . list-flycheck-errors)
-      '(";lh" . lsp-treemacs-call-hierarchy)
-      '(";lF" . lsp-format-buffer)
-      '(";li" . lsp-organize-imports)
-      '(";ll" . lsp)
-      '(";lr" . lsp-rename)
-      '(";ld" . dl/lsp-find-definition-other-window)
-      '(";lt" . org-toggle-link-display)
-      '(";," . dl/insert-header)
-      '(";<" . dl/insert-current-time)
-      '(";>" . dl/insert-current-date-prompt)
-      '(";b" . bufler-switch-buffer)
-      '(";B" . bufler-list)
-      '(";k" . yank-from-kill-ring)
-      
-      ; Rotation
-      '(";rw" . rotate-window)
-      '(";rl" . rotate-layout)
-
-      ;; Version control
-      '(";tg" . git-timemachine-toggle)
-      
-      ; Python
-      '(";sr" . python-shell-send-region-or-line)
-      '(";sb" . python-shell-send-buffer)
-      '(";sd" . python-shell-send-defun)
-      '(";se" . code-cells-eval)
-      
-      '(";y" . realgud:pdb)
-      '(";a"  . realgud:attach-source-buffer)
-      
-     '("<escape>" . ignore)) ; ignore escape
-     )
+      ;; gptel
+      '(";dr" . gptel-rewrite)
+      '(";da" . gptel-add)
+      )
+    ;; End of keybindings
+    
     (setq meow-use-cursor-position-hack t
-  	meow-use-enhanced-selection-effect t) 
+    	meow-use-enhanced-selection-effect t) 
     
-    ; eldoc
-    '("t" . eldoc-box-help-at-point)
-    '("T" . meow-eldoc)
-
-    ; general
-    '(";F" . save-some-buffers)
-    '(";g" . goto-last-change)
-    '("Q" . meow-quit)
-    '(";c" . duplicate-dwim)
-    '(";C" . copy-and-comment-region)
-
-    '(";fr" . recentf)
-    '(";hq" . restart-emacs)
-    '(";hr" . dl/reload-emacs)
-    '(";hn" . dl/load-buffer-with-nix-config)
-    '(";hp" . dl/load-buffer-with-emacs-config)
-    '(";ot" . projectile-run-vterm-other-window)
-    '(";oT" . +vterm/here)
-    '(";ox" . toggle-scratch-buffer)
-    '(";lf" . dl/lsp-find-references-other-window)
-    '(";lc" . dl/lsp-find-implementation-other-window)
-    '(";ls" . lsp-treemacs-symbols)
-    '(";le" . list-flycheck-errors)
-    '(";lh" . lsp-treemacs-call-hierarchy)
-    '(";lF" . lsp-format-buffer)
-    '(";li" . lsp-organize-imports)
-    '(";ll" . lsp)
-    '(";lr" . lsp-rename)
-    '(";ld" . dl/lsp-find-definition-other-window)
-    '(";lt" . org-toggle-link-display)
-    '(";," . dl/insert-header)
-    '(";<" . dl/insert-current-time)
-    '(";>" . dl/insert-current-date-prompt)
-    '(";b" . bufler-switch-buffer)
-    '(";B" . bufler-list)
-    '(";K" . kill-buffer-and-window)
-
-    ; Rotation
-    '(";rw" . rotate-window)
-    '(";rl" . rotate-layout)
-
-    ;; Version control
-    '(";tg" . git-timemachine-toggle)
-    
-    ; Python
-    '(";sr" . python-shell-send-region-or-line)
-    '(";sb" . python-shell-send-buffer)
-    '(";sd" . python-shell-send-defun)
-    '(";se" . code-cells-eval)
-    '(";y" . realgud:pdb)
-    '(";a"  . realgud:attach-source-buffer)
-    
-    ;; gptel
-    '(";dr" . gptel-rewrite)
-    '(";da" . gptel-add)
 
     
     '("<escape>" . ignore)) ; ignore escape
-  
-  (setq meow-use-cursor-position-hack t
-  	meow-use-enhanced-selection-effect t) 
+
+    (setq meow-use-cursor-position-hack t
+    	meow-use-enhanced-selection-effect t) 
 
     (meow-setup)
     (meow-global-mode 1)
 #+end_src
+
+#+RESULTS:
+: t
 
 *** Meow+vterm support
 #+begin_src elisp
@@ -556,7 +508,6 @@ Various helpers and packages I find useful for window management.
            reb-lisp-mode-map ("C-o" . casual-re-builder-tmenu))
     :after (re-builder))
 #+end_src
-
 ** Conveniences
 #+begin_src emacs-lisp
 (defun copy-and-comment-region (beg end &optional arg)
@@ -2593,31 +2544,76 @@ Simple debugger. Does its job just fine most of the time.
 #+begin_src emacs-lisp
   (use-package realgud
     :config
-    (setq realgud:pdb-command-name "python -m ipdb")
-    ;; (setq realgud:pdb-command-name "python -m pdb")
-    ;; (setq realgud:pdb-command-name "pytest -s --trace")
-    (defun realgud-pdb-pytest nil
+    ;; sort windows in realgud
+    ;; https://github.com/realgud/realgud/issues/169#issuecomment-315632678
+    (defun cb-gud--setup-realgud-windows (&optional buffer)
       (interactive)
-      ;; (realgud:pdb (concat "pytest -pdb --trace --color=yes " buffer-file-name)))  
-    (realgud:pdb (concat "pytest --pdb --color=yes " buffer-file-name)))
+      (let* ((buffer (or buffer (current-buffer)))
+             (src-buffer (realgud-get-srcbuf buffer))
+             (cmd-buffer (realgud-get-cmdbuf buffer)))
+        (display-buffer cmd-buffer)
+        (select-window (display-buffer src-buffer))))
+
+    (defalias 'realgud-window-src-undisturb-cmd #'cb-gud--setup-realgud-windows)
+    
+    (add-to-list 'display-buffer-alist
+                 `(,(rx bos "*" "pdb " (+? nonl) "*" eos)
+                   (display-buffer-in-side-window)
+                   (reusable-frames . visible)
+                   (side            . right)
+                   (slot            . 1)
+                   (window-width    . 0.5)))
+    
+    (require 'subr-x)
+    
+    (defun dispatch-realgud-python-debugger ()
+      (let* ((file (shell-quote-argument (file-relative-name (buffer-file-name))))
+  	   (prefix (if (executable-find "trepan3k") '("trepan3k") (list "python" "-m" "pdb")))
+  	   (args (append prefix (list file)))
+  	   (minibuffer-history (intern (string-join (list "realgud:" (car prefix) "-minibuffer-history")))))
+        (message "%s" (list (buffer-file-name) args minibuffer-history))
+        (realgud:run-process (car prefix) (buffer-file-name) args minibuffer-history)))
+    
+    (defun cb-gud--realgud-command-for-mode (mode)
+      (pcase mode
+        (`python-ts-mode
+         #'dispatch-realgud-python-debugger)))
+    
+
+    (defun realgud ()
+      (interactive)
+      (let ((buf (current-buffer)))
+        (unless (or (realgud-get-cmdbuf) (realgud-get-current-srcbuf))
+  	(if-let (command (cb-gud--realgud-command-for-mode major-mode))
+              (funcall command)
+            (error "No realgud support for %s" major-mode)))
+        (cb-gud--setup-realgud-windows buf)))
+    
+    (add-to-list 'display-buffer-alist
+                 `(,(rx bos "*" "pdb " (+? nonl) "*" eos)
+                   (display-buffer-in-side-window)
+                   (reusable-frames . visible)
+                   (side            . right)
+                   (slot            . 1)
+                   (window-width    . 0.5)))
+
+
     (defun describe-at-cursor()
       "Describe variable at cursor when using debugger"
       (interactive)
       (realgud:cmd-info-value (concat (thing-at-point 'word) "\n")))
+    
+    ;; Meow is deactivated upon removal of realgud's track mode track-mode
+    (add-hook 'realgud-srcbuf-mode-hook (lambda nil (meow-global-mode 1)))
+    
     :bind (:map realgud:shortkey-mode-map
-      	       ("_" . #'describe-at-cursor)
-      	       ("a" . #'realgud:attach-cmd-buffer))) 
-
-
-  ;; (evil-define-key '(normal visual) python-mode-map
-  ;;   ",z"  #'run-python
-  ;;   ",ty" #'realgud:pdb
-  ;;   ",tf" #'realgud-pdb-pytest)
-  ;; (evil-define-key '(normal visual) python-ts-mode-map
-  ;;   ",z"  #'run-python
-  ;;   ",ty" #'realgud:pdb
-  ;;   ",tf" #'realgud-pdb-pytest)
+                ("_" . #'describe-at-cursor)
+                ("a" . #'realgud:attach-cmd-buffer)))
 #+end_src
+
+#+RESULTS:
+: realgud:attach-cmd-buffer
+
 
 *** Cells
 #+begin_src emacs-lisp
