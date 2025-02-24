@@ -2531,14 +2531,6 @@ Nix is my package manager and operating system of choice; this mode enables me t
 #+end_src
 
 *** Debugger
-***** DAP
-Debugger Adapter Protocol. 
-#+begin_src emacs-lisp
-  (use-package dap-mode
-    :config
-    (setq dap-python-debugger 'debugpy))
-#+end_src
-
 ***** Realgud
 Simple debugger. Does its job just fine most of the time.
 #+begin_src emacs-lisp
@@ -2571,9 +2563,9 @@ Simple debugger. Does its job just fine most of the time.
       (let* ((file (shell-quote-argument (file-relative-name (buffer-file-name))))
   	   (prefix (if (executable-find "trepan3k") '("trepan3k") (list "python" "-m" "pdb")))
   	   (args (append prefix (list file)))
-  	   (minibuffer-history (intern (string-join (list "realgud:" (car prefix) "-minibuffer-history")))))
+  	   (minibuffer-history (intern (string-join (list "realgud:" (car (last prefix)) "-minibuffer-history")))))
         (message "%s" (list (buffer-file-name) args minibuffer-history))
-        (realgud:run-process (car prefix) (buffer-file-name) args minibuffer-history)))
+        (realgud:run-process (car (last prefix)) (buffer-file-name) args minibuffer-history)))
     
     (defun cb-gud--realgud-command-for-mode (mode)
       (pcase mode
