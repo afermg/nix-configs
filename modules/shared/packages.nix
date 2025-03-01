@@ -31,6 +31,7 @@ with pkgs; [
   cmake # c compiler
   clang # c language
   clang-tools # tools for c language
+  libgcc # build stuff
 
   # files
   gnutar # The one and only tar
