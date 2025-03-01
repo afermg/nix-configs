@@ -123,6 +123,10 @@ Generally-useful modes
   (recentf-mode 1)
 
   (setq warning-minimum-level :error)
+
+  ;; Use TAB in place of C-M-i for completion-at-point
+  (setq tab-always-indent 'complete)
+  (setq completion-styles '(orderless flex basic partial-completion emacs22))
 #+END_SRC
 
 *** General Shortcuts
