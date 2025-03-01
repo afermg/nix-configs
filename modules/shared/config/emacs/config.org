@@ -2600,6 +2600,11 @@ Simple debugger. Does its job just fine most of the time.
     ;; Meow is deactivated upon removal of realgud's track mode track-mode
     (add-hook 'realgud-srcbuf-mode-hook (lambda nil (meow-global-mode 1)))
     
+    (defun realgud-pdb-pytest nil
+      (interactive)
+      ;; (realgud:pdb (concat "pytest -pdb --trace --color=yes " buffer-file-name)))  
+    (realgud:pdb (concat "pytest --pdb --color=yes " buffer-file-name)))
+    
     :bind (:map realgud:shortkey-mode-map
                 ("_" . #'describe-at-cursor)
                 ("a" . #'realgud:attach-cmd-buffer)))
