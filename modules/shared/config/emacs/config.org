@@ -140,6 +140,16 @@ I use ~general.el~ to define groups of keybindings under my 'leader' definition.
   (global-set-key (kbd "C--") 'text-scale-decrease)
 #+END_SRC
 
+*** Avy
+To snipe things on the screen
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-:") 'avy-goto-char)
+  (global-set-key (kbd "C-\"") 'avy-goto-char-2)
+  (global-set-key (kbd "M-g f") 'avy-goto-line)
+  (global-set-key (kbd "M-g w") 'avy-goto-word-1)
+  (global-set-key (kbd "M-g e") 'avy-goto-word-0)
+#+end_src
+
 **** COMMENT Emacs cleanup
 Helpful keybindings to help keep Emacs sane.
 
@@ -441,7 +451,8 @@ Various helpers and packages I find useful for window management.
         '(";B" . bufler-list)
         '(";k" . yank-from-kill-ring)
         
-  					; Rotation
+        
+        ; Rotation
         '(";rw" . rotate-window)
         '(";rl" . rotate-layout)
 
