@@ -3,8 +3,21 @@
 {
   # Home Manager needs a bit of information about you and the
   # paths it should manage.
-  home.username = "alan";
-  home.homeDirectory = "/home/alan";
+  home = {  
+    username = "alan";
+    homeDirectory = "/home/alan";
+    file = {
+      ".emacs.d/init.el" = {
+      text = builtins.readFile ../../modules/shared/config/emacs/init.el;
+      };
+      ".emacs.d/config.org" = {
+        text = builtins.readFile ../../modules/shared/config/emacs/config.org;
+      };
+      ".emacs.d/setup-font-check.el" = {
+        text = builtins.readFile ../../modules/shared/config/emacs/setup-font-check.el;
+      };
+    };
+  };
 
   # Packages that should be installed to the user profile.
   home.packages = (pkgs.callPackage ../../modules/shared/packages.nix {});
