@@ -22,6 +22,10 @@
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
 
+  programs.ssh = {
+    enable = true;
+  };
+  
   programs.git = {
     enable = true;
     userName = "Alan Munoz";

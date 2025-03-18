@@ -96,7 +96,7 @@ with pkgs; [
   shiori # download whole html websites
   xclip # clipboard manipulation tool
   magic-wormhole # easy sharing
-
+  
   # AI
   #openai-whisper-cpp
   #piper-tts
