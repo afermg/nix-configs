@@ -194,7 +194,7 @@ Various helpers and packages I find useful for window management.
 ; TODO Check if this is actually working
   (use-package clipetty
     :config
-    (clipetty-mode))
+    (global-clipetty-mode 1))
 #+end_src
 
 ** Navigation and editing
@@ -459,10 +459,12 @@ Various helpers and packages I find useful for window management.
         ;; Version control
         '(";tg" . git-timemachine-toggle)
         
-  					; Python
+        ;; Python
         '(";sr" . python-shell-send-region-or-line)
         '(";sb" . python-shell-send-buffer)
         '(";sd" . python-shell-send-defun)
+        '(";sq" . python-shell-restart)
+        '(";sQ" . python-shell-quit)
         '(";se" . code-cells-eval)
         '(";y" . realgud)
         
@@ -2262,9 +2264,12 @@ Leader keys for lsp-mode.
 
 ***** Interactiveness
 #+begin_src emacs-lisp
+  (defun python-shell-quit ()
+    (kill-buffer (python-shell-get-buffer)))
+
   (defun python-shell-send-current-statement ()
     "Send current statement to Python shell.
-     Taken from elpy-shell-send-current-statement"
+       Taken from elpy-shell-send-current-statement"
     (interactive)
     (let ((beg (python-nav-beginning-of-statement))
           (end (python-nav-end-of-statement)))
