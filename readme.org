@@ -47,8 +47,53 @@ Relative to the root folder of the repo.
 | Both   | modules/shared/packages.nix | [WIP] modules/shared/home-manager.nix |
 
 System-wide Darwin packages is not supported yet.
+* File structure
+#+begin_src bash
+├── flake.lock
+├── flake.nix
+├── homes
+│   ├── amunoz
+│   │   ├── home.nix
+│   │   ├── id_ed25519.pub
+│   │   ├── moby.nix
+│   │   └── packages.nix
+│   ├── common # shared between users
+│   │   └── vscode.nix
+│   ├── $USER # per-user specific config
+│   │   ├── home.nix
+│   │   ├── id_rsa.pub
+│   │   ├── moby.nix
+│   │   └── packages.nix
+│   ├── darwin001
+│   │   └── default.nix
+│   └── moby # per-server specific config
+│       ├── default.nix
+│       ├── disko.nix
+│       ├── filesystem.nix
+│       └── hardware-configuration.nix
+├── modules # Shared packages and config files
+│   ├── darwin
+│   │   └── packages.nix
+│   ├── home-manager
+│   │   └── default.nix
+│   ├── nixos
+│   │   ├── default.nix
+│   │   └── packages.nix
+│   └── shared
+│       ├── config
+│       │   └── emacs
+│       │       ├── config.org
+│       │       ├── init.el
+│       ├── home-manager.nix
+│       └── packages.nix
+└── shell.nix
+  
+#+end_src
+
 
 * Current work
 - Trimming the fat
 - Isolate GPU packages and services
 - Getting a deeper understanding of the system
+- Add secrets
+- Manage firefox from nix
