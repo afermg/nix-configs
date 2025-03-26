@@ -47,9 +47,8 @@ Relative to the root folder of the repo.
 | Both   | modules/shared/packages.nix | [WIP] modules/shared/home-manager.nix |
 
 System-wide Darwin packages is not supported yet.
+
 * Current work
 - Trimming the fat
-- Adding multiple configs for multiple Darwin computers
-- Modify things so they are closer to [[https://github.com/dustinlyons/nixos-config][nixos-config]] than neusis.
-- Add support to user-based config update
 - Isolate GPU packages and services
+- Getting a deeper understanding of the system
