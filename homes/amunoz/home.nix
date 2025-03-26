@@ -1,4 +1,4 @@
-{ outputs, pkgs, ... }:
+{ pkgs, ... }:
 let user = if pkgs.stdenv.isLinux
            then "amunoz"
            else "amunozgo";
@@ -7,16 +7,11 @@ let user = if pkgs.stdenv.isLinux
                   else "Users";
 in
 {
-  nixpkgs = {
-    overlays = [
-      outputs.overlays.unstable-packages
-    ];
-  };
-
   home.username = "${user}";
   home.homeDirectory = "/${home_parent}/${user}";
                        
   home.stateVersion = "24.05";
+  home.packages = pkgs.callPackage ./packages.nix {};
   
   # This breaks the macos config
   # services.syncthing = {
@@ -82,5 +77,22 @@ in
         ];
   };
   programs.home-manager.enable = true;
+  programs.git = {
+    enable = true;
+    userName = "Alan Munoz";
+    userEmail = "afer.mg@gmail.com";
+    #extraConfig = {
+    # Sign all commits using ssh key
+    #    commit.gpgsign = true;
+    #    gpg.format = "ssh";
+    #    gpg.ssh.allowedSignersFile = "~/.ssh/allowed_signers";
+    #    user.signingkey = "~/.ssh/id_ed25519.pub";
+    #  };
+  };
+
+  programs.direnv = {
+    enable = true;
+    nix-direnv.enable = true;
+  };
   
 }

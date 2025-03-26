@@ -145,7 +145,6 @@
       killall # kill all the processes by name
       screen # ssh in and out of a server
       lsof # Files and their processes
-      moreutils # e.g. sponge
       git
       ripgrep # faster grep in rust
       
@@ -226,13 +225,14 @@
 
 
   # USER HOMES
-  home-manager.users.amunoz = import ../../modules/nixos/home-manager.nix;
-  # {
-  #   imports = [
-  #    inputs.agenix.homeManagerModules.default
-  #    ../../homes/amunoz/moby.nix
-  #   ];
-  # };
+  # home-manager.users.amunoz = import ../../modules/nixos/home-manager.nix;
+  home-manager.users.amunoz = {
+    imports = [
+     # ../../modules/nixos/home-manager.nix;
+     inputs.agenix.homeManagerModules.default
+     ../../homes/amunoz/moby.nix
+    ];
+  };
 
   home-manager.users.llanos = {
     imports = [
