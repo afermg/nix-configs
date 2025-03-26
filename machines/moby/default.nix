@@ -145,7 +145,7 @@
   # networking.bridges.br0.interfaces = [ "enp2s0" "wlp131s0" ];
   services.tailscale.enable = true;
   # enable the netbird service
-  services.netbird.enable = true;
+  # services.netbird.enable = true;
   # environment.systemPackages = [ pkgs.netbird-ui ]; # for GUI
 
   # services.syncthing = {

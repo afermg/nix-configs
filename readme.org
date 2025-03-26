@@ -16,7 +16,7 @@ Replace =moby= or =darwin001= with the file you want to use on =machines/=
 
 ** NixOS
 #+begin_src bash
-nixos-rebuild switch --flake .#moby
+sudo nixos-rebuild switch --flake .#moby
 #+end_src
 
 *** Update home only

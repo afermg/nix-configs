@@ -1,6 +1,5 @@
 { pkgs }:
 with pkgs; [
-
   # base
   gawk
   coreutils
@@ -12,7 +11,6 @@ with pkgs; [
   killall # kill all the processes by name
   screen # ssh in and out of a server
   lsof # Files and their processes
-  # moreutils # e.g. sponge #disabled due to parallel conflict
 
   # To support pdbpp in emacs
   autoconf

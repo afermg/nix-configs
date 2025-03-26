@@ -3,11 +3,15 @@
 with pkgs;
 let shared-packages = import ../shared/packages.nix { inherit pkgs; }; in
 shared-packages ++ [
+  hello
+  
   # base
+  coreutils
   gawk
   gnumake # Necessary for emacs' vterm
   libtool # Necessary for emacs' vterm
   gnused # The one and only sed
+  parallel 
   wget # fetch stuff
   ps # processes
   killall # kill all the processes by name
@@ -18,10 +22,6 @@ shared-packages ++ [
   
   # Nix
   home-manager
-
-  # Gnome
-  gnomeExtensions.forge
-  gnomeExtensions.appindicator
   
   # browser
   firefox
@@ -35,6 +35,9 @@ shared-packages ++ [
   # pkgs.unstable.ollama
 
   # Text and terminal utilities
+  # Gnome
+  gnomeExtensions.forge
+  gnomeExtensions.appindicator
   # feh # Manage wallpapers
   # screenkey
   # tree
