@@ -20,5 +20,10 @@ let
 in 
   shared-packages ++  [
     direnv
+    
+    pigz # threaded gunzip
+
+    http-server
+    shiori
   ]
 
