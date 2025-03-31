@@ -1,5 +1,4 @@
 {config, ...}: {
-  boot.kernelPackages = config.boot.zfs.package.latestCompatibleLinuxPackages;
   boot.kernelParams = ["nohibernate"];
   boot.loader.grub = {
     enable = true;
