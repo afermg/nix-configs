@@ -9,11 +9,7 @@
       sha256 = lock.narHash;
     };
   in
-    import nixpkgs {overlays = [
-                       (import (builtins.fetchTarball {
-      url = "https://github.com/nix-community/emacs-overlay/archive/master.tar.gz";
-                       }))
-                    ];},
+    import nixpkgs {overlays = [];},
   inputs,
   ...
 }: {

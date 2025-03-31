@@ -30,16 +30,6 @@
     unstable = upkgs;
   };
 
-  # ank = final: _: let
-  #   apkgs  = import inputs.nixpkgs-ank {
-  #     system = final.system;
-  #     config.allowUnfree = true;
-  #     config.cudaSupport = true;
-  #   };
-  # in {
-  #   ank = apkgs;
-  # };
-
   master = final: _: let
     mpkgs  = import inputs.nixpkgs-master {
       system = final.system;
@@ -49,5 +39,9 @@
   in {
     master = mpkgs;
   };
+
+  emacs = (import (builtins.fetchTarball {
+      url = "https://github.com/nix-community/emacs-overlay/archive/master.tar.gz";
+      sha256="1mva57cnwj7v3k5ib1am55p0w9z539b4x05q77yqvn6bk48ca0cy";}));
 
 }

@@ -85,9 +85,6 @@
     overlays = builtins.attrValues outputs.overlays;
     # Configure your nixpkgs instance
     config = {
-      sunshine = {
-        cudaSupport = true;
-      };
       # Disable if you don't want unfree packages
       allowUnfree = true;
     };
@@ -165,9 +162,9 @@
 
   services.emacs = {
     enable = true;
-    # https://github.com/nix-community/emacs-overlay/issues/455
+    # Xwidgets are not working # https://github.com/nix-community/emacs-overlay/issues/455
     # package = (pkgs.emacs.override { withImageMagick = true; withXwidgets = true; withGTK3 = true; });
-    package = (pkgs.emacs.override { withImageMagick = true; withXwidgets = false; });
+    package = pkgs.emacs-unstable.override { withImageMagick = true; withXwidgets=false; };
   };
   
   # Define a user account. Don't forget to set a password with ‘passwd’.

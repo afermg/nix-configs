@@ -3353,6 +3353,14 @@ TODO: make this lazy-loaded again
   ;; (add-hook 'after-make-frame-functions #'td/adapt-font-size)
 #+end_src
 
+** PDF tools
+#+begin_src emacs-lisp
+  (use-package pdf-tools)
+
+#+end_src
+
+#+RESULTS:
+
 ** COMMENT
 - difftastic integration
 - Forge copy issue url
@@ -3368,7 +3376,6 @@ TODO: make this lazy-loaded again
   ;; (package! edraw :recipe ; draw in emacs
                                           ;   (:host github
                                           ;    :repo "misohena/el-easydraw"))
-  (package! pdf-tools :built-in 'prefer)
   ;; (package! pdf-tools :recipe             ; Necessary for image-roll
   ;;   (:host github
   ;;    :repo "dalanicolai/pdf-tools"

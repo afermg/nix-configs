@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 let user = if pkgs.stdenv.isLinux
            then "amunoz"
            else "amunozgo";
@@ -7,12 +7,15 @@ let user = if pkgs.stdenv.isLinux
                   else "Users";
 in
 {
-  home.username = "${user}";
-  home.homeDirectory = "/${home_parent}/${user}";
+  home = {
+       username = "${user}";
+       homeDirectory = "/${home_parent}/${user}";
                        
-  home.stateVersion = "24.05";
-  home.packages = pkgs.callPackage ./packages.nix {};
-  
+       stateVersion = "24.05";
+       packages = pkgs.callPackage ./packages.nix {};
+
+       file = import ../../modules/shared/files.nix { inherit config pkgs; };
+  }
   # This breaks the macos config
   # services.syncthing = {
   #     enable = true;
