@@ -19,11 +19,21 @@ let
 
 in 
   shared-packages ++  [
-    direnv
+    # Terminal extensions
+    fishPlugins.async-prompt
+    fishPlugins.pure
+    fishPlugins.autopair
     
+    # Development
+    devenv
     pigz # threaded gunzip
+
+    ## Python
+    uv
 
     http-server
     shiori
+
+    mawk
   ]
 

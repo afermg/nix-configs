@@ -42,10 +42,7 @@ with pkgs; [
   wezterm
   kitty
   fish
-  fishPlugins.async-prompt
-  fishPlugins.pure
-  fishPlugins.autopair
-
+  
   # fonts
   nerdfonts # nice fonts, used in doom emacs
   emacs-all-the-icons-fonts
@@ -53,12 +50,10 @@ with pkgs; [
 
   # monitor
   btop # nicer btop
-
-  # python
-  python310 # the standard python
-  poetry # python package management
-  # pyright
-  # ruff
+  
+  # development
+  direnv
+  ruff
 
   # containers
   podman  # for container needs

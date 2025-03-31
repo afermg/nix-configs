@@ -165,8 +165,9 @@
 
   services.emacs = {
     enable = true;
-    # package = (pkgs.emacs29.override { withImageMagick = true; withXwidgets = true; withGTK3 = true; });
-    package = (pkgs.emacs-gtk.override { withImageMagick = true; withXwidgets = true; withGTK3 = true; });
+    # https://github.com/nix-community/emacs-overlay/issues/455
+    # package = (pkgs.emacs.override { withImageMagick = true; withXwidgets = true; withGTK3 = true; });
+    package = (pkgs.emacs.override { withImageMagick = true; withXwidgets = false; });
   };
   
   # Define a user account. Don't forget to set a password with ‘passwd’.
