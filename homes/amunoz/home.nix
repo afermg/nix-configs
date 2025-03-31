@@ -15,7 +15,7 @@ in
        packages = pkgs.callPackage ./packages.nix {};
 
        file = import ../../modules/shared/files.nix { inherit config pkgs; };
-  }
+  };
   # This breaks the macos config
   # services.syncthing = {
   #     enable = true;

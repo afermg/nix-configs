@@ -199,6 +199,16 @@
     ];
   };
   
+  users.users.zchen = {
+    shell = pkgs.zsh;
+    isNormalUser = true;
+    description = "Zitong Chen" ;
+    extraGroups = [ "networkmanager" "wheel" "libvirtd" "qemu-libvirtd" "input"];
+    openssh.authorizedKeys.keyFiles = [
+      ../../homes/zchen/id_rsa.pub
+    ];
+  };
+  
   # Enable home-manager for users
   home-manager.useGlobalPkgs = true;
   home-manager.useUserPackages = true;
@@ -227,6 +237,13 @@
     imports = [
      inputs.agenix.homeManagerModules.default
      ../../homes/hhakem/moby.nix
+    ];
+  };
+  
+  home-manager.users.zchen = {
+    imports = [
+     inputs.agenix.homeManagerModules.default
+     ../../homes/zchen/moby.nix
     ];
   };
   
