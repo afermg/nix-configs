@@ -2617,8 +2617,7 @@ Simple debugger. Does its job just fine most of the time.
     (defun cb-gud--realgud-command-for-mode (mode)
       (pcase mode
         ; todo remove duplication
-        (`python-mode #'dispatch-realgud-python-debugger)
-        (`python-ts-mode #'dispatch-realgud-python-debugger)))
+        (`python-mode #'dispatch-realgud-python-debugger))
     
 
     (defun realgud ()
