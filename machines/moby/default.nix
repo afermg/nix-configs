@@ -121,7 +121,7 @@
     font-awesome
     noto-fonts
     noto-fonts-emoji
-    noto-fonts-cjk
+    noto-fonts-cjk-sans
     noto-fonts-emoji
     liberation_ttf
     fira-code
@@ -165,7 +165,8 @@
 
   services.emacs = {
     enable = true;
-    package = (pkgs.emacs29.override { withImageMagick = true; withXwidgets = true; withGTK3 = true; });
+    # package = (pkgs.emacs29.override { withImageMagick = true; withXwidgets = true; withGTK3 = true; });
+    package = (pkgs.emacs-gtk.override { withImageMagick = true; withXwidgets = true; withGTK3 = true; });
   };
   
   # Define a user account. Don't forget to set a password with ‘passwd’.
