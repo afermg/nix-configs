@@ -70,7 +70,7 @@ with pkgs; [
   bc # calculator
   fzf # fuzzy finder
   jq # process json
-  mermaid-cli # text to diagrams
+  pkgs.unstable.mermaid-cli # text to diagrams
   tldr # quick explanations
 
   # media
