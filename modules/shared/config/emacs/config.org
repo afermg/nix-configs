@@ -2617,7 +2617,7 @@ Simple debugger. Does its job just fine most of the time.
     (defun cb-gud--realgud-command-for-mode (mode)
       (pcase mode
         ; todo remove duplication
-        (`python-mode #'dispatch-realgud-python-debugger))
+        (`python-mode #'dispatch-realgud-python-debugger)))
     
 
     (defun realgud ()
@@ -2648,8 +2648,8 @@ Simple debugger. Does its job just fine most of the time.
     
     (defun realgud-pdb-pytest nil
       (interactive)
-      ;; (realgud:pdb (concat "pytest -pdb --trace --color=yes " buffer-file-name)))  
     (realgud:pdb (concat "pytest --pdb --color=yes " buffer-file-name)))
+      ;; (realgud:pdb (concat "pytest -pdb --trace --color=yes " buffer-file-name)))  
     
     :bind (:map realgud:shortkey-mode-map
                 ("_" . #'describe-at-cursor)
