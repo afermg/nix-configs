@@ -18,11 +18,15 @@ let
   }));
 
 in 
-  shared-packages ++  [
+  [
     # Terminal extensions
     fishPlugins.async-prompt
     fishPlugins.pure
     fishPlugins.autopair
+    
+    # Data hammers
+    mawk
+    duckdb
     
     # Development
     devenv
@@ -34,6 +38,15 @@ in
     http-server
     shiori
 
-    mawk
-  ]
+    # Benchmark
+    gprof2dot
+    
+    # Graphics processing
+    graphviz
+
+    # LSP
+    marksman
+
+    
+  ] ++ shared-packages 
 
