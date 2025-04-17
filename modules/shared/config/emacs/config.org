@@ -1116,6 +1116,7 @@ Setup for ~org-super-agenda~ and ~org-ql~.
   (org-super-agenda-mode)
 #+END_SRC
 
+*** Conveniences
 **** org-sticky-header
 Always show the current heading's full path in the top line. 
 #+begin_src emacs-lisp
@@ -1151,8 +1152,15 @@ Let's us move text but still see it in another file. I primarily use this to mov
       (lambda (el) (when (string-match property (org-element-property :key el)) el)))))
 
 #+END_SRC
+**** org-pandoc-import
+#+begin_src emacs-lisp
+  (use-package org-pandoc-import
+    :straight (:host github
+  		   :repo "tecosaur/org-pandoc-import"
+  		   :files ("*.el" "filters" "preprocessors")))
+#+end_src
 
-*** Install package
+*** Install packages 
 My life in plain text.
 **** Leader key shortcuts
 #+NAME::org-mode-quick-entry
@@ -3221,6 +3229,7 @@ It's surprisingly hard to get a decent screenshot program cross-system
 
 # #+RESULTS:
 # : org-download-screenshot
+
 
 ** Temporal
 *** Hyperbole
