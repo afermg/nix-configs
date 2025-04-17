@@ -59,24 +59,25 @@ in
         switch-to-workspace-right=["<Shift><Control>l"];
       };
         "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0" = {
-          binding = "<Super>Return"; # conflicts with forge, see  https://github.com/forge-ext/forge/issues/37
-          # binding = "<Super>t";
-          command = "/usr/bin/env kitty";
+          # binding = "<Super>Return"; # conflicts with forge, see  https://github.com/forge-ext/forge/issues/37
+          binding = "<Control><Shift>t";
+          command = "wezterm";
           name = "Terminal";
         };
         "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1" = {
-          binding = "<Super>e";
-          command = "/usr/bin/env emacsclient -c -a emacs";
-          name = "Emacs";
+          binding = "<Super>w";
+          command = "/usr/bin/env firefox";
+          name = "Firefox";
         };
         "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2" = {
-          binding = "<Super><Shift>Return";
-          command = "firefox";
+          binding = "<Super>e";
+          command = "/usr/bin/env emacsclient -c -a emacs";
           name = "Emacs";
         };
         "org/gnome/settings-daemon/plugins/media-keys".custom-keybindings = [
           "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/"
           "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/"
+          "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/"
         ];
   };
   programs.home-manager.enable = true;
