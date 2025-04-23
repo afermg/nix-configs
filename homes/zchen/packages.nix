@@ -23,7 +23,9 @@ in
 
     uv
     conda
-  ]
+
+    cowsay
+]
     # Packages shared across users and devices
   ++ shared-packages
     # Linux-only packages
