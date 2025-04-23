@@ -147,13 +147,22 @@ in {
   };
 
   # Standalone home-manager configuration entrypoint
-  # Available through 'home-manager --flake .#your-username@your-hostname'
+  # Available through 'home-manager switch --flake .#your-username@your-hostname'
   homeConfigurations = {
     "amunoz@moby" = lib.homeManagerConfiguration {
       pkgs = pkgsFor.x86_64-linux;
       extraSpecialArgs = {inherit inputs outputs;};
       # > Our main home-manager configuration file <
       modules = [./homes/amunoz/moby.nix];
+    };
+  };
+
+  homeConfigurations = {
+    "zchen@moby" = lib.homeManagerConfiguration {
+      pkgs = pkgsFor.x86_64-linux;
+      extraSpecialArgs = {inherit inputs outputs;};
+      # > Our main home-manager configuration file <
+      modules = [./homes/zchen/moby.nix];
     };
   };
 

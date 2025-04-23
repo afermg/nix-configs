@@ -1,13 +1,20 @@
-{ outputs, ... }:
+{ pkgs, ... }:
+let user = "zchen";
+    home_parent =  "home";
+in
 {
-  nixpkgs = {
-    overlays = [
-      outputs.overlays.unstable-packages
-    ];
-  };
+  # nixpkgs = {
+  #   overlays = [
+  #     outputs.overlays.unstable-packages
+  #   ];
+  # };
 
-  home.username = "zchen" ;
-  home.homeDirectory = "/home/zchen";
+  home = {
+      username = "zchen" ;
+      homeDirectory = "/home/zchen";
+      packages = pkgs.callPackage ./packages.nix {};
+    
+  };
  
  home.stateVersion = "23.11";
 

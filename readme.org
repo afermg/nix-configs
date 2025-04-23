@@ -22,7 +22,7 @@ sudo nixos-rebuild switch --flake .#moby
 *** Update home only
 If you just want to update your home configuration and packages use this command.
 #+begin_src bash
-home-manager --flake .#your-username@your-hostname
+home-manager switch --flake .#your-username@your-hostname
 #+end_src
 ** Darwin
 If darwin-rebuild is not available run this

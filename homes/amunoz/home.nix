@@ -24,7 +24,8 @@ in
   #     user = "amunoz";
   # };
 
-  
+
+  # Gnome graphical interface
   dconf.settings = {
   "org/gnome/settings-daemon/plugins/power" = {
     sleep-inactive-ac-type = "nothing";
@@ -39,7 +40,7 @@ in
       # Custom keybindings
       "org/gnome/desktop/wm/keybindings" = {
         activate-window-menu = "disabled";
-        # toggle-message-tray = "disabled";
+        toggle-message-tray = "disabled";
         minimize = [];
         move-to-monitor-left=[];
         move-to-monitor-right=[];
@@ -80,6 +81,7 @@ in
           "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/"
         ];
   };
+  
   programs.home-manager.enable = true;
   programs.git = {
     enable = true;

@@ -48,5 +48,14 @@ in
     marksman
 
     
-  ] ++ shared-packages 
+  ] 
+  ++ shared-packages
+    # Linux-only packages
+  ++ pkgs.lib.optionals pkgs.stdenv.isLinux
+    [
+      nvtopPackages.full # another top for gpus
+    ]
+
+
+
 
