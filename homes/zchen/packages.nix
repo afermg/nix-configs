@@ -21,6 +21,7 @@
     clang # c language
     clang-tools # tools for c language
 
+    uv
     conda
     nvtopPackages.full # another top for gpus
 ] ++ shared-packages;
