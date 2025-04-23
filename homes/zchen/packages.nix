@@ -24,7 +24,7 @@ in
     uv
     conda
 
-    cowsay
+    btop
 ]
     # Packages shared across users and devices
   ++ shared-packages
