@@ -1,22 +1,19 @@
-{ pkgs, config, inputs, ...}:
-
-{
-
-  home.packages = with pkgs; [
+{ pkgs }:
+with pkgs;
+let
+  shared-packages = import ../../modules/shared/packages.nix { inherit pkgs; };
+in
+  [
     awscli
     screen
     git
     tldr
     killall
-];
-  programs.git = {
-    enable = true;
-    userName = "PaulaLlanos";
-    userEmail = "llanos.paula@gmail.com";
-  };
-
-  programs.direnv = {
-    enable = true;
-    nix-direnv.enable = true;
-  };
-}
+  ]
+    # Packages shared across users and devices
+  ++ shared-packages
+    # Linux-only packages
+  ++ pkgs.lib.optionals pkgs.stdenv.isLinux
+    [
+      nvtopPackages.full # another top for gpus
+    ]

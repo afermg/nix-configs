@@ -1,13 +1,9 @@
-{ pkgs, config, inputs, ...}:
-  let shared-packages = import ../../modules/shared/packages.nix { inherit pkgs; }; in
-{
-
-  home.packages = with pkgs; [
-
-    # To support pdbpp in emacs
-    autoconf
-    automake
-
+{ pkgs, ...}:
+with pkgs;
+let
+  shared-packages = import ../../modules/shared/packages.nix { inherit pkgs; };
+in
+  [
     # faster/better X
     ripgrep # faster grep in rust
     fd # faster find
@@ -25,48 +21,12 @@
 
     python310 # the standard python
     pyright
-    nvtopPackages.full # another top for gpus
-] ++ shared-packages;
-  programs.git = {
-    enable = true;
-    userName = "HugoHakem";
-    userEmail = "hugo.hakem@berkeley.edu";
-  };
-
-  programs.direnv = {
-    enable = true;
-    nix-direnv.enable = true;
-  };
-  programs.zsh = {
-    enable = true;
-    enableCompletion = true;
-    autosuggestion.enable = true;
-    syntaxHighlighting.enable = true;
-
-    shellAliases = {
-      ll = "ls -l";
-      ns = "nix search nixpkgs";
-    };
-    initExtra = ''
-      function nx() {
-        nix-shell -p $1
-      }
-
-      bindkey '^I' complete-word
-      bindkey '^[[Z' autosuggest-accept
-    '';
-    history.size = 10000;
-    history.path = "${config.xdg.dataHome}/zsh/history";
-    oh-my-zsh = {
-      enable = true;
-      plugins = [ "git" "gh" ];
-      theme = "fino-time";
-    };
-  };
-  programs.zoxide = {
-    enable = true;
-    enableBashIntegration = true;
-    enableZshIntegration = true;
-  };
-}
+  ] 
+# Packages shared across users and devices
+  ++ shared-packages
+    # Linux-only packages
+  ++ pkgs.lib.optionals pkgs.stdenv.isLinux
+    [
+      nvtopPackages.full # another top for gpus
+    ]
 

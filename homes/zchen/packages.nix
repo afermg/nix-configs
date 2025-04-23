@@ -31,6 +31,3 @@ in
     [
       nvtopPackages.full # another top for gpus
     ]
-
-
-

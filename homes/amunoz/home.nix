@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, outputs, ... }:
 let user = if pkgs.stdenv.isLinux
            then "amunoz"
            else "amunozgo";
@@ -7,6 +7,12 @@ let user = if pkgs.stdenv.isLinux
                   else "Users";
 in
 {
+  nixpkgs = {
+    overlays = [
+      outputs.overlays.unstable
+    ];
+  };
+  
   home = {
        username = "${user}";
        homeDirectory = "/${home_parent}/${user}";
