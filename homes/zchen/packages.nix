@@ -25,6 +25,7 @@ in
     conda
 
     btop
+    pzip
 ]
     # Packages shared across users and devices
   ++ shared-packages
