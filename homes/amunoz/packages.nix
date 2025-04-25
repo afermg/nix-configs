@@ -44,9 +44,22 @@ in
     # Graphics processing
     graphviz
 
-    # LSP
-    marksman
+    # packages under examination
+    luajitPackages.fennel # lua in fennel
+    shiori # download whole html websites
+    xclip # clipboard manipulation tool
 
+    ## AI
+    #openai-whisper-cpp
+    #piper-tts
+
+    ## docs
+    pdftk
+    # (gnumeric.overrideAttrs(p: { buildInputs = p.buildInputs ++ [ zlib12 ]; }))
+
+    ## very specific needs
+    haskellPackages.xml-to-json-fast
+    qrtool # encode and decode qr codes
     
   ] 
   ++ shared-packages
