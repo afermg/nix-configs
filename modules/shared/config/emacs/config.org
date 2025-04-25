@@ -2591,6 +2591,7 @@ Simple debugger. Does its job just fine most of the time.
 #+begin_src emacs-lisp
   (use-package realgud
     :config
+    (setq realgud-safe-mode nil)
     ;; sort windows in realgud
     ;; https://github.com/realgud/realgud/issues/169#issuecomment-315632678
     (defun cb-gud--setup-realgud-windows (&optional buffer)
@@ -2632,10 +2633,9 @@ Simple debugger. Does its job just fine most of the time.
     (defun realgud ()
       (interactive)
       (let ((buf (current-buffer)))
-        (unless (or (realgud-get-cmdbuf) (realgud-get-current-srcbuf))
   	(if-let (command (cb-gud--realgud-command-for-mode major-mode))
               (funcall command)
-            (error "No realgud support for %s" major-mode)))
+            (error "No realgud support for %s" major-mode))
         (cb-gud--setup-realgud-windows buf)))
     
     (add-to-list 'display-buffer-alist
@@ -2653,7 +2653,11 @@ Simple debugger. Does its job just fine most of the time.
       (realgud:cmd-info-value (concat (thing-at-point 'word) "\n")))
     
     ;; Meow is deactivated upon removal of realgud's track mode track-mode
-    (add-hook 'realgud-srcbuf-mode-hook (lambda nil (meow-global-mode 1)))
+    (add-hook 'realgud-srcbuf-mode-hook
+  	    (lambda nil
+  	      (unless realgud-srcbuf-mode
+  		(progn (delete-windows-on (realgud-get-cmdbuf)) (meow-global-mode 1)))))
+    ;; (add-hook 'realgud-srcbuf-mode-hook (lambda nil (unless realgud-srcbuf-mode (kill-buffer (realgud-get-cmdbuf)))))
     
     (defun realgud-pdb-pytest nil
       (interactive)
