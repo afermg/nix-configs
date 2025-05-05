@@ -3003,15 +3003,16 @@ Completion
     :config
     (setq gptel-default-mode #'org-mode)
     (setq gptel-backend
-  	(gptel-make-ollama "Ollama"	;Any name of your choosing
-  	  :host "localhost:11434"	;Where it's running
-  	  :stream t			;Stream responses
-  	  :models '(mistral:latest qwen3:32b gemma3:27b gemma3:12b llama3.3:70b deepseek-r1:70b))) ;List of models)
-    (setq  gptel-model 'qwen3:32b)
-  )
+    	(gptel-make-ollama "Ollama"	;Any name of your choosing
+    	  :host "localhost:11434"	;Where it's running
+    	  :stream t			;Stream responses
+  	  :request-params
+  	  '(:options (:num_ctx 32768))
+    	  :models '(mistral:latest qwen3:30b-a3b qwen3:32b gemma3:27b gemma3:12b llama3.3:70b deepseek-r1:70b))) ;List of models)
+    (setq  gptel-model 'qwen3:30b-a3b)
+    )
 
 #+end_src
-
 
 **** magit-gptcommit
 #+begin_src emacs-lisp
