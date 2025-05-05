@@ -17,7 +17,6 @@ in
   };
  
 
-  programs.home-manager.enable = true;
   programs.git = {
     enable = true;
     userName = "Zitong Chen";
