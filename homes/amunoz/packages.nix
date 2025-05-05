@@ -60,6 +60,7 @@ in
     ## very specific needs
     haskellPackages.xml-to-json-fast
     qrtool # encode and decode qr codes
+    zotero-beta
     
   ] 
   ++ shared-packages
