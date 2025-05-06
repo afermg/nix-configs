@@ -2058,9 +2058,12 @@ At then moment this only works if the jar is ="../../X"= away from the executabl
 #+begin_src emacs-lisp
   (use-package langtool
     :config
-    (setq langtool-language-tool-jar (file-name-concat (file-name-parent-directory (file-name-parent-directory (file-truename (executable-find "languagetool-commandline")))) "share" "languagetool-commandline.jar"))
-    ;; (setq langtool-bin "languagetool-commandline")
-    )
+    (setq langtool-language-tool-jar
+  	(file-name-concat
+  	 (file-name-parent-directory
+  	  (file-name-parent-directory
+  	   (file-truename (executable-find "languagetool-commandline"))))
+  	 "share" "languagetool-commandline.jar")))
 #+end_src
 
 *** Spell
