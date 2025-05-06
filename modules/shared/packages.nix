@@ -71,6 +71,7 @@ with pkgs; [
   lemminx
   marksman #markdown
   ruff #python
+  zulu23 # java
   
   ## Non-LSP code helpers
   shellcheck

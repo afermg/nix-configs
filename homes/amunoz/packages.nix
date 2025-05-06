@@ -56,7 +56,8 @@ in
     ## docs
     pdftk
     # (gnumeric.overrideAttrs(p: { buildInputs = p.buildInputs ++ [ zlib12 ]; }))
-
+    languagetool
+    
     ## very specific needs
     haskellPackages.xml-to-json-fast
     qrtool # encode and decode qr codes
