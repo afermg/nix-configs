@@ -42,6 +42,6 @@
 
   emacs = (import (builtins.fetchTarball {
       url = "https://github.com/nix-community/emacs-overlay/archive/master.tar.gz";
-      sha256="1mva57cnwj7v3k5ib1am55p0w9z539b4x05q77yqvn6bk48ca0cy";}));
+      sha256="0sii2d37cm47bri1qjv3s72lgg15l17jdlhnd1cl4in3w53hr7w8";}));
 
 }
