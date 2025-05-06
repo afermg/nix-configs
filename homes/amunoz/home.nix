@@ -67,7 +67,7 @@ in
       };
         "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0" = {
           # binding = "<Super>Return"; # conflicts with forge, see  https://github.com/forge-ext/forge/issues/37
-          binding = "<Control><Shift>t";
+          binding = "<Shift><Alt>t";
           command = "wezterm";
           name = "Terminal";
         };
