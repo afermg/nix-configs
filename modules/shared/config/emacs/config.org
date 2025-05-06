@@ -2161,7 +2161,15 @@ Captions and cdlatex
                    ("\\section{%s}" . "\\section*{%s}")
                    ("\\subsection{%s}" . "\\subsection*{%s}")
                    ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
+   (add-to-list 'org-latex-classes
+           '("article-minimal"
+                   "\\documentclass{article}
+                    [NO-DEFAULT-PACKAGES]"
+                   ("\\section{%s}" . "\\subsection*{%s}")
+                   ("\\subsection{%s}" . "\\subsubsection*{%s}")
+                   ("\\subsubsection{%s}" . "\\subsubsubsection*{%s}")))
 #+end_src
+
 
 Set XeLaTex as our compiler
 #+begin_src emacs-lisp :tangle yes
