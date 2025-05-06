@@ -71,7 +71,8 @@ with pkgs; [
   lemminx
   marksman #markdown
   ruff #python
-  zulu23 # java
+  ltex-ls # language tool LSP for latex and org-mode
+  autotools-language-server
   
   ## Non-LSP code helpers
   shellcheck

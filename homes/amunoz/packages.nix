@@ -57,6 +57,7 @@ in
     pdftk
     # (gnumeric.overrideAttrs(p: { buildInputs = p.buildInputs ++ [ zlib12 ]; }))
     ltex-ls # language tool LSP for latex and org-mode
+    autotools-language-server
     
     ## very specific needs
     haskellPackages.xml-to-json-fast
