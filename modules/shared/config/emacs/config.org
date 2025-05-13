@@ -80,6 +80,7 @@ a specific installation order.
 #+END_SRC
 
 *** Modes
+
 This is used primarily to center org mode text.
 #+NAME: mode-margins
 #+BEGIN_SRC emacs-lisp
@@ -112,7 +113,7 @@ Generally-useful modes
   (setq display-line-numbers-type 'relative)
   (electric-pair-mode 1)
   (show-paren-mode t) ;; Highlights parens
-
+  
   ;; The built-in `recentf-mode' keeps track of recently visited files.
   ;; You can then access those through the `consult-buffer' interface or
   ;; with `recentf-open'/`recentf-open-files'.
@@ -488,7 +489,6 @@ Various helpers and packages I find useful for window management.
     (meow-setup)
     (meow-global-mode 1)
 #+end_src
-
 
 *** Meow+vterm support
 #+begin_src elisp
@@ -2021,20 +2021,21 @@ Projectile enables me to organize projects with a killer grep interface.
                  ("terminfo/65" "terminfo/65/*")
                  ("integration" "integration/*")
                  (:exclude ".dir-locals.el" "*-tests.el"))))
+
 #+end_src
 
 ** Writing
 
-*** Language tool
+**** Language tool
 At then moment this only works if the jar is ="../../X"= away from the executable (to work with the Nix installation).
 #+begin_src emacs-lisp
-  (use-package lsp-ltex
-  :ensure t
-  :hook (text-mode . (lambda ()
-                       (require 'lsp-ltex)
-                       (lsp)))  ; or lsp-deferred
-  :init
-  (setq lsp-ltex-version "16.0.0"))  ; make sure you have set this, see below
+(use-package lsp-ltex
+:ensure t
+:hook (text-mode . (lambda ()
+                     (require 'lsp-ltex)
+                     (lsp)))  ; or lsp-deferred
+:init
+(setq lsp-ltex-version "16.0.0"))  ; make sure you have set this, see below
 #+end_src
 
 *** Spell
@@ -2042,6 +2043,7 @@ At then moment this only works if the jar is ="../../X"= away from the executabl
 (setq synosaurus-choose-method 'popup)
 (setq org-M-RET-may-split-line nil)
 (setf org-blank-before-new-entry '((heading . auto) (plain-list-item . nil)))
+#+end_src
 #+end_src
 
 *** Synonyms
@@ -2110,49 +2112,49 @@ Make use of extarticle by default
 
 Captions and cdlatex
 #+begin_src emacs-lisp 
-   ;;  (add-hook 'org-mode #'(cdlatex-mode))
+    ;;  (add-hook 'org-mode #'(cdlatex-mode))
 
 
-     (setq org-latex-prefer-user-labels t
-           org-latex-caption-above nil
-           ;; org-latex-listings 'minted
-           org-latex-listings nil
-           )
+      (setq org-latex-prefer-user-labels t
+            org-latex-caption-above nil
+            ;; org-latex-listings 'minted
+            org-latex-listings nil
+            )
 
 
-     ;;Colours
-   ;; (add-to-list 'org-latex-packages-alist '("" "minted"))
-   ;(add-to-list 'org-latex-packages-alist '("" "tabularx"))
-   ;(plist-put org-format-latex-options :scale 1.75        )
-   ;(add-to-list 'org-latex-packages-alist '("" "unicode-math")))
-    (add-to-list 'org-latex-classes
-          '("beamerposter"
-            "\\documentclass[final]{beamer}
-            \\usepackage[T1]{fontenc}
-            \\usepackage{lmodern}
-            \\usepackage[size=custom,width=84.1,height=118.9,scale=1.0]{beamerposter}  
-            \\usepackage{graphicx}
-            \\usepackage{booktabs}
-            \\usepackage{tikz}
-            \\usepackage{pgfplots}
-            \\pgfplotsset{compat=1.18}
-            \\usepackage{anyfontsize}
-            [NO-DEFAULT-PACKAGES]"))
-  (add-to-list 'org-latex-classes
-          '("extarticle"
-                  "\\documentclass{extarticle}"
-                  ("\\section{%s}" . "\\section*{%s}")
-                  ("\\subsection{%s}" . "\\subsection*{%s}")
-                  ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
-  (add-to-list 'org-latex-classes
-          '("article-minimal"
-                  "\\documentclass[12pt]{article}
-                   \\usepackage{hyperref}
-                   [NO-DEFAULT-PACKAGES]"
-                  ("\\section{%s}" . "\\subsection*{%s}")
-                  ("\\subsection{%s}" . "\\subsubsection*{%s}")
-                  ("\\subsubsection{%s}" . "\\subsubsubsection*{%s}")))
+      ;;Colours
+    ;; (add-to-list 'org-latex-packages-alist '("" "minted"))
+    ;(add-to-list 'org-latex-packages-alist '("" "tabularx"))
+    ;(plist-put org-format-latex-options :scale 1.75        )
+    ;(add-to-list 'org-latex-packages-alist '("" "unicode-math")))
+     (add-to-list 'org-latex-classes
+           '("beamerposter"
+             "\\documentclass[final]{beamer}
+             \\usepackage[T1]{fontenc}
+             \\usepackage{lmodern}
+             \\usepackage[size=custom,width=84.1,height=118.9,scale=1.0]{beamerposter}  
+             \\usepackage{graphicx}
+             \\usepackage{booktabs}
+             \\usepackage{tikz}
+             \\usepackage{pgfplots}
+             \\pgfplotsset{compat=1.18}
+             \\usepackage{anyfontsize}
+             [NO-DEFAULT-PACKAGES]"))
+   (add-to-list 'org-latex-classes
+           '("extarticle"
+                   "\\documentclass{extarticle}"
+                   ("\\section{%s}" . "\\section*{%s}")
+                   ("\\subsection{%s}" . "\\subsection*{%s}")
+                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
+   (add-to-list 'org-latex-classes
+           '("article-minimal"
+                   "\\documentclass{article}
+                    [NO-DEFAULT-PACKAGES]"
+                   ("\\section{%s}" . "\\subsection*{%s}")
+                   ("\\subsection{%s}" . "\\subsubsection*{%s}")
+                   ("\\subsubsection{%s}" . "\\subsubsubsection*{%s}")))
 #+end_src
+
 
 Set XeLaTex as our compiler
 #+begin_src emacs-lisp :tangle yes
@@ -2235,7 +2237,26 @@ This is my IDE. It includes the same engine that powers VS Code, in addition to 
     (use-package lsp-treemacs
       :after lsp)
 
-    (add-hook 'lsp-mode-hook #'lsp-headerline-breadcrumb-mode)
+  ;;   (use-package company
+  ;;     :after lsp-mode
+  ;;     :hook (lsp-mode . company-mode)
+  ;;     :bind (:map company-active-map
+  ;;           ("<tab>" . company-complete-selection))
+  ;;           (:map lsp-mode-map
+  ;;           ("<tab>" . company-indent-or-complete-common))
+  ;;      :custom
+  ;;        (company-minimum-prefix-length 1)
+  ;;        (company-idle-delay 0.0))
+
+  ;;   (use-package company-box
+  ;;     :hook (company-mode . company-box-mode))
+
+  ;; (use-package lsp-pyright
+  ;;   :ensure t
+  ;;   :hook (python-mode . (lambda ()
+  ;;                           (require 'lsp-pyright)
+  ;;                           (lsp))))  ; or lsp-deferred
+    ;; (add-hook 'lsp-mode-hook #'lsp-headerline-breadcrumb-mode)
 #+END_SRC
 
 **** Shortcuts
@@ -2896,78 +2917,74 @@ Completion
   (use-package tempel-collection)
 #+end_src
 
-*** Completion
-**** Completion-preview
+*** Corfu
+
 #+begin_src emacs-lisp
-  ;; A few more useful configurations...
-  (use-package completion-preview
-    :ensure nil
-    :hook (prog-mode . completion-preview-mode)
-    :bind
-    ( :map completion-preview-active-mode-map
-      ("M-n" . completion-preview-next-candidate)
-      ("M-p" . completion-preview-prev-candidate)))
+        (use-package corfu
+          ;; Optional customizations
+          :custom
+          (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
+          (corfu-auto t)                 ;; Enable auto completion
+          ;; (corfu-separator ?\s)          ;; Orderless field separator
+          ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
+          ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
+          ;; (corfu-preview-current nil)    ;; Disable current candidate preview
+          (corfu-preselect 'prompt)      ;; Preselect the prompt
+          ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
+          ;; (corfu-scroll-margin 5)        ;; Use scroll margin
+
+          ;; Enable Corfu only for certain modes.
+          ;; :hook ((prog-mode . corfu-mode)
+          ;;        (shell-mode . corfu-mode)
+          ;;        (eshell-mode . corfu-mode))
+
+          ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
+          ;; be used globally (M-/).  See also the customization variable
+          ;; `global-corfu-modes' to exclude certain modes.
+          :init
+          (global-corfu-mode)
+          :config
+          ;; Enable auto completion and configure quitting
+          (setq corfu-auto t
+          corfu-quit-no-match 'separator)) ;; or t
+
+        ;; A few more useful configurations...
+        (use-package emacs
+          :init
+          ;; TAB cycle if there are only few candidates
+          ;; (setq completion-cycle-threshold 3)
+
+          ;; Enable indentation+completion using the TAB key.
+          ;; `completion-at-point' is often bound to M-TAB.
+          (setq tab-always-indent 'complete)
+
+          ;; Emacs 30 and newer: Disable Ispell completion function. As an alternative,
+          ;; try `cape-dict'.
+          (setq text-mode-ispell-word-completion #'capf-dict)
+
+          ;; Emacs 28 and newer: Hide commands in M-x which do not apply to the current
+          ;; mode.  Corfu commands are hidden, since they are not used via M-x. This
+          ;; setting is useful beyond Corfu.
+          (setq read-extended-command-predicate #'command-completion-default-include-p))
 #+end_src
-**** Corfu
-#+begin_src emacs-lisp
-  (use-package corfu
-    ;; Optional customizations
-    ;; :custom
-    ;; (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
-    ;; (corfu-auto t)                 ;; Enable auto completion
-    ;; (corfu-separator ?\s)          ;; Orderless field separator
-    ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
-    ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
-    ;; (corfu-preview-current nil)    ;; Disable current candidate preview
-    ;; (corfu-preselect 'prompt)      ;; Preselect the prompt
-    ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
-    ;; (corfu-scroll-margin 5)        ;; Use scroll margin
-
-    ;; Enable Corfu only for certain modes.
-    ;; :hook ((prog-mode . corfu-mode)
-    ;;        (shell-mode . corfu-mode)
-    ;;        (eshell-mode . corfu-mode))
-
-    ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
-    ;; be used globally (M-/).  See also the customization variable
-    ;; `global-corfu-modes' to exclude certain modes.
-    :init
-    (global-corfu-mode)
-    :config
-    ;; Enable auto completion and configure quitting
-    (setq corfu-auto t
-  	corfu-quit-no-match 'separator)) ;; or t
-
-  ;; A few more useful configurations...
-  (use-package emacs
-    :init
-    ;; TAB cycle if there are only few candidates
-    ;; (setq completion-cycle-threshold 3)
-
-    ;; Enable indentation+completion using the TAB key.
-    ;; `completion-at-point' is often bound to M-TAB.
-    (setq tab-always-indent 'complete)
-
-    ;; Emacs 30 and newer: Disable Ispell completion function. As an alternative,
-    ;; try `cape-dict'.
-    (setq text-mode-ispell-word-completion #'cape-dict)
-
-    ;; Emacs 28 and newer: Hide commands in M-x which do not apply to the current
-    ;; mode.  Corfu commands are hidden, since they are not used via M-x. This
-    ;; setting is useful beyond Corfu.
-    (setq read-extended-command-predicate #'command-completion-default-include-p))
-#+end_src
-
-**** COMMENT Cape
+*** Cape
 #+begin_src emacs-lisp
   (use-package cape
-    :demand t
+    ;; Bind prefix keymap providing all Cape commands under a mnemonic key.
+    ;; Press C-c p ? to for help.
+    :bind ("C-c p" . cape-prefix-map) ;; Alternative key: M-<tab>, M-p, M-+
     :init
-    ;; Add `completion-at-point-functions', used by `completion-at-point'.
-    (setq-default completion-at-point-functions
-                  (append (default-value 'completion-at-point-functions)
-                          (list #'cape-dabbrev #'cape-file #'cape-abbrev))))
+    ;; Add to the global default value of `completion-at-point-functions' which is
+    ;; used by `completion-at-point'.  The order of the functions matters, the
+    ;; first function returning a result wins.  Note that the list of buffer-local
+    ;; completion functions takes precedence over the global list.
+    (add-hook 'completion-at-point-functions #'cape-dabbrev)
+    (add-hook 'completion-at-point-functions #'cape-file)
+    (add-hook 'completion-at-point-functions #'cape-elisp-block)
+    (add-hook 'completion-at-point-functions #'cape-history)
+    )
 #+end_src
+
 
 *** Snippets that are Nice to have
 #+begin_src emacs-lisp 
@@ -3214,6 +3231,9 @@ It's surprisingly hard to get a decent screenshot program cross-system
     (require 'org-download)) )
 #+end_src
 
+# #+RESULTS:
+# : org-download-screenshot
+
 
 ** Temporal
 *** Hyperbole
@@ -3352,54 +3372,10 @@ TODO: make this lazy-loaded again
 
 #+end_src
 
-** COMMENT
-- difftastic integration
-- Forge copy issue url
-- PDF-tools
- 
-
-*** Packages
+*** Other Packages
 
 #+begin_src emacs-lisp
-  ;;; (package! column-marker)
-  (use-package affe) ; fzf-like https://github.com/minad/affe
-
-  ;; (package! edraw :recipe ; draw in emacs
-                                          ;   (:host github
-                                          ;    :repo "misohena/el-easydraw"))
-  ;; (package! pdf-tools :recipe             ; Necessary for image-roll
-  ;;   (:host github
-  ;;    :repo "dalanicolai/pdf-tools"
-  ;;    :branch "pdf-roll"
-  ;;    :files ("lisp/*.el"
-  ;;            "README"
-  ;;            ("build" "Makefile")
-  ;;            ("build" "server")
-  ;;            (:exclude "lisp/tablist.el" "lisp/tablist-filter.el"))))
-  ;; (package! image-roll :recipe            ; Continuous scrolling in pdf-view
-  ;;   (:host github
-  ;;    :repo "dalanicolai/image-roll.el"))
-
-(package! fzf) ; fuzzy finder
-(package! gnuplot)
-(package! gnuplot-mode)
-(package! kkp)
-(package! langtool)                     ; Grammar correction
-(package! orgtbl-aggregate)
-(package! quarto-mode)
-(package! unfill)
-;; (package! hnreader)
-;; (package! elfeed-score)
-;; (package! highlight)
-;; (package! org-chef)
-;; (package! phscroll 
-;;   :recipe 
-;;   (:host github 
-;;    :repo "misohena/phscroll"))
-;; (package! org-present)
-;; (package! scad-mode)                    ; proper linting for .scad files
-;; (package! sly-quicklisp)
-  
+    (use-package affe) ; fzf-like https://github.com/minad/affe
 #+end_src
 
 
