@@ -80,7 +80,6 @@ a specific installation order.
 #+END_SRC
 
 *** Modes
-
 This is used primarily to center org mode text.
 #+NAME: mode-margins
 #+BEGIN_SRC emacs-lisp
@@ -113,7 +112,7 @@ Generally-useful modes
   (setq display-line-numbers-type 'relative)
   (electric-pair-mode 1)
   (show-paren-mode t) ;; Highlights parens
-  
+
   ;; The built-in `recentf-mode' keeps track of recently visited files.
   ;; You can then access those through the `consult-buffer' interface or
   ;; with `recentf-open'/`recentf-open-files'.
@@ -490,8 +489,6 @@ Various helpers and packages I find useful for window management.
     (meow-global-mode 1)
 #+end_src
 
-#+RESULTS:
-: t
 
 *** Meow+vterm support
 #+begin_src elisp
@@ -2029,41 +2026,16 @@ Projectile enables me to organize projects with a killer grep interface.
 
 ** Writing
 
-*** Spell Check / Flycheck Mode
-Everything related to spell and grammar checking.
-
-#+NAME: spell-check
-#+BEGIN_SRC emacs-lisp
-  (when (system-is-mac)
-    (with-eval-after-load "ispell"
-      (setq ispell-program-name
-        (expand-file-name ".nix-profile/bin/aspell" (getenv "HOME")))
-      (setq ispell-dictionary "en")))
-
-  (use-package flyspell-correct
-    :after flyspell
-    :bind (:map flyspell-mode-map ("C-;" . flyspell-correct-wrapper)))
-
-  (add-hook 'git-commit-mode-hook 'turn-on-flyspell)
-  (add-hook 'text-mode-hook 'flyspell-mode)
-  ;; Disable this for now, doesn't play well with long literate configuration
-  ;; (add-hook 'org-mode-hook 'flyspell-mode)
-  (add-hook 'prog-mode-hook 'flyspell-prog-mode)
-
-  (defun spell() (interactive) (flyspell-mode 1))
-#+END_SRC
-
-**** Language tool
+*** Language tool
 At then moment this only works if the jar is ="../../X"= away from the executable (to work with the Nix installation).
 #+begin_src emacs-lisp
-  (use-package langtool
-    :config
-    (setq langtool-language-tool-jar
-  	(file-name-concat
-  	 (file-name-parent-directory
-  	  (file-name-parent-directory
-  	   (file-truename (executable-find "languagetool-commandline"))))
-  	 "share" "languagetool-commandline.jar")))
+  (use-package lsp-ltex
+  :ensure t
+  :hook (text-mode . (lambda ()
+                       (require 'lsp-ltex)
+                       (lsp)))  ; or lsp-deferred
+  :init
+  (setq lsp-ltex-version "16.0.0"))  ; make sure you have set this, see below
 #+end_src
 
 *** Spell
@@ -2071,7 +2043,6 @@ At then moment this only works if the jar is ="../../X"= away from the executabl
 (setq synosaurus-choose-method 'popup)
 (setq org-M-RET-may-split-line nil)
 (setf org-blank-before-new-entry '((heading . auto) (plain-list-item . nil)))
-#+end_src
 #+end_src
 
 *** Synonyms
@@ -2140,49 +2111,49 @@ Make use of extarticle by default
 
 Captions and cdlatex
 #+begin_src emacs-lisp 
-    ;;  (add-hook 'org-mode #'(cdlatex-mode))
+   ;;  (add-hook 'org-mode #'(cdlatex-mode))
 
 
-      (setq org-latex-prefer-user-labels t
-            org-latex-caption-above nil
-            ;; org-latex-listings 'minted
-            org-latex-listings nil
-            )
+     (setq org-latex-prefer-user-labels t
+           org-latex-caption-above nil
+           ;; org-latex-listings 'minted
+           org-latex-listings nil
+           )
 
 
-      ;;Colours
-    ;; (add-to-list 'org-latex-packages-alist '("" "minted"))
-    ;(add-to-list 'org-latex-packages-alist '("" "tabularx"))
-    ;(plist-put org-format-latex-options :scale 1.75        )
-    ;(add-to-list 'org-latex-packages-alist '("" "unicode-math")))
-     (add-to-list 'org-latex-classes
-           '("beamerposter"
-             "\\documentclass[final]{beamer}
-             \\usepackage[T1]{fontenc}
-             \\usepackage{lmodern}
-             \\usepackage[size=custom,width=84.1,height=118.9,scale=1.0]{beamerposter}  
-             \\usepackage{graphicx}
-             \\usepackage{booktabs}
-             \\usepackage{tikz}
-             \\usepackage{pgfplots}
-             \\pgfplotsset{compat=1.18}
-             \\usepackage{anyfontsize}
-             [NO-DEFAULT-PACKAGES]"))
-   (add-to-list 'org-latex-classes
-           '("extarticle"
-                   "\\documentclass{extarticle}"
-                   ("\\section{%s}" . "\\section*{%s}")
-                   ("\\subsection{%s}" . "\\subsection*{%s}")
-                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
-   (add-to-list 'org-latex-classes
-           '("article-minimal"
-                   "\\documentclass{article}
-                    [NO-DEFAULT-PACKAGES]"
-                   ("\\section{%s}" . "\\subsection*{%s}")
-                   ("\\subsection{%s}" . "\\subsubsection*{%s}")
-                   ("\\subsubsection{%s}" . "\\subsubsubsection*{%s}")))
+     ;;Colours
+   ;; (add-to-list 'org-latex-packages-alist '("" "minted"))
+   ;(add-to-list 'org-latex-packages-alist '("" "tabularx"))
+   ;(plist-put org-format-latex-options :scale 1.75        )
+   ;(add-to-list 'org-latex-packages-alist '("" "unicode-math")))
+    (add-to-list 'org-latex-classes
+          '("beamerposter"
+            "\\documentclass[final]{beamer}
+            \\usepackage[T1]{fontenc}
+            \\usepackage{lmodern}
+            \\usepackage[size=custom,width=84.1,height=118.9,scale=1.0]{beamerposter}  
+            \\usepackage{graphicx}
+            \\usepackage{booktabs}
+            \\usepackage{tikz}
+            \\usepackage{pgfplots}
+            \\pgfplotsset{compat=1.18}
+            \\usepackage{anyfontsize}
+            [NO-DEFAULT-PACKAGES]"))
+  (add-to-list 'org-latex-classes
+          '("extarticle"
+                  "\\documentclass{extarticle}"
+                  ("\\section{%s}" . "\\section*{%s}")
+                  ("\\subsection{%s}" . "\\subsection*{%s}")
+                  ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
+  (add-to-list 'org-latex-classes
+          '("article-minimal"
+                  "\\documentclass[12pt]{article}
+                   \\usepackage{hyperref}
+                   [NO-DEFAULT-PACKAGES]"
+                  ("\\section{%s}" . "\\subsection*{%s}")
+                  ("\\subsection{%s}" . "\\subsubsection*{%s}")
+                  ("\\subsubsection{%s}" . "\\subsubsubsection*{%s}")))
 #+end_src
-
 
 Set XeLaTex as our compiler
 #+begin_src emacs-lisp :tangle yes
@@ -2265,26 +2236,7 @@ This is my IDE. It includes the same engine that powers VS Code, in addition to 
     (use-package lsp-treemacs
       :after lsp)
 
-    (use-package company
-      :after lsp-mode
-      :hook (lsp-mode . company-mode)
-      :bind (:map company-active-map
-            ("<tab>" . company-complete-selection))
-            (:map lsp-mode-map
-            ("<tab>" . company-indent-or-complete-common))
-       :custom
-         (company-minimum-prefix-length 1)
-         (company-idle-delay 0.0))
-
-    (use-package company-box
-      :hook (company-mode . company-box-mode))
-
-  (use-package lsp-pyright
-    :ensure t
-    :hook (python-mode . (lambda ()
-                            (require 'lsp-pyright)
-                            (lsp))))  ; or lsp-deferred
-    ;; (add-hook 'lsp-mode-hook #'lsp-headerline-breadcrumb-mode)
+    (add-hook 'lsp-mode-hook #'lsp-headerline-breadcrumb-mode)
 #+END_SRC
 
 **** Shortcuts
@@ -2369,9 +2321,6 @@ Leader keys for lsp-mode.
   ;; Add a hook to adjust the python interpreter. Prefer jupyter if possible.
   (add-hook 'lsp-mode-hook #'select-python-interpreter)
 #+end_src
-
-#+RESULTS:
-| select-python-interpreter | add-lsp-before-save-hooks | company-mode | lsp-ui-mode |
 
 **** Shell scripts
 #+NAME: shell-scripts
@@ -2687,9 +2636,6 @@ Simple debugger. Does its job just fine most of the time.
                 ("a" . #'realgud:attach-cmd-buffer)))
 #+end_src
 
-#+RESULTS:
-: realgud:attach-cmd-buffer
-
 
 *** Cells
 #+begin_src emacs-lisp
@@ -2951,54 +2897,77 @@ Completion
   (use-package tempel-collection)
 #+end_src
 
-*** Corfu
+*** Completion
+**** Completion-preview
 #+begin_src emacs-lisp
-        (use-package corfu
-          ;; Optional customizations
-          ;; :custom
-          ;; (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
-          ;; (corfu-auto t)                 ;; Enable auto completion
-          ;; (corfu-separator ?\s)          ;; Orderless field separator
-          ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
-          ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
-          ;; (corfu-preview-current nil)    ;; Disable current candidate preview
-          ;; (corfu-preselect 'prompt)      ;; Preselect the prompt
-          ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
-          ;; (corfu-scroll-margin 5)        ;; Use scroll margin
+  ;; A few more useful configurations...
+  (use-package completion-preview
+    :ensure nil
+    :hook (prog-mode . completion-preview-mode)
+    :bind
+    ( :map completion-preview-active-mode-map
+      ("M-n" . completion-preview-next-candidate)
+      ("M-p" . completion-preview-prev-candidate)))
+#+end_src
+**** Corfu
+#+begin_src emacs-lisp
+  (use-package corfu
+    ;; Optional customizations
+    ;; :custom
+    ;; (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
+    ;; (corfu-auto t)                 ;; Enable auto completion
+    ;; (corfu-separator ?\s)          ;; Orderless field separator
+    ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
+    ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
+    ;; (corfu-preview-current nil)    ;; Disable current candidate preview
+    ;; (corfu-preselect 'prompt)      ;; Preselect the prompt
+    ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
+    ;; (corfu-scroll-margin 5)        ;; Use scroll margin
 
-          ;; Enable Corfu only for certain modes.
-          ;; :hook ((prog-mode . corfu-mode)
-          ;;        (shell-mode . corfu-mode)
-          ;;        (eshell-mode . corfu-mode))
+    ;; Enable Corfu only for certain modes.
+    ;; :hook ((prog-mode . corfu-mode)
+    ;;        (shell-mode . corfu-mode)
+    ;;        (eshell-mode . corfu-mode))
 
-          ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
-          ;; be used globally (M-/).  See also the customization variable
-          ;; `global-corfu-modes' to exclude certain modes.
-          :init
-          (global-corfu-mode)
-          :config
-          ;; Enable auto completion and configure quitting
-          (setq corfu-auto t
-          corfu-quit-no-match 'separator)) ;; or t
+    ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
+    ;; be used globally (M-/).  See also the customization variable
+    ;; `global-corfu-modes' to exclude certain modes.
+    :init
+    (global-corfu-mode)
+    :config
+    ;; Enable auto completion and configure quitting
+    (setq corfu-auto t
+  	corfu-quit-no-match 'separator)) ;; or t
 
-        ;; A few more useful configurations...
-        (use-package emacs
-          :init
-          ;; TAB cycle if there are only few candidates
-          ;; (setq completion-cycle-threshold 3)
+  ;; A few more useful configurations...
+  (use-package emacs
+    :init
+    ;; TAB cycle if there are only few candidates
+    ;; (setq completion-cycle-threshold 3)
 
-          ;; Enable indentation+completion using the TAB key.
-          ;; `completion-at-point' is often bound to M-TAB.
-          (setq tab-always-indent 'complete)
+    ;; Enable indentation+completion using the TAB key.
+    ;; `completion-at-point' is often bound to M-TAB.
+    (setq tab-always-indent 'complete)
 
-          ;; Emacs 30 and newer: Disable Ispell completion function. As an alternative,
-          ;; try `cape-dict'.
-          (setq text-mode-ispell-word-completion nil)
+    ;; Emacs 30 and newer: Disable Ispell completion function. As an alternative,
+    ;; try `cape-dict'.
+    (setq text-mode-ispell-word-completion #'cape-dict)
 
-          ;; Emacs 28 and newer: Hide commands in M-x which do not apply to the current
-          ;; mode.  Corfu commands are hidden, since they are not used via M-x. This
-          ;; setting is useful beyond Corfu.
-          (setq read-extended-command-predicate #'command-completion-default-include-p))
+    ;; Emacs 28 and newer: Hide commands in M-x which do not apply to the current
+    ;; mode.  Corfu commands are hidden, since they are not used via M-x. This
+    ;; setting is useful beyond Corfu.
+    (setq read-extended-command-predicate #'command-completion-default-include-p))
+#+end_src
+
+**** COMMENT Cape
+#+begin_src emacs-lisp
+  (use-package cape
+    :demand t
+    :init
+    ;; Add `completion-at-point-functions', used by `completion-at-point'.
+    (setq-default completion-at-point-functions
+                  (append (default-value 'completion-at-point-functions)
+                          (list #'cape-dabbrev #'cape-file #'cape-abbrev))))
 #+end_src
 
 *** Snippets that are Nice to have
@@ -3057,9 +3026,6 @@ Completion
     (magit-gptcommit-status-buffer-setup))
   #+end_src
 
-  #+RESULTS:
-  : magit-gptcommit-commit-accept
-
 **** Speech-to-text (whisper-cpp)
 I use whisper to record notes to text. Its use-case is limited but worth a test. It is also an example on how I can integrate AI models into my workflow.
 #+begin_src emacs-lisp 
@@ -3096,9 +3062,6 @@ I use whisper to record notes to text. Its use-case is limited but worth a test.
         "--no-timestamps"
         "--file" ,input-file))
 #+end_src
-
-#+RESULTS:
-: whisper-command
 
 
 Select the audio device
@@ -3252,9 +3215,6 @@ It's surprisingly hard to get a decent screenshot program cross-system
     (require 'org-download)) )
 #+end_src
 
-# #+RESULTS:
-# : org-download-screenshot
-
 
 ** Temporal
 *** Hyperbole
@@ -3392,8 +3352,6 @@ TODO: make this lazy-loaded again
   (use-package pdf-tools)
 
 #+end_src
-
-#+RESULTS:
 
 ** COMMENT
 - difftastic integration
