@@ -2021,7 +2021,6 @@ Projectile enables me to organize projects with a killer grep interface.
                  ("terminfo/65" "terminfo/65/*")
                  ("integration" "integration/*")
                  (:exclude ".dir-locals.el" "*-tests.el"))))
-
 #+end_src
 
 ** Writing
