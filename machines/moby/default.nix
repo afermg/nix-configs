@@ -136,6 +136,14 @@
   programs.zsh.enable = true;
   programs.fish.enable = true;
 
+  # For blender
+  programs.steam = {
+    enable = true;
+    remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
+    dedicatedServer.openFirewall = true; # Open ports in the firewall for Source Dedicated Server
+    localNetworkGameTransfers.openFirewall = true; # Open ports in the firewall for Steam Local Network Game Transfers
+  };
+
   # Networking
   networking.hostName = "gpa85-cad";
   networking.hostId = "5a08e8de";
