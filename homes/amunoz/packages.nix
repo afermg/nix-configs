@@ -63,6 +63,7 @@ in
     haskellPackages.xml-to-json-fast
     qrtool # encode and decode qr codes
     zotero
+    nix-output-monitor
     
   ] 
   ++ shared-packages
