@@ -1448,6 +1448,16 @@ Important export backends.
 
 *** Babel
 **** Languages
+***** Duckdb
+#+begin_src emacs-lisp
+  (use-package ob-duckdb
+    :straight (:host github :repo "gggion/ob-duckdb")
+    :after org
+    :config
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     (append org-babel-load-languages '((duckdb . t)))))
+#+end_src
 ***** Mermaid
 #+begin_src emacs-lisp
   (use-package ob-mermaid
