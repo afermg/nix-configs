@@ -2039,13 +2039,15 @@ Projectile enables me to organize projects with a killer grep interface.
 **** Language tool
 At then moment this only works if the jar is ="../../X"= away from the executable (to work with the Nix installation).
 #+begin_src emacs-lisp
-(use-package lsp-ltex
-:ensure t
-:hook (text-mode . (lambda ()
-                     (require 'lsp-ltex)
-                     (lsp)))  ; or lsp-deferred
-:init
-(setq lsp-ltex-version "16.0.0"))  ; make sure you have set this, see below
+  (use-package lsp-ltex
+    :ensure t
+    :hook (text-mode . (lambda ()
+                         (require 'lsp-ltex)
+                         (lsp)))  ; or lsp-deferred
+    :config
+    (setq lsp-ltex-language "en-GB"
+  	lsp-ltex-version "16.0.0")
+    )
 #+end_src
 
 *** Spell
@@ -2053,7 +2055,6 @@ At then moment this only works if the jar is ="../../X"= away from the executabl
 (setq synosaurus-choose-method 'popup)
 (setq org-M-RET-may-split-line nil)
 (setf org-blank-before-new-entry '((heading . auto) (plain-list-item . nil)))
-#+end_src
 #+end_src
 
 *** Synonyms
@@ -2122,9 +2123,6 @@ Make use of extarticle by default
 
 Captions and cdlatex
 #+begin_src emacs-lisp 
-    ;;  (add-hook 'org-mode #'(cdlatex-mode))
-
-
       (setq org-latex-prefer-user-labels t
             org-latex-caption-above nil
             ;; org-latex-listings 'minted
@@ -2223,29 +2221,30 @@ This is my IDE. It includes the same engine that powers VS Code, in addition to 
 
 #+NAME: lsp-mode
 #+BEGIN_SRC emacs-lisp
-    (use-package lsp-mode
-      :commands lsp lsp-deferred
-      :init
-        (setq lsp-keymap-prefix "C-c l")
-        ;;(setq lsp-keep-workspace-alive nil)
-        ;;(setq lsp-restart 'ignore)
-        (setq lsp-headerline-breadcrumb-enable nil)
-        (setq lsp-auto-guess-root t)
-        (setq lsp-enable-which-key-integration t)
-        (setq lsp-warn-no-matched-clients nil) ; remove warnings
-        (setq lsp-ruff-server-command '("ruff" "server" "--preview"))
-        :hook
-    	(envrc-mode . lsp)
+  (use-package lsp-mode
+    :commands lsp lsp-deferred
+    :init
+    (setq lsp-keymap-prefix "C-c l"
+  	;;(setq lsp-keep-workspace-alive nil)
+  	;;(setq lsp-restart 'ignore)
+  	lsp-headerline-breadcrumb-enable nil
+  	lsp-auto-guess-root t
+  	lsp-enable-which-key-integration t
+  	lsp-warn-no-matched-clients nil ; remove warnings
+  	lsp-ruff-server-command '("ruff" "server" "--preview")
   	)
+    :hook
+    (envrc-mode . lsp)
+    )
 
 
-    (use-package lsp-ui
-      :hook (lsp-mode . lsp-ui-mode)
-      :custom
-        (lsp-ui-doc-position 'bottom))
+  (use-package lsp-ui
+    :hook (lsp-mode . lsp-ui-mode)
+    :custom
+    (lsp-ui-doc-position 'bottom))
 
-    (use-package lsp-treemacs
-      :after lsp)
+  (use-package lsp-treemacs
+    :after lsp)
 
   ;;   (use-package company
   ;;     :after lsp-mode
@@ -2266,8 +2265,10 @@ This is my IDE. It includes the same engine that powers VS Code, in addition to 
   ;;   :hook (python-mode . (lambda ()
   ;;                           (require 'lsp-pyright)
   ;;                           (lsp))))  ; or lsp-deferred
-    ;; (add-hook 'lsp-mode-hook #'lsp-headerline-breadcrumb-mode)
+  ;; (add-hook 'lsp-mode-hook #'lsp-headerline-breadcrumb-mode)
 #+END_SRC
+
+#+RESULTS: lsp-mode
 
 **** Shortcuts
 Leader keys for lsp-mode.
@@ -2578,8 +2579,18 @@ Nix is my package manager and operating system of choice; this mode enables me t
 
 #+NAME: nix-mode
 #+begin_src emacs-lisp
+  (use-package lsp-nix
+    :straight nil
+    :ensure lsp-mode
+    :after (lsp-mode)
+    :demand t
+    :custom
+    (lsp-nix-nil-formatter ["nixfmt"]))
+
   (use-package nix-mode
-    :mode "\\.nix\\'")
+    :mode "\\.nix\\'"
+    :hook (nix-mode . lsp-deferred)
+    :ensure t)
 #+end_src
 
 *** Debugger
