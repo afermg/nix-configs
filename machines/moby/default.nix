@@ -7,7 +7,8 @@
   config,
   pkgs,
   ...
-}: {
+}:
+{
   # You can import other NixOS modules here
   imports = [
     # If you want to use modules from other flakes (such as nixos-hardware):
@@ -37,7 +38,6 @@
 
   # FHS
   programs.nix-ld.enable = true;
-  
 
   # Enable the X11 windowing system.
   services.xserver = {
@@ -69,7 +69,7 @@
     #];
 
   };
-  
+
   # Ollama service
   services.ollama = {
     enable = true;
@@ -77,9 +77,10 @@
     acceleration = "cuda";
     environmentVariables = {
       CUDA_VISIBLE_DEVICES = "0";
-      LD_LIBRARY_PATH = "${pkgs.unstable.cudaPackages.cudatoolkit}/lib:${pkgs.unstable.cudaPackages.cudatoolkit}/lib64";    };
+      LD_LIBRARY_PATH = "${pkgs.unstable.cudaPackages.cudatoolkit}/lib:${pkgs.unstable.cudaPackages.cudatoolkit}/lib64";
+    };
   };
-    
+
   nixpkgs = {
     # You can add overlays here
     overlays = builtins.attrValues outputs.overlays;
@@ -92,18 +93,17 @@
 
   # This will add each flake input as a registry
   # To make nix3 commands consistent with your flake
-  nix.registry = (lib.mapAttrs (_: flake: {inherit flake;})) ((lib.filterAttrs (_: lib.isType "flake")) inputs);
+  nix.registry = (lib.mapAttrs (_: flake: { inherit flake; })) (
+    (lib.filterAttrs (_: lib.isType "flake")) inputs
+  );
 
   # This will additionally add your inputs to the system's legacy channels
   # Making legacy nix commands consistent as well, awesome!
-  nix.nixPath = ["/etc/nix/path"];
-  environment.etc =
-    lib.mapAttrs'
-    (name: value: {
-      name = "nix/path/${name}";
-      value.source = value.flake;
-    })
-    config.nix.registry;
+  nix.nixPath = [ "/etc/nix/path" ];
+  environment.etc = lib.mapAttrs' (name: value: {
+    name = "nix/path/${name}";
+    value.source = value.flake;
+  }) config.nix.registry;
 
   nix.settings = {
     # Enable flakes and new 'nix' command
@@ -131,8 +131,11 @@
   ];
 
   # Default system wide packages
-  environment.systemPackages = pkgs.callPackage ../../modules/nixos/packages.nix {};  
-  environment.shells = [ pkgs.zsh pkgs.fish ];
+  environment.systemPackages = pkgs.callPackage ../../modules/nixos/packages.nix { };
+  environment.shells = [
+    pkgs.zsh
+    pkgs.fish
+  ];
   programs.zsh.enable = true;
   programs.fish.enable = true;
 
@@ -172,16 +175,25 @@
     enable = true;
     # Xwidgets are not working # https://github.com/nix-community/emacs-overlay/issues/455
     # package = (pkgs.emacs.override { withImageMagick = true; withXwidgets = true; withGTK3 = true; });
-    package = pkgs.emacs-unstable.override { withImageMagick = true; withXwidgets=false; };
+    package = pkgs.emacs-unstable.override {
+      withImageMagick = true;
+      withXwidgets = false;
+    };
   };
-  
+
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.amunoz = {
     shell = pkgs.fish;
     isNormalUser = true;
     initialPassword = "changeme";
     description = "Alan Munoz";
-    extraGroups = [ "networkmanager" "wheel" "libvirtd" "qemu-libvirtd" "input" ];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+      "libvirtd"
+      "qemu-libvirtd"
+      "input"
+    ];
     openssh.authorizedKeys.keyFiles = [
       ../../homes/amunoz/id_ed25519.pub
     ];
@@ -191,7 +203,13 @@
     shell = pkgs.fish;
     isNormalUser = true;
     description = "Paula Llanos";
-    extraGroups = [ "networkmanager" "wheel" "libvirtd" "qemu-libvirtd" "input"];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+      "libvirtd"
+      "qemu-libvirtd"
+      "input"
+    ];
     openssh.authorizedKeys.keyFiles = [
       ../../homes/llanos/id_rsa.pub
     ];
@@ -201,70 +219,103 @@
     shell = pkgs.zsh;
     isNormalUser = true;
     description = "Hugo Hakem";
-    extraGroups = [ "networkmanager" "wheel" "libvirtd" "qemu-libvirtd" "input"];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+      "libvirtd"
+      "qemu-libvirtd"
+      "input"
+    ];
     openssh.authorizedKeys.keyFiles = [
       ../../homes/hhakem/id_rsa.pub
     ];
   };
-  
+
   users.users.zchen = {
     shell = pkgs.zsh;
     isNormalUser = true;
-    description = "Zitong Chen" ;
-    extraGroups = [ "networkmanager" "wheel" "libvirtd" "qemu-libvirtd" "input"];
+    description = "Zitong Chen";
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+      "libvirtd"
+      "qemu-libvirtd"
+      "input"
+    ];
     openssh.authorizedKeys.keyFiles = [
       ../../homes/zchen/id_rsa.pub
     ];
   };
-  
+
   users.users.akalinin = {
     shell = pkgs.zsh;
     isNormalUser = true;
     description = "Alex Kalinin";
-    extraGroups = [ "networkmanager" "wheel" "libvirtd" "qemu-libvirtd" "input"];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+      "libvirtd"
+      "qemu-libvirtd"
+      "input"
+    ];
     openssh.authorizedKeys.keyFiles = [
       ../../homes/akalinin/id_rsa.pub
     ];
   };
-  
+
+  users.users.jfredinh = {
+    shell = pkgs.zsh;
+    isNormalUser = true;
+    description = "Johan Fredinh";
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+      "libvirtd"
+      "qemu-libvirtd"
+      "input"
+    ];
+    openssh.authorizedKeys.keyFiles = [
+      ../../homes/jfredinh/id_ed25519.pub
+    ];
+  };
+
   # Enable home-manager for users
   home-manager.useGlobalPkgs = true;
   home-manager.useUserPackages = true;
   home-manager.extraSpecialArgs = { inherit inputs outputs; };
   home-manager.backupFileExtension = "backups";
 
-
   # USER HOMES
   # home-manager.users.amunoz = import ../../modules/nixos/home-manager.nix;
   home-manager.users.amunoz = {
     imports = [
-     # ../../modules/nixos/home-manager.nix;
-     inputs.agenix.homeManagerModules.default
-     ../../homes/amunoz/moby.nix
+      # ../../modules/nixos/home-manager.nix;
+      inputs.agenix.homeManagerModules.default
+      ../../homes/amunoz/moby.nix
     ];
   };
 
   home-manager.users.llanos = {
     imports = [
-     inputs.agenix.homeManagerModules.default
-     ../../homes/llanos/moby.nix
+      inputs.agenix.homeManagerModules.default
+      ../../homes/llanos/moby.nix
     ];
   };
 
   home-manager.users.hhakem = {
     imports = [
-     inputs.agenix.homeManagerModules.default
-     ../../homes/hhakem/moby.nix
+      inputs.agenix.homeManagerModules.default
+      ../../homes/hhakem/moby.nix
     ];
   };
-  
+
   home-manager.users.zchen = {
     imports = [
-     inputs.agenix.homeManagerModules.default
-     ../../homes/zchen/moby.nix
+      inputs.agenix.homeManagerModules.default
+      ../../homes/zchen/moby.nix
     ];
   };
-  
+
   # https://nixos.wiki/wiki/FAQ/When_do_I_update_stateVersion
   system.stateVersion = "23.11";
 }
