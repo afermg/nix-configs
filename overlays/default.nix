@@ -19,9 +19,8 @@
       inputs;
   };
 
-  # Adds pkgs.stable == inputs.nixpkgs-stable.legacyPackages.${pkgs.system}
   unstable = final: _: let
-    upkgs  = import inputs.nixpkgs-unstable {
+    upkgs  = import inputs.nixpkgs{
       system = final.system;
       config.allowUnfree = true;
       config.cudaSupport = true;
@@ -42,6 +41,6 @@
 
   emacs = (import (builtins.fetchTarball {
       url = "https://github.com/nix-community/emacs-overlay/archive/master.tar.gz";
-      sha256="0sii2d37cm47bri1qjv3s72lgg15l17jdlhnd1cl4in3w53hr7w8";}));
+      sha256="sha256:14k4xdafdgxik6sp50f58765wz81cb792lwsxg0l4d6qqdqsihyj";}));
 
 }

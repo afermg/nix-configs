@@ -25,16 +25,15 @@ If you just want to update your home configuration and packages use this command
 home-manager switch --flake .#your-username@your-hostname
 #+end_src
 ** Darwin
-If darwin-rebuild is not available run this
-
-#+begin_src bash
-nix run nix-darwin -- switch --flake .#darwin001
-#+end_src
+I removed layers to make it clearer (for me). First build and then  switch to the new build
 
 Otherwise
 #+begin_src bash
-darwin-rebuild switch --flake .#darwin001
+   nix --extra-experimental-features 'nix-command flakes' build .#darwinConfigurations.darwin001.system
+   # sudo is now necessary
+  sudo ./result/sw/bin/darwin-rebuild switch --flake .#darwin001
 #+end_src
+
 
 
 * Where should I add packages?

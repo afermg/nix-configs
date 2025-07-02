@@ -18,17 +18,9 @@ in
        homeDirectory = "/${home_parent}/${user}";
                        
        stateVersion = "24.05";
-       packages = pkgs.callPackage ./packages.nix {};
-
-       file = import ../../modules/shared/files.nix { inherit config pkgs; };
+       packages = (pkgs.callPackage ./packages.nix {});
+       #file = import ../../modules/shared/files.nix { inherit config pkgs; };
   };
-  # This breaks the macos config
-  # services.syncthing = {
-  #     enable = true;
-  #     # overrideFolders = false;
-  #     # overrideDevices = false;
-  #     user = "amunoz";
-  # };
 
 
   # Gnome graphical interface
@@ -90,7 +82,7 @@ in
   
   programs.git = {
     enable = true;
-    userName = "Alan Munoz";
+    userName = "Alán F. Muñoz";
     userEmail = "afer.mg@gmail.com";
     #extraConfig = {
     # Sign all commits using ssh key

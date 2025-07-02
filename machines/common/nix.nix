@@ -2,7 +2,6 @@
   nix = {
     package = pkgs.nix;
     gc = {
-      user = "root";
       automatic = true;
       interval = {
         Weekday = 0;

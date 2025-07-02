@@ -19,7 +19,7 @@ _:
   "zotero"
 
   # Browsers
-  "firefox"
+  # "firefox" # Managed by nix directly
   "google-chrome"
 
   # AI

@@ -2579,13 +2579,13 @@ Nix is my package manager and operating system of choice; this mode enables me t
 
 #+NAME: nix-mode
 #+begin_src emacs-lisp
-  (use-package lsp-nix
-    :straight nil
-    :ensure lsp-mode
-    :after (lsp-mode)
-    :demand t
-    :custom
-    (lsp-nix-nil-formatter ["nixfmt"]))
+  ;; (use-package lsp-nix
+  ;;   :straight nil
+  ;;   :ensure lsp-mode
+  ;;   :after (lsp-mode)
+  ;;   :demand t
+  ;;   :custom
+  ;;   (lsp-nix-nil-formatter ["nixfmt"]))
 
   (use-package nix-mode
     :mode "\\.nix\\'"

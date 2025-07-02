@@ -1,5 +1,18 @@
-{ config, pkgs, inputs, outputs, lib, ... }:
-let user = "amunozgo"; in
+{
+  config,
+  pkgs,
+  inputs,
+  outputs,
+  lib,
+  ...
+}:
+let
+  user = "amunozgo";
+  myEmacsLauncher = pkgs.writeScript "emacs-launcher.command" ''
+    #!/bin/sh
+    emacsclient -c -n &
+  '';
+in
 {
 
   imports = [
@@ -8,43 +21,48 @@ let user = "amunozgo"; in
     # ../../modules/shared/cachix
     inputs.home-manager.darwinModules.home-manager
     inputs.nix-homebrew.darwinModules.nix-homebrew
-    ../common/darwin_home_manager.nix
-    (import ../common/nix-homebrew.nix { inherit inputs; user = "${user}";})
+    (import ../common/nix-homebrew.nix {
+      inherit inputs;
+      user = "${user}";
+    })
     ../common/nix.nix
     ../common/substituters.nix
-    
+    ./dock
+
   ];
 
-
-  services = {nix-daemon.enable = true; # Auto upgrade nix package and the daemon service.
-              tailscale.enable = true; # Network of devices
+  services = {
+    # Auto upgrade nix package and the daemon service.
+    tailscale.enable = true; # Network of devices
   };
-  
 
   # Setup user, packages, programs
-  # nix = {
-  #   # package = pkgs.nix;
-  #   settings.trusted-users = [ "@admin" "${user}" ];
+  nix = {
+    settings.trusted-users = [
+      "@admin"
+      "${user}"
+    ];
+    enable = false; # determinate systems nix conflicts with nix
+    optimise.automatic = lib.mkForce false;
+    gc.automatic = lib.mkForce false;
 
-  #   gc = {
-  #     user = "root";
-  #     automatic = true;
-  #     interval = { Weekday = 0; Hour = 2; Minute = 0; };
-  #     options = "--delete-older-than 30d";
-  #   };
-
-  #   # Turn this on to make command line easier
-  #   extraOptions = ''
-  #     experimental-features = nix-command flakes
-  #   '';
-  # };
+    # Turn this on to make command line easier
+    extraOptions = ''
+      experimental-features = nix-command flakes
+    '';
+  };
 
   # Turn off NIX_PATH warnings now that we're using flakes
   system.checks.verifyNixPath = false;
+  security.pam.services.sudo_local.touchIdAuth = true;
 
   fonts = {
-     packages = [ pkgs.dejavu_fonts pkgs.iosevka pkgs.nerdfonts ];
-   };
+    packages = [
+      pkgs.dejavu_fonts
+      pkgs.iosevka
+      # pkgs.nerdfonts
+    ];
+  };
 
   # Load configuration that is shared across systems
   environment.systemPackages = with pkgs; [
@@ -64,8 +82,8 @@ let user = "amunozgo"; in
     StandardOutPath = "/tmp/emacs.out.log";
   };
 
-    system = {
-  # Turn off NIX_PATH warnings now that we're using flakes
+  system = {
+    # Turn off NIX_PATH warnings now that we're using flakes
     stateVersion = 4;
 
     defaults = {
@@ -102,7 +120,7 @@ let user = "amunozgo"; in
       };
     };
   };
-  
+
   # Configure nixpkgs
   nixpkgs = {
     # You can add overlays here
@@ -117,7 +135,7 @@ let user = "amunozgo"; in
   # Create users
   users.users.${user} = {
     description = "Alan Munoz";
-  
+
     home = "/Users/${user}";
     createHome = true;
     isHidden = false;
@@ -127,14 +145,17 @@ let user = "amunozgo"; in
       ../../homes/amunoz/id_ed25519.pub
     ];
   };
-
+  system.primaryUser = "${user}";
+  programs.fish.enable = true;
 
   # Configure homebrew
   homebrew = {
     enable = true;
     # brews = ["input-leap"]; # Example of brew
-    taps = map (key: builtins.replaceStrings ["homebrew-"] [""] key) (builtins.attrNames config.nix-homebrew.taps);
-    casks = pkgs.callPackage ../common/casks.nix {};
+    taps = map (key: builtins.replaceStrings [ "homebrew-" ] [ "" ] key) (
+      builtins.attrNames config.nix-homebrew.taps
+    );
+    casks = pkgs.callPackage ./casks.nix { };
     onActivation = {
       cleanup = "uninstall";
       autoUpdate = true;
@@ -142,33 +163,51 @@ let user = "amunozgo"; in
     };
   };
 
-
-    # Configure home manager
-    home-manager = {
-      useGlobalPkgs = true;
-      # Look into why enabling this break shell for starship
-      # useUserPackages = true;
-      extraSpecialArgs = {inherit inputs outputs;};
-      users.${user}= {
-        imports = [
-          ../../homes/amunoz/home.nix
-        ];
-        home= {
-          packages = pkgs.callPackage ../../modules/darwin/packages.nix {};
-              };
+  # Configure home manager
+  home-manager = {
+    # useGlobalPkgs = true;
+    # useUserPackages = true;
+    extraSpecialArgs = { inherit inputs outputs; };
+    users.${user} = {
+      imports = [
+        ../../homes/amunoz/home.nix
+      ];
+      home = {
+        packages = pkgs.callPackage ../../modules/darwin/packages.nix { };
+      };
       programs = {
         # This is important! Removing this will break your shell and thus your system
         # This is needed even if you enable zsh in home manager
         zsh.enable = true;
         fish.enable = true;
       } // import ../../modules/shared/home-manager.nix { inherit config pkgs lib; };
-      };
-    backupFileExtension = "bak";
     };
+    backupFileExtension = "bak";
+  };
 
-  # sudo with touch id
-  security.pam.enableSudoTouchIdAuth = true;
-
+  # Fully declarative dock using the latest from Nix Store
+  local.dock = {
+    enable = true;
+    username = user;
+    entries = [
+      { path = "${pkgs.firefox}/Applications/Firefox.app/"; }
+      { path = "${pkgs.wezterm}/Applications/Wezterm.app/"; }
+      {
+        path = toString myEmacsLauncher;
+        section = "others";
+      }
+      {
+        path = "${config.users.users.${user}.home}/.local/share/";
+        section = "others";
+        options = "--sort name --view grid --display folder";
+      }
+      {
+        path = "${config.users.users.${user}.home}/.local/share/downloads";
+        section = "others";
+        options = "--sort name --view grid --display stack";
+      }
+    ];
+  };
   # remap keys : Caps -> Esc
   system.keyboard.enableKeyMapping = true;
   system.keyboard.remapCapsLockToEscape = true;

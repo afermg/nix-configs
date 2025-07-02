@@ -1,5 +1,9 @@
 { pkgs }:
-with pkgs; [
+with pkgs;
+[
+  # browser
+  firefox
+
   # Essential and standard GNU
   coreutils
   gawk
@@ -15,21 +19,20 @@ with pkgs; [
   wezterm
   kitty
   fish
-  
+
   # Almost essential
   git
 
   # Convenience
   tree
   tldr # quick explanations
-  
+
   # files
   gnutar # The one and only tar
   rsync # sync data
   zip
   unzip # extract zips
   magic-wormhole # easy sharing
-
 
   ## faster/better X
   btop # nicer top
@@ -38,15 +41,14 @@ with pkgs; [
   difftastic # better diffs
   dua # better du
   dust # interactive du in tust
-  
+
   ## Useful when use-case shows itself
   gnuplot # no-fuss plotting
   bc # calculator
   fzf # fuzzy finder
   jq # process json
-  pkgs.unstable.mermaid-cli # text to diagrams
+  mermaid-cli # text to diagrams
   atuin # shared command history
-
 
   # Development
   direnv # Per-project isolated environment
@@ -55,40 +57,37 @@ with pkgs; [
   cmake # c compiler
   clang # c language
   clang-tools # tools for c language
-  libgcc # build stuff
+  # libgcc # build stuff # NOT A PACKAGE, move elsewhere
 
   ## Build chains
   gnumake # Necessary for emacs' vterm
   libtool # Necessary for emacs' vterm
   autoconf
   automake
-  
+
   ## LSP/formatters/linters
   nil # Nix
   yaml-language-server # yaml
   semgrep
   nodePackages.bash-language-server
   lemminx
-  marksman #markdown
-  ruff #python
+  marksman # markdown
+  ruff # python
   ltex-ls # language tool LSP for latex and org-mode
   autotools-language-server
-  
+
   ## Non-LSP code helpers
   shellcheck
   shfmt
-  
+
   # fonts
   emacs-all-the-icons-fonts
   fontconfig # Needed for napari
 
   # containers
-  podman  # for container needs
+  podman # for container needs
 
   # writing
-  texliveFull # all the stuff for tex writing  # TODO try to reduce footprint
-  python311Packages.pygments # Needed for my usual Tex templates
-  (aspellWithDicts (dicts: with dicts; [ en en-computers en-science ]))
   pandoc
 
   # media
