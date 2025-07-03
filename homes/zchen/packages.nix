@@ -32,5 +32,4 @@ in
     # Linux-only packages
   ++ pkgs.lib.optionals pkgs.stdenv.isLinux
     [
-      nvtopPackages.full # another top for gpus
     ]

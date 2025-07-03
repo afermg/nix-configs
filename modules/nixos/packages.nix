@@ -18,8 +18,8 @@ shared-packages
   # GPU
   cudatoolkit # Necessary to show gpu in btop
   nvitop # top for gpus (prefered)
-  nvtopPackages.full # another top for gpus
-  # pkgs.unstable.ollama
+  #nvtopPackages.full # another top for gpus
+  # pkgs.unstable.ollama # Use a service instead
 
   # Text and terminal utilities
   # Gnome

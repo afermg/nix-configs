@@ -9,11 +9,11 @@ let
   home_parent = "home";
 in
 {
-  nixpkgs = {
-    overlays = [
-      outputs.overlays.unstable
-    ];
-  };
+  # nixpkgs = {
+  #   overlays = [
+  #     outputs.overlays.OVERLAYNAME
+  #   ];
+  # };
 
   home = {
     username = "${user}";
@@ -43,7 +43,7 @@ in
       ll = "ls -l";
       ns = "nix search nixpkgs";
     };
-    initExtra = ''
+    initContent = ''
       function nx() {
         nix-shell -p $1
       }

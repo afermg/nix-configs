@@ -11,5 +11,5 @@ with pkgs; [
   # jellyseerr # centralised content search
   # audiobookshelf # audiobooks
   # kavita # books
-  pkgs.unstable.bazarr
+  pkgs.bazarr
 ]

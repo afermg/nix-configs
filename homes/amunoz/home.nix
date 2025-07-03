@@ -1,4 +1,4 @@
-{ config, pkgs, outputs, ... }:
+{ pkgs, outputs, ... }:
 let user = if pkgs.stdenv.isLinux
            then "amunoz"
            else "amunozgo";
@@ -9,7 +9,7 @@ in
 {
   nixpkgs = {
     overlays = [
-      outputs.overlays.unstable
+      outputs.overlays.emacs
     ];
   };
   

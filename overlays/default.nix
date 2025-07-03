@@ -19,28 +19,18 @@
       inputs;
   };
 
-  unstable = final: _: let
-    upkgs  = import inputs.nixpkgs{
-      system = final.system;
-      config.allowUnfree = true;
-      config.cudaSupport = true;
-    };
-  in {
-    unstable = upkgs;
-  };
-
-  master = final: _: let
-    mpkgs  = import inputs.nixpkgs-master {
-      system = final.system;
-      config.allowUnfree = true;
-      config.cudaSupport = true;
-    };
-  in {
-    master = mpkgs;
-  };
+  # master = final: _: let
+  #   mpkgs  = import inputs.nixpkgs-master {
+  #     system = final.system;
+  #     config.allowUnfree = true;
+  #     config.cudaSupport = true;
+  #   };
+  # in {
+  #   master = mpkgs;
+  # };
 
   emacs = (import (builtins.fetchTarball {
       url = "https://github.com/nix-community/emacs-overlay/archive/master.tar.gz";
-      sha256="sha256:14k4xdafdgxik6sp50f58765wz81cb792lwsxg0l4d6qqdqsihyj";}));
+      sha256="sha256:00pmnvw40f0irk08z1qpr7msv1jnj0b85g2041mv662mrp6f6ncr";}));
 
 }

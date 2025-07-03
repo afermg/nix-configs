@@ -119,9 +119,9 @@
     {
       inherit lib;
 
-      # custom moudles
+      # custom modules
       nixosModules = import ./modules/nixos { inherit inputs outputs; };
-      homeManagerModules = import ./modules/home-manager;
+      # homeManagerModules = import ./modules/home-manager { inherit allowed-unfree-packages; };
 
       overlays = import ./overlays { inherit inputs outputs; };
 

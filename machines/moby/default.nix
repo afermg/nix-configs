@@ -12,10 +12,10 @@
   # You can import other NixOS modules here
   imports = [
     # If you want to use modules from other flakes (such as nixos-hardware):
-    inputs.hardware.nixosModules.common-pc-ssd
-    inputs.home-manager.nixosModule
+    # inputs.hardware.nixosModules.common-pc-ssd
+    inputs.home-manager.nixosModules.home-manager
+    
     # Import your generated (nixos-generate-config) hardware configuration
-
     # Disko configuration
     inputs.disko.nixosModules.disko
     ./disko.nix
@@ -39,46 +39,39 @@
   # FHS
   programs.nix-ld.enable = true;
 
-  # Enable the X11 windowing system.
-  services.xserver = {
-    enable = true;
-    xkb.layout = "us";
-    # Enable the GNOME Desktop Environment.
+  services = {
     desktopManager.gnome.enable = true;
     displayManager.gdm = {
       enable = true;
       autoSuspend = false;
     };
-    # This is necessary for no-autosuspend to work
-    # https://discourse.nixos.org/t/why-is-my-new-nixos-install-suspending/19500
-    #security.polkit.extraConfig = ''
-    #  polkit.addRule(function(action, subject) {
-    #      if (action.id == "org.freedesktop.login1.suspend" ||
-    #          action.id == "org.freedesktop.login1.suspend-multiple-sessions" ||
-    #          action.id == "org.freedesktop.login1.hibernate" ||
-    #          action.id == "org.freedesktop.login1.hibernate-multiple-sessions")
-    #      {
-    #          return polkit.Result.NO;
-    #      }
-    #  });
-    #'';
-
-    #xrandrHeads = [
-    #   { monitorConfig = ''Option "Rotate" "right"''; output = "DP-4"; }
-    #   { monitorConfig = ''Option "Rotate" "left"''; output = "DP-3"; }
-    #];
-
-  };
-
-  # Ollama service
-  services.ollama = {
-    enable = true;
-    package = pkgs.unstable.ollama;
-    acceleration = "cuda";
-    environmentVariables = {
-      CUDA_VISIBLE_DEVICES = "0";
-      LD_LIBRARY_PATH = "${pkgs.unstable.cudaPackages.cudatoolkit}/lib:${pkgs.unstable.cudaPackages.cudatoolkit}/lib64";
+  
+    # Enable the X11 windowing system.
+    xserver = {
+      enable = true;
+      xkb.layout = "us";
     };
+    # Ollama service
+    ollama = {
+      enable = true;
+      package = pkgs.ollama;
+      acceleration = "cuda";
+      environmentVariables = {
+        CUDA_VISIBLE_DEVICES = "0";
+        LD_LIBRARY_PATH = "${pkgs.cudaPackages.cudatoolkit}/lib:${pkgs.cudaPackages.cudatoolkit}/lib64";
+      };
+    };
+    
+    emacs = {
+      enable = true;
+      # Xwidgets are not working # https://github.com/nix-community/emacs-overlay/issues/455
+      package = pkgs.emacs.override {
+        withImageMagick = true;
+        withXwidgets = false;
+      };
+    };
+    
+    tailscale.enable = true;
   };
 
   nixpkgs = {
@@ -113,7 +106,6 @@
   };
 
   fonts.packages = with pkgs; [
-    iosevka
     emacs-all-the-icons-fonts
     font-awesome
     noto-fonts
@@ -127,7 +119,7 @@
     mplus-outline-fonts.githubRelease
     dina-font
     proggyfonts
-    nerdfonts
+    nerd-fonts.iosevka
   ];
 
   # Default system wide packages
@@ -151,7 +143,6 @@
   networking.hostName = "gpa85-cad";
   networking.hostId = "5a08e8de";
   # networking.bridges.br0.interfaces = [ "enp2s0" "wlp131s0" ];
-  services.tailscale.enable = true;
   # enable the netbird service
   # services.netbird.enable = true;
   # environment.systemPackages = [ pkgs.netbird-ui ]; # for GUI
@@ -171,15 +162,6 @@
   #     };
   # };
 
-  services.emacs = {
-    enable = true;
-    # Xwidgets are not working # https://github.com/nix-community/emacs-overlay/issues/455
-    # package = (pkgs.emacs.override { withImageMagick = true; withXwidgets = true; withGTK3 = true; });
-    package = pkgs.emacs-unstable.override {
-      withImageMagick = true;
-      withXwidgets = false;
-    };
-  };
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.amunoz = {
@@ -280,7 +262,7 @@
   };
 
   # Enable home-manager for users
-  home-manager.useGlobalPkgs = true;
+  # home-manager.useGlobalPkgs = true;
   home-manager.useUserPackages = true;
   home-manager.extraSpecialArgs = { inherit inputs outputs; };
   home-manager.backupFileExtension = "backups";
