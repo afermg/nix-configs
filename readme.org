@@ -29,8 +29,8 @@ I removed layers to make it clearer (for me). First build and then  switch to th
 
 Otherwise
 #+begin_src bash
-   nix --extra-experimental-features 'nix-command flakes' build .#darwinConfigurations.darwin001.system
    # sudo is now necessary
+   nix --extra-experimental-features 'nix-command flakes' build .#darwinConfigurations.darwin001.system &&
   sudo ./result/sw/bin/darwin-rebuild switch --flake .#darwin001
 #+end_src
 

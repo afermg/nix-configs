@@ -59,7 +59,7 @@ in
   fonts = {
     packages = [
       pkgs.dejavu_fonts
-      pkgs.iosevka
+      pkgs.nerd-fonts.iosevka
       # pkgs.nerdfonts
     ];
   };
