@@ -65,19 +65,20 @@ with pkgs; [
   automake
 
   ## LSP/formatters/linters
+  semgrep # generalistic
   nil # Nix
   yaml-language-server # yaml
-  semgrep
-  nodePackages.bash-language-server
-  lemminx
+  nodePackages.bash-language-server # bash
+  lemminx # xml
   marksman # markdown
   ruff # python
-  ltex-ls # language tool LSP for latex and org-mode
-  autotools-language-server
+  ltex-ls # latex/org-mode
+  autotools-language-server # make
 
   ## Non-LSP code helpers
   shellcheck
   shfmt
+  nixfmt-tree # Format entire directories of nix
 
   # fonts
   emacs-all-the-icons-fonts
@@ -87,7 +88,7 @@ with pkgs; [
   podman # for container needs
 
   # writing
-  pandoc
+  pandoc # Convert between formats
 
   # media
   inkscape # Graphics editing
