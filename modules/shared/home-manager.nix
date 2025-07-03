@@ -1,17 +1,22 @@
-{ config, pkgs, lib, ... }:
-
-let name = "Alán F. Muñoz";
-    user = if pkgs.stdenv.isLinux
-           then "amunoz"
-           else "amunozgo";
-    email = "afer.mg@gmail.com"; in
 {
+  config,
+  pkgs,
+  lib,
+  ...
+}: let
+  name = "Alán F. Muñoz";
+  user =
+    if pkgs.stdenv.isLinux
+    then "amunoz"
+    else "amunozgo";
+  email = "afer.mg@gmail.com";
+in {
   # Shared shell configuration
 
   # home.file.".ssh/allowed_signers".text = "* ${id_ed25519_pub}";
   git = {
     enable = true;
-    ignores = [ "*.swp" ];
+    ignores = ["*.swp"];
     userName = name;
     userEmail = email;
     lfs = {
@@ -25,7 +30,7 @@ let name = "Alán F. Muñoz";
     #   user.signingkey = "~/.ssh/id_ed25519.pub";
     #   init.defaultBranch = "main";
     #   core = {
-	  #   editor = "emacs";
+    #   editor = "emacs";
     #     autocrlf = "input";
     #   };
     #   pull.rebase = true;
@@ -57,5 +62,4 @@ let name = "Alán F. Muñoz";
     #   };
     # };
   };
-
 }

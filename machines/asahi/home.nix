@@ -1,14 +1,16 @@
-{ config, pkgs, ... }:
-
 {
+  config,
+  pkgs,
+  ...
+}: {
   # Home Manager needs a bit of information about you and the
   # paths it should manage.
-  home = {  
+  home = {
     username = "alan";
     homeDirectory = "/home/alan";
     file = {
       ".emacs.d/init.el" = {
-      text = builtins.readFile ../../modules/shared/config/emacs/init.el;
+        text = builtins.readFile ../../modules/shared/config/emacs/init.el;
       };
       ".emacs.d/config.org" = {
         text = builtins.readFile ../../modules/shared/config/emacs/config.org;
@@ -20,7 +22,7 @@
   };
 
   # Packages that should be installed to the user profile.
-  home.packages = (pkgs.callPackage ../../modules/shared/packages.nix {});
+  home.packages = pkgs.callPackage ../../modules/shared/packages.nix {};
 
   # This value determines the Home Manager release that your
   # configuration is compatible with. This helps avoid breakage
@@ -38,7 +40,7 @@
   programs.ssh = {
     enable = true;
   };
-  
+
   programs.git = {
     enable = true;
     userName = "Alan Munoz";
@@ -52,12 +54,11 @@
     #  };
   };
 
-
   programs.emacs = {
     enable = true;
     extraPackages = epkgs: [
-     epkgs.nix-mode
-     epkgs.magit
+      epkgs.nix-mode
+      epkgs.magit
     ];
   };
 
@@ -66,5 +67,4 @@
     defaultCacheTtl = 1800;
     enableSshSupport = true;
   };
-
 }

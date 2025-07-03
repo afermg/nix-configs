@@ -29,8 +29,8 @@
   #   master = mpkgs;
   # };
 
-  emacs = (import (builtins.fetchTarball {
-      url = "https://github.com/nix-community/emacs-overlay/archive/master.tar.gz";
-      sha256="sha256:00pmnvw40f0irk08z1qpr7msv1jnj0b85g2041mv662mrp6f6ncr";}));
-
+  emacs = import (builtins.fetchTarball {
+    url = "https://github.com/nix-community/emacs-overlay/archive/master.tar.gz";
+    sha256 = "sha256:00pmnvw40f0irk08z1qpr7msv1jnj0b85g2041mv662mrp6f6ncr";
+  });
 }

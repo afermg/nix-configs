@@ -1,6 +1,5 @@
-{ pkgs }:
-with pkgs;
-[
+{pkgs}:
+with pkgs; [
   # browser
   firefox
 
@@ -102,5 +101,4 @@ with pkgs;
   nix-index # locate packages that provide a certain file
   nix-search-cli # find nix packages
   nixfmt-rfc-style
-
 ]

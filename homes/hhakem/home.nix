@@ -1,8 +1,12 @@
-{ config, pkgs, outputs, ... }:
-let user = "hhakem";
-    home_parent =  "home";
-in
 {
+  config,
+  pkgs,
+  outputs,
+  ...
+}: let
+  user = "hhakem";
+  home_parent = "home";
+in {
   # nixpkgs = {
   #   overlays = [
   #     outputs.overlays.OVERLAYNAME
@@ -10,12 +14,11 @@ in
   # };
 
   home = {
-    username = "${user}" ;
+    username = "${user}";
     homeDirectory = "/${home_parent}/${user}";
-      packages = pkgs.callPackage ./packages.nix {};
+    packages = pkgs.callPackage ./packages.nix {};
     stateVersion = "23.11";
   };
- 
 
   programs.home-manager.enable = true;
   programs.git = {
@@ -50,8 +53,8 @@ in
     history.path = "${config.xdg.dataHome}/zsh/history";
     oh-my-zsh = {
       enable = true;
-      plugins = [ "git" "gh" ];
+      plugins = ["git" "gh"];
       theme = "fino-time";
     };
   };
- }
+}

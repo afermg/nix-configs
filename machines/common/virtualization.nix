@@ -16,7 +16,7 @@
     };
 
     containers = {
-     enable = true; 
+      enable = true;
     };
     # oci-containers = {
     #   backend = "podman";

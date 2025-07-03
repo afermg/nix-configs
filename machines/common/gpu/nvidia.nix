@@ -2,11 +2,9 @@
   pkgs,
   config,
   ...
-}:
-let
+}: let
   package_ver = config.boot.kernelPackages.nvidiaPackages.latest;
-in
-{
+in {
   hardware = {
     # Enable OpenGL
     graphics = {

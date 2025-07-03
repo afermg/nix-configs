@@ -34,17 +34,17 @@
           type = "gpt";
           partitions = {
             zfs = {
-            size = "100%";
-            content = {
-              type = "zfs";
-              pool = "zroot";
-            };
+              size = "100%";
+              content = {
+                type = "zfs";
+                pool = "zroot";
+              };
             };
           };
         };
       };
 
-      # HDD cluster 
+      # HDD cluster
       hdd0 = {
         type = "disk";
         device = "/dev/sda";
@@ -52,11 +52,11 @@
           type = "gpt";
           partitions = {
             zfs = {
-            size = "100%";
-            content = {
-              type = "zfs";
-              pool = "zstore";
-            };
+              size = "100%";
+              content = {
+                type = "zfs";
+                pool = "zstore";
+              };
             };
           };
         };
@@ -69,16 +69,15 @@
           type = "gpt";
           partitions = {
             zfs = {
-            size = "100%";
-            content = {
-              type = "zfs";
-              pool = "zstore";
-            };
+              size = "100%";
+              content = {
+                type = "zfs";
+                pool = "zstore";
+              };
             };
           };
         };
       };
-
     };
     # Z pool definitions
     zpool = {

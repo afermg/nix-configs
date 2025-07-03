@@ -7,14 +7,13 @@
   config,
   pkgs,
   ...
-}:
-{
+}: {
   # You can import other NixOS modules here
   imports = [
     # If you want to use modules from other flakes (such as nixos-hardware):
     # inputs.hardware.nixosModules.common-pc-ssd
     inputs.home-manager.nixosModules.home-manager
-    
+
     # Import your generated (nixos-generate-config) hardware configuration
     # Disko configuration
     inputs.disko.nixosModules.disko
@@ -45,7 +44,7 @@
       enable = true;
       autoSuspend = false;
     };
-  
+
     # Enable the X11 windowing system.
     xserver = {
       enable = true;
@@ -61,7 +60,7 @@
         LD_LIBRARY_PATH = "${pkgs.cudaPackages.cudatoolkit}/lib:${pkgs.cudaPackages.cudatoolkit}/lib64";
       };
     };
-    
+
     emacs = {
       enable = true;
       # Xwidgets are not working # https://github.com/nix-community/emacs-overlay/issues/455
@@ -70,7 +69,7 @@
         withXwidgets = false;
       };
     };
-    
+
     tailscale.enable = true;
   };
 
@@ -86,17 +85,19 @@
 
   # This will add each flake input as a registry
   # To make nix3 commands consistent with your flake
-  nix.registry = (lib.mapAttrs (_: flake: { inherit flake; })) (
+  nix.registry = (lib.mapAttrs (_: flake: {inherit flake;})) (
     (lib.filterAttrs (_: lib.isType "flake")) inputs
   );
 
   # This will additionally add your inputs to the system's legacy channels
   # Making legacy nix commands consistent as well, awesome!
-  nix.nixPath = [ "/etc/nix/path" ];
-  environment.etc = lib.mapAttrs' (name: value: {
-    name = "nix/path/${name}";
-    value.source = value.flake;
-  }) config.nix.registry;
+  nix.nixPath = ["/etc/nix/path"];
+  environment.etc =
+    lib.mapAttrs' (name: value: {
+      name = "nix/path/${name}";
+      value.source = value.flake;
+    })
+    config.nix.registry;
 
   nix.settings = {
     # Enable flakes and new 'nix' command
@@ -123,7 +124,7 @@
   ];
 
   # Default system wide packages
-  environment.systemPackages = pkgs.callPackage ../../modules/nixos/packages.nix { };
+  environment.systemPackages = pkgs.callPackage ../../modules/nixos/packages.nix {};
   environment.shells = [
     pkgs.zsh
     pkgs.fish
@@ -161,7 +162,6 @@
   #     };
   #     };
   # };
-
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.amunoz = {
@@ -264,7 +264,7 @@
   # Enable home-manager for users
   # home-manager.useGlobalPkgs = true;
   home-manager.useUserPackages = true;
-  home-manager.extraSpecialArgs = { inherit inputs outputs; };
+  home-manager.extraSpecialArgs = {inherit inputs outputs;};
   home-manager.backupFileExtension = "backups";
 
   # USER HOMES

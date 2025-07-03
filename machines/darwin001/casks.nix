@@ -1,6 +1,4 @@
-_:
-
-[
+_: [
   # Communication Tools
   # "discord"
   # "notion"

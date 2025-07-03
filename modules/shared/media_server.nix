@@ -1,6 +1,5 @@
-{ pkgs }:
+{pkgs}:
 with pkgs; [
-
   # Media management packages
   sonarr # tv shows
   radarr # films

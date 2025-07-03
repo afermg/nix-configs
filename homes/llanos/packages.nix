@@ -1,7 +1,6 @@
-{ pkgs }:
-with pkgs;
-let
-  shared-packages = import ../../modules/shared/packages.nix { inherit pkgs; };
+{pkgs}:
+with pkgs; let
+  shared-packages = import ../../modules/shared/packages.nix {inherit pkgs;};
 in
   [
     awscli
@@ -10,9 +9,9 @@ in
     tldr
     killall
   ]
-    # Packages shared across users and devices
+  # Packages shared across users and devices
   ++ shared-packages
-    # Linux-only packages
+  # Linux-only packages
   ++ pkgs.lib.optionals pkgs.stdenv.isLinux
-    [
-    ]
+  [
+  ]

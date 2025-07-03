@@ -5,16 +5,13 @@
   outputs,
   lib,
   ...
-}:
-let
+}: let
   user = "amunozgo";
   myEmacsLauncher = pkgs.writeScript "emacs-launcher.command" ''
     #!/bin/sh
     emacsclient -c -n &
   '';
-in
-{
-
+in {
   imports = [
     #../../modules/darwin/home-manager.nix
     # ../../modules/shared
@@ -28,7 +25,6 @@ in
     ../common/nix.nix
     ../common/substituters.nix
     ./dock
-
   ];
 
   services = {
@@ -70,7 +66,7 @@ in
     (pkgs.writeShellScriptBin "glibtool" "exec ${pkgs.libtool}/bin/libtool $@")
   ]; # ++ (import ../../modules/shared/packages.nix { inherit pkgs; });
 
-  launchd.user.agents.emacs.path = [ config.environment.systemPath ];
+  launchd.user.agents.emacs.path = [config.environment.systemPath];
   launchd.user.agents.emacs.serviceConfig = {
     KeepAlive = true;
     ProgramArguments = [
@@ -152,10 +148,10 @@ in
   homebrew = {
     enable = true;
     # brews = ["input-leap"]; # Example of brew
-    taps = map (key: builtins.replaceStrings [ "homebrew-" ] [ "" ] key) (
+    taps = map (key: builtins.replaceStrings ["homebrew-"] [""] key) (
       builtins.attrNames config.nix-homebrew.taps
     );
-    casks = pkgs.callPackage ./casks.nix { };
+    casks = pkgs.callPackage ./casks.nix {};
     onActivation = {
       cleanup = "uninstall";
       autoUpdate = true;
@@ -167,20 +163,22 @@ in
   home-manager = {
     # useGlobalPkgs = true;
     # useUserPackages = true;
-    extraSpecialArgs = { inherit inputs outputs; };
+    extraSpecialArgs = {inherit inputs outputs;};
     users.${user} = {
       imports = [
         ../../homes/amunoz/home.nix
       ];
       home = {
-        packages = pkgs.callPackage ../../modules/darwin/packages.nix { };
+        packages = pkgs.callPackage ../../modules/darwin/packages.nix {};
       };
-      programs = {
-        # This is important! Removing this will break your shell and thus your system
-        # This is needed even if you enable zsh in home manager
-        zsh.enable = true;
-        fish.enable = true;
-      } // import ../../modules/shared/home-manager.nix { inherit config pkgs lib; };
+      programs =
+        {
+          # This is important! Removing this will break your shell and thus your system
+          # This is needed even if you enable zsh in home manager
+          zsh.enable = true;
+          fish.enable = true;
+        }
+        // import ../../modules/shared/home-manager.nix {inherit config pkgs lib;};
     };
     backupFileExtension = "bak";
   };
@@ -190,8 +188,8 @@ in
     enable = true;
     username = user;
     entries = [
-      { path = "${pkgs.firefox}/Applications/Firefox.app/"; }
-      { path = "${pkgs.wezterm}/Applications/Wezterm.app/"; }
+      {path = "${pkgs.firefox}/Applications/Firefox.app/";}
+      {path = "${pkgs.wezterm}/Applications/Wezterm.app/";}
       {
         path = toString myEmacsLauncher;
         section = "others";
@@ -216,5 +214,4 @@ in
   # I want to be able to press and hold j and k
   # in vim to move around.
   # system.defaults.NSGlobalDomain.ApplePressAndHoldEnabled = false;
-
 }
