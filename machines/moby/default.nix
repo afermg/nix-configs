@@ -50,6 +50,7 @@
       enable = true;
       xkb.layout = "us";
     };
+
     # Ollama service
     ollama = {
       enable = true;
@@ -61,6 +62,10 @@
       };
     };
 
+    # Apache tika: Processs documents for LLM ingestion
+    tika.enable = true;
+
+    # Emacs: The one and only True Editor.
     emacs = {
       enable = true;
       # Xwidgets are not working # https://github.com/nix-community/emacs-overlay/issues/455
