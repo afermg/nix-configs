@@ -1280,7 +1280,7 @@ These are templates used to create new notes.
                (window-width . 0.33)
                (window-height . fit-window-to-buffer)))
     :custom
-      (org-roam-directory (file-truename "~/Documents/sync/org/"))
+      (org-roam-directory (file-truename "~/Documents/broad/org/roam"))
       (org-roam-dailies-directory "daily/")
       (org-roam-completion-everywhere t)
     :bind
