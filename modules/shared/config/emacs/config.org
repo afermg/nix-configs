@@ -1423,11 +1423,6 @@ Important export backends.
       :pin melpa  ;`package-archives' should already have ("melpa" . "https://melpa.org/packages/")
       :after org)
 
-    (use-package ox-hugo
-      :ensure t   ;Auto-install the package from Melpa
-      :pin melpa  ;`package-archives' should already have ("melpa" . "https://melpa.org/packages/")
-      :after org)
-
     ; Git-flavoured markdown
     (use-package ox-gfm
       :ensure t
@@ -1444,6 +1439,15 @@ Important export backends.
     :config
     (require 'ox-extra)
     (ox-extras-activate '(ignore-headlines)))
+#+end_src
+
+**** ox-hugo
+#+begin_src emacs-lisp
+  (use-package ox-hugo
+    :ensure t   ;Auto-install the package from Melpa
+    :pin melpa  ;`package-archives' should already have ("melpa" . "https://melpa.org/packages/")
+    :after org
+    :config)
 #+end_src
 
 *** Babel
