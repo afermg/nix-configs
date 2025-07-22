@@ -1,5 +1,6 @@
-{pkgs}:
-with pkgs; [
+{ pkgs }:
+with pkgs;
+[
   # browser
   firefox
 
@@ -89,6 +90,7 @@ with pkgs; [
 
   # writing
   pandoc # Convert between formats
+  hugo # blogging
 
   # media
   inkscape # Graphics editing
