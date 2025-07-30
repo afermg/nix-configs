@@ -10,23 +10,26 @@
     };
   };
 
-  outputs = {
-    nixpkgs,
-    home-manager,
-    ...
-  }: let
-    lib = nixpkgs.lib;
-    system = "aarch64-linux";
-    pkgs = import nixpkgs {
-      inherit system;
-      config.allowUnfree = true;
-    };
-  in {
-    homeConfigurations = {
-      myprofile = home-manager.lib.homeManagerConfiguration {
-        inherit pkgs;
-        modules = [./home.nix];
+  outputs =
+    {
+      nixpkgs,
+      home-manager,
+      ...
+    }:
+    let
+      lib = nixpkgs.lib;
+      system = "aarch64-linux";
+      pkgs = import nixpkgs {
+        inherit system;
+        config.allowUnfree = true;
+      };
+    in
+    {
+      homeConfigurations = {
+        myprofile = home-manager.lib.homeManagerConfiguration {
+          inherit pkgs;
+          modules = [ ./home.nix ];
+        };
       };
     };
-  };
 }

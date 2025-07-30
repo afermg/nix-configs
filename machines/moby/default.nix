@@ -7,7 +7,8 @@
   config,
   pkgs,
   ...
-}: {
+}:
+{
   # You can import other NixOS modules here
   imports = [
     # If you want to use modules from other flakes (such as nixos-hardware):
@@ -90,19 +91,17 @@
 
   # This will add each flake input as a registry
   # To make nix3 commands consistent with your flake
-  nix.registry = (lib.mapAttrs (_: flake: {inherit flake;})) (
+  nix.registry = (lib.mapAttrs (_: flake: { inherit flake; })) (
     (lib.filterAttrs (_: lib.isType "flake")) inputs
   );
 
   # This will additionally add your inputs to the system's legacy channels
   # Making legacy nix commands consistent as well, awesome!
-  nix.nixPath = ["/etc/nix/path"];
-  environment.etc =
-    lib.mapAttrs' (name: value: {
-      name = "nix/path/${name}";
-      value.source = value.flake;
-    })
-    config.nix.registry;
+  nix.nixPath = [ "/etc/nix/path" ];
+  environment.etc = lib.mapAttrs' (name: value: {
+    name = "nix/path/${name}";
+    value.source = value.flake;
+  }) config.nix.registry;
 
   nix.settings = {
     # Enable flakes and new 'nix' command
@@ -129,7 +128,7 @@
   ];
 
   # Default system wide packages
-  environment.systemPackages = pkgs.callPackage ../../modules/nixos/packages.nix {};
+  environment.systemPackages = pkgs.callPackage ../../modules/nixos/packages.nix { };
   environment.shells = [
     pkgs.zsh
     pkgs.fish
@@ -269,7 +268,7 @@
   # Enable home-manager for users
   # home-manager.useGlobalPkgs = true;
   home-manager.useUserPackages = true;
-  home-manager.extraSpecialArgs = {inherit inputs outputs;};
+  home-manager.extraSpecialArgs = { inherit inputs outputs; };
   home-manager.backupFileExtension = "backups";
 
   # USER HOMES

@@ -1,6 +1,8 @@
-{...}: let
+{ ... }:
+let
   publicDnsServer = "8.8.8.8";
-in {
+in
+{
   boot.kernel.sysctl = {
     "net.ipv4.conf.all.forwarding" = true;
     # "net.ipv6.conf.all.forwarding" = true;
@@ -52,7 +54,7 @@ in {
     enable = true;
     settings = {
       interfaces-config = {
-        interfaces = ["enp2s0"];
+        interfaces = [ "enp2s0" ];
       };
       subnet4 = [
         {

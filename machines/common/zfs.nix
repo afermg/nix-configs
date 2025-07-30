@@ -1,5 +1,6 @@
-{config, ...}: {
-  boot.kernelParams = ["nohibernate"];
+{ config, ... }:
+{
+  boot.kernelParams = [ "nohibernate" ];
   boot.loader.grub = {
     enable = true;
     zfsSupport = true;
@@ -7,7 +8,7 @@
     efiInstallAsRemovable = true;
     mirroredBoots = [
       {
-        devices = ["nodev"];
+        devices = [ "nodev" ];
         path = "/boot";
       }
     ];

@@ -3,10 +3,12 @@
   pkgs,
   outputs,
   ...
-}: let
+}:
+let
   user = "hhakem";
   home_parent = "home";
-in {
+in
+{
   # nixpkgs = {
   #   overlays = [
   #     outputs.overlays.OVERLAYNAME
@@ -16,7 +18,7 @@ in {
   home = {
     username = "${user}";
     homeDirectory = "/${home_parent}/${user}";
-    packages = pkgs.callPackage ./packages.nix {};
+    packages = pkgs.callPackage ./packages.nix { };
     stateVersion = "23.11";
   };
 
@@ -53,7 +55,10 @@ in {
     history.path = "${config.xdg.dataHome}/zsh/history";
     oh-my-zsh = {
       enable = true;
-      plugins = ["git" "gh"];
+      plugins = [
+        "git"
+        "gh"
+      ];
       theme = "fino-time";
     };
   };

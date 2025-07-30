@@ -2,9 +2,10 @@
   config,
   pkgs,
   ...
-}: {
+}:
+{
   # make the tailscale command usable to users
-  environment.systemPackages = [pkgs.tailscale];
+  environment.systemPackages = [ pkgs.tailscale ];
 
   # add agenix auth key
   age.secrets.tsauthkey.file = ../../secrets/tsauthkey.age;
@@ -17,9 +18,15 @@
     description = "Automatic connection to Tailscale";
 
     # make sure tailscale is running before trying to connect to tailscale
-    after = ["network-pre.target" "tailscale.service"];
-    wants = ["network-pre.target" "tailscale.service"];
-    wantedBy = ["multi-user.target"];
+    after = [
+      "network-pre.target"
+      "tailscale.service"
+    ];
+    wants = [
+      "network-pre.target"
+      "tailscale.service"
+    ];
+    wantedBy = [ "multi-user.target" ];
 
     # set this service as a oneshot job
     serviceConfig.Type = "oneshot";
