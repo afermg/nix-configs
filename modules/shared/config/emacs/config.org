@@ -2949,9 +2949,6 @@ Completion
 
 #+end_src
 
-#+RESULTS:
-: t
-
 **** magit-gptcommit
 #+begin_src emacs-lisp
   (use-package magit-gptcommit
