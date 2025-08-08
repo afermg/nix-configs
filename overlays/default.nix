@@ -30,7 +30,7 @@
   emacs = import (
     builtins.fetchTarball {
       url = "https://github.com/nix-community/emacs-overlay/archive/master.tar.gz";
-      sha256 = "sha256:1afshh5zhwayf17hwabqlgmr0xd7crd16npcrdcm1c4m9g36r522";
+      sha256 = "sha256:08pf03fzm6ks8qb0pwjssfkz2x4ymyk0wslyq3km7v2g2d95l1n9";
     }
   );
 }

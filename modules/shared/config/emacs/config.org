@@ -106,14 +106,20 @@ Generally-useful modes
 #+BEGIN_SRC emacs-lisp
   (defalias 'yes-or-no-p 'y-or-n-p) ;; Use Y or N in prompts, instead of full Yes or No
 
+  (setq
+   display-line-numbers-current-absolute t
+   display-line-numbers-type 'visual
+   )
   (global-visual-line-mode t) ;; Wraps lines everywhere
   (global-auto-revert-mode t) ;; Auto refresh buffers from disk
-  (line-number-mode t) ;; Line numbers in the gutter
   (global-display-line-numbers-mode t)
-  (setq display-line-numbers-type 'relative)
+  (line-number-mode t) ;; Line numbers in the gutter
+  ;; Fix line number misaligning indentation (https://www.reddit.com/r/spacemacs/comments/nwm5vh/comment/k1u9ha5)
+  (set-face-attribute 'line-number nil :inherit 'fixed)
+
   (electric-pair-mode 1)
   (show-paren-mode t) ;; Highlights parens
-  
+
   ;; The built-in `recentf-mode' keeps track of recently visited files.
   ;; You can then access those through the `consult-buffer' interface or
   ;; with `recentf-open'/`recentf-open-files'.
@@ -168,8 +174,7 @@ Various helpers and packages I find useful for window management.
 
 #+BEGIN_SRC emacs-lisp
   ;; Rotates windows and layouts
-  (use-package rotate
- )
+  (use-package rotate)
 #+END_SRC
 
 **** Buffers
@@ -916,35 +921,6 @@ I usually use Emacs on fullscreen, which prevents me from using the host's compu
     :init (doom-modeline-mode 1))
 #+end_src
 
-*** Font
-Automatically load font if available
-#+NAME: fonts
-#+BEGIN_SRC emacs-lisp
-  (setq setup-font-filename "setup-font-check.el")
-  (defun modi/font-check ()
-    "Do font check, then remove self from `focus-in-hook'; need to run this just once."
-    (require 'setup-font-check (concat config-dir "setup-font-check.el"))
-    (remove-hook 'focus-in-hook #'modi/font-check))
-  ;; For non-daemon, regular emacs launches, the frame/fonts are loaded *before*
-  ;; the emacs config is read. But when emacs is launched as a daemon (using
-  ;; emacsclient, the fonts are not actually loaded until the point when the
-  ;; `after-make-frame-functions' hook is run. But even at that point, the frame
-  ;; is not yet selected (for the daemon case). Without a selected frame, the
-  ;; `find-font' will not work correctly. So we do the font check in
-  ;; `focus-in-hook' instead by which all the below are true:
-  ;;  - Fonts are loaded (in both daemon and non-daemon cases).
-  ;;  - The frame is selected and so `find-font' calls work correctly.
-  (add-hook 'focus-in-hook #'modi/font-check)
-  (with-eval-after-load 'setup-font-check
-    (when font-iosevka-p
-      (set-frame-font "Iosevka 20" ) ; default
-      ;;  Set the fixed pitch face
-      (set-face-attribute 'fixed-pitch nil :font "Iosevka Nerd Font Mono" :weight 'normal :height 120)
-      ;;     Set the variable pitch face
-      (set-face-attribute 'variable-pitch nil :font "Iosevka" :weight 'normal :height 200)
-      ))
-#+END_SRC
-
 ** Org mode
 #+begin_src emacs-lisp 
 (setq org-directory "~/Documents/sync/org/")
@@ -1002,19 +978,29 @@ Initialize org-agenda file and set some key bindings to create tasks.
   (define-key org-mode-map (kbd "C-c l") 'my-org-copy-link-from-id)
 #+END_SRC
 
-**** Set org faces
+**** Org TODO
 Set various types and colors for ~org-mode~.
-
-#+NAME::org-mode-faces
-#+BEGIN_SRC emacs-lisp
-  ;; Fast access to tag common contexts I use
+#+begin_src emacs-lisp
   (setq org-todo-keywords
    '((sequence "TODO(t)" "STARTED(s)" "WAITING(w@/!)"
                "DELEGATED(g@/!)" "DEFERRED(r)" "SOMEDAY(y)"
                "|" "DONE(d@)" "CANCELED(x@)")
      (sequence "PROJECT(p)" "|" "DONE(d@)" "CANCELED(x@)")
      (sequence "APPT(a)" "|" "DONE(d@)" "CANCELED(x@)")))
+#+end_src
 
+**** Set org faces
+
+Ensure code blocks have a fixed pitch.
+#+NAME::org-mode-block-fixed-pitch
+#+begin_src emacs-lisp
+  (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+#+end_src
+
+TODO: Evaluate if this is useful.
+#+NAME::org-mode-faces
+#+BEGIN_SRC emacs-lisp
+  ;; Fast access to tag common contexts I use
   (defface my-org-agenda-face-1-2
     '((t (:inherit default :height 1.2)))
     "Face for org-agenda mode.")
@@ -1031,86 +1017,7 @@ Set various types and colors for ~org-mode~.
          (inhibit-same-window . t)
          (window-height . 0.5))))
 
-#+END_SRC
 
-**** Format org-agenda views
-This block sets the ~org-agenda-prefix-format~ in an friendly way for ~org-roam~ (credit to [[https://d12frosted.io/posts/2020-06-24-task-management-with-roam-vol2.html][this post)]]. It truncates long filenames and removes the ~org-roam~ timestamp slug.
-
-#+NAME::org-agenda-prefixes
-#+BEGIN_SRC emacs-lisp
-  (defun dl/buffer-prop-get (name)
-    "Get a buffer property called NAME as a string."
-    (org-with-point-at 1
-      (when (re-search-forward (concat "^#\\+" name ": \\(.*\\)")
-                              (point-max) t)
-        (buffer-substring-no-properties
-        (match-beginning 1)
-        (match-end 1)))))
-
-  (defun dl/agenda-category (&optional len)
-    "Get category of item at point for agenda."
-    (let* ((file-name (when buffer-file-name
-                        (file-name-sans-extension
-                        (file-name-nondirectory buffer-file-name))))
-          (title (dl/buffer-prop-get "title"))
-          (category (org-get-category))
-          (result (or (if (and title (string-equal category file-name))
-                          title
-                        category))))
-      (if (numberp len)
-          (s-truncate len (s-pad-right len " " result))
-        result)))
-
-  (with-eval-after-load 'org-agenda
-    (define-key org-agenda-mode-map (kbd "j") 'org-agenda-next-line)
-    (define-key org-agenda-mode-map (kbd "k") 'org-agenda-previous-line))
-
-  (setq org-agenda-todo-ignore-keywords '("PROJECT"))
-#+END_SRC
-
-**** org-super-agenda views
-Setup for ~org-super-agenda~ and ~org-ql~.
-
-#+NAME::org-super-agenda
-#+BEGIN_SRC emacs-lisp
-  (use-package org-super-agenda
-    :after org-agenda
-    :init
-    (setq org-agenda-dim-blocked-tasks nil))
-
-  ;; Define custom faces for group highlighting
-  (defface org-super-agenda-header
-    '((t (:inherit org-agenda-structure :height 1.1 :foreground "#7cc3f3" :background "#282c34")))
-    "Face for highlighting org-super-agenda groups.")
-
-  (defface org-super-agenda-subheader
-    '((t (:inherit org-agenda-structure :height 1.0 :foreground "light slate gray" :background "black")))
-    "Face for highlighting org-super-agenda subgroups.")
-
-  ;; Apply the custom faces to org-super-agenda
-  (custom-set-faces
-   '(org-super-agenda-header ((t (:inherit org-agenda-structure :height 1.1 :foreground "#7cc3f3" :background "#282c34"))))
-   '(org-super-agenda-subheader ((t (:inherit org-agenda-structure :height 1.0 :foreground "light slate gray" :background "black")))))
-
-  (setq org-super-agenda-groups
-    '((:name "Priority A"
-       :priority "A")
-      (:name "Priority B"
-       :priority "B")
-      (:name "Priority C"
-       :priority "C")
-      (:name "Started"
-       :todo "STARTED")
-      (:name "Waiting"
-       :todo "WAITING")
-      (:name "Tasks"
-       :todo "TODO")
-      (:name "Someday"
-       :todo "SOMEDAY")
-    (:name "Projects"
-     :tag "PROJECT")))
-
-  (org-super-agenda-mode)
 #+END_SRC
 
 *** Conveniences
@@ -1123,6 +1030,7 @@ Always show the current heading's full path in the top line.
     (setq org-sticky-header-full-path 'full)
     :hook (org-mode . org-sticky-header-mode))
 #+end_src
+
 **** topsy
 Show the function definition line at the top
 #+begin_src emacs-lisp
@@ -2792,15 +2700,6 @@ Deploy a web server to read feed from my phone.
 #+begin_src emacs-lisp :tangle no
   (use-package elfeed-web)
 #+end_src
-**** COMMENT Style
-Change font for elfeed-show buffer.
-#+begin_src emacs-lisp
-(setq elfeed-font (if (member "Mebinac" (font-family-list)) "Mebinac" "Century Schoolbook"))
-(setq elfeed-show-mode-hook
-      (lambda ()
-          (set-face-attribute 'variable-pitch (selected-frame) :font (font-spec :family elfeed-font :size 16))
-        ))
-#+end_src
 
 **** COMMENT elfeed-tube
 Get feed from youtube.
@@ -3036,7 +2935,7 @@ Completion
      (setq
       gptel-default-mode #'org-mode
       gptel-backend
-  	 (gptel-make-gemini "Gemini" :key "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" :stream t)
+  	 (gptel-make-gemini "Gemini" :key "XXXXXXXXXXXXXXXXXXXX" :stream t)
   	 gptel-model 'gemini-2.5-pro
      	;; gptel-backend (gptel-make-ollama "Ollama"	;Any name of your choosing
      	;;   :host "localhost:11434"	;Where it's running
