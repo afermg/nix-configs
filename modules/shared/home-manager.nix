@@ -3,20 +3,19 @@
   pkgs,
   lib,
   ...
-}: let
+}:
+let
   name = "Alán F. Muñoz";
-  user =
-    if pkgs.stdenv.isLinux
-    then "amunoz"
-    else "amunozgo";
+  user = if pkgs.stdenv.isLinux then "amunoz" else "alan";
   email = "afer.mg@gmail.com";
-in {
+in
+{
   # Shared shell configuration
 
   # home.file.".ssh/allowed_signers".text = "* ${id_ed25519_pub}";
   git = {
     enable = true;
-    ignores = ["*.swp"];
+    ignores = [ "*.swp" ];
     userName = name;
     userEmail = email;
     lfs = {

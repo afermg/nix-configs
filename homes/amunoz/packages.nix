@@ -1,7 +1,8 @@
 # Packages that only I use
-{pkgs}:
-with pkgs; let
-  shared-packages = import ../../modules/shared/packages.nix {inherit pkgs;};
+{ pkgs }:
+with pkgs;
+let
+  shared-packages = import ../../modules/shared/packages.nix { inherit pkgs; };
   # zlib12 = (zlib.overrideAttrs(p: {
   #   src = let
   #     version ="1.2.13";
@@ -15,56 +16,58 @@ with pkgs; let
   #     };
   # }));
 in
-  [
-    # Terminal extensions
-    fishPlugins.async-prompt
-    fishPlugins.pure
-    fishPlugins.autopair
+[
+  # Terminal extensions
+  fishPlugins.async-prompt
+  fishPlugins.pure
+  fishPlugins.autopair
 
-    # Data hammers
-    mawk
-    duckdb
+  # Data hammers
+  mawk
+  duckdb
 
-    # Development
-    devenv
-    pigz # threaded gunzip
+  # Development
+  devenv
+  pigz # threaded gunzip
 
-    ## Python
-    uv
+  ## Python
+  uv
 
-    http-server
-    shiori
+  http-server
+  shiori
 
-    # Benchmark
-    gprof2dot
+  # Benchmark
+  gprof2dot
 
-    # Graphics processing
-    graphviz
+  # Graphics processing
+  graphviz
 
-    # packages under examination
-    luajitPackages.fennel # lua in fennel
-    shiori # download whole html websites
-    xclip # clipboard manipulation tool
+  # packages under examination
+  luajitPackages.fennel # lua in fennel
+  shiori # download whole html websites
+  xclip # clipboard manipulation tool
 
-    ## AI
-    #openai-whisper-cpp
-    #piper-tts
+  ## AI
+  #openai-whisper-cpp
+  #piper-tts
 
-    ## docs
-    pdftk
-    gnumeric
-    # (gnumeric.overrideAttrs(p: { buildInputs = p.buildInputs ++ [ zlib12 ]; }))
-    ltex-ls # language tool LSP for latex and org-mode
-    autotools-language-server
+  ## docs
+  pdftk
+  gnumeric
+  # (gnumeric.overrideAttrs(p: { buildInputs = p.buildInputs ++ [ zlib12 ]; }))
+  ltex-ls # language tool LSP for latex and org-mode
+  autotools-language-server
 
-    ## very specific needs
-    haskellPackages.xml-to-json-fast
-    qrtool # encode and decode qr codes
-    zotero
-    nix-output-monitor
-  ]
-  ++ shared-packages
-  # Linux-only packages
-  ++ pkgs.lib.optionals pkgs.stdenv.isLinux
-  [
-  ]
+  ## very specific needs
+  haskellPackages.xml-to-json-fast
+  qrtool # encode and decode qr codes
+  zotero
+  nix-output-monitor
+
+  # Music
+  ncspot
+]
+++ shared-packages
+# Linux-only packages
+++ pkgs.lib.optionals pkgs.stdenv.isLinux [
+]

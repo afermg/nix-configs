@@ -1,4 +1,5 @@
-{pkgs, ...}: {
+{ pkgs, ... }:
+{
   environment.systemPackages = with pkgs; [
     looking-glass-client
     scream
@@ -39,8 +40,8 @@
   '';
 
   # boot.kernelPackages = pkgs.linuxPackages_latest;
-  boot.kernelParams = ["amd_iommu=on"];
-  boot.kernelModules = ["kvm-amd"];
+  boot.kernelParams = [ "amd_iommu=on" ];
+  boot.kernelModules = [ "kvm-amd" ];
 
   # boot.initrd.availableKernelModules = [ "nvidia" "vfio-pci" ];
   # boot.initrd.preDeviceCommands = ''

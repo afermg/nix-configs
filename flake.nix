@@ -93,78 +93,82 @@
     };
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    home-manager,
-    agenix,
-    systems,
-    flake-utils,
-    ...
-  } @ inputs: let
-    inherit (self) outputs;
-    lib = nixpkgs.lib // home-manager.lib;
-    forEachSystem = f: lib.genAttrs (import systems) (system: f pkgsFor.${system});
-    pkgsFor = lib.genAttrs (import systems) (
-      system:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      home-manager,
+      agenix,
+      systems,
+      flake-utils,
+      ...
+    }@inputs:
+    let
+      inherit (self) outputs;
+      lib = nixpkgs.lib // home-manager.lib;
+      forEachSystem = f: lib.genAttrs (import systems) (system: f pkgsFor.${system});
+      pkgsFor = lib.genAttrs (import systems) (
+        system:
         import nixpkgs {
           inherit system;
           config.allowUnfree = true;
         }
-    );
-  in {
-    inherit lib;
+      );
+    in
+    {
+      inherit lib;
 
-    # custom modules
-    nixosModules = import ./modules/nixos {inherit inputs outputs;};
-    # homeManagerModules = import ./modules/home-manager { inherit allowed-unfree-packages; };
+      # custom modules
+      nixosModules = import ./modules/nixos { inherit inputs outputs; };
+      # homeManagerModules = import ./modules/home-manager { inherit allowed-unfree-packages; };
 
-    overlays = import ./overlays {inherit inputs outputs;};
+      overlays = import ./overlays { inherit inputs outputs; };
 
-    # packages = forEachSystem (pkgs: import ./pkgs {inherit pkgs;});
-    devShells = forEachSystem (pkgs: import ./shell.nix {inherit pkgs inputs;});
-    formatter = forEachSystem (pkgs: pkgs.alejandra);
+      # packages = forEachSystem (pkgs: import ./pkgs {inherit pkgs;});
+      devShells = forEachSystem (pkgs: import ./shell.nix { inherit pkgs inputs; });
+      # formatter = forEachSystem (pkgs: pkgs.nixfmt-rfc-style);
+      formatter.aarch64-darwin = nixpkgs.legacyPackages.aarch64-darwin.nixfmt-rfc-style;
 
-    # NixOS configuration entrypoint
-    # Available through 'nixos-rebuild --flake .#your-hostname'
-    nixosConfigurations = {
-      moby = lib.nixosSystem {
-        modules = [
-          ./machines/moby
-          agenix.nixosModules.default
-        ];
-        specialArgs = {inherit inputs outputs;};
+      # NixOS configuration entrypoint
+      # Available through 'nixos-rebuild --flake .#your-hostname'
+      nixosConfigurations = {
+        moby = lib.nixosSystem {
+          modules = [
+            ./machines/moby
+            agenix.nixosModules.default
+          ];
+          specialArgs = { inherit inputs outputs; };
+        };
+      };
+
+      # Darwin configuration entrypoint
+      # Available through 'darwin-rebuild --flake .#your-hostname'
+      darwinConfigurations = {
+        darwin001 = inputs.darwin.lib.darwinSystem {
+          system = "aarch64-darwin";
+          modules = [ ./machines/darwin001 ];
+          specialArgs = { inherit inputs outputs; };
+        };
+      };
+
+      # Standalone home-manager configuration entrypoint
+      # Available through 'home-manager switch --flake .#your-username@your-hostname'
+      homeConfigurations = {
+        "amunoz@moby" = lib.homeManagerConfiguration {
+          pkgs = pkgsFor.x86_64-linux;
+          extraSpecialArgs = { inherit inputs outputs; };
+          # > Our main home-manager configuration file <
+          modules = [ ./homes/amunoz/moby.nix ];
+        };
+      };
+
+      homeConfigurations = {
+        "zchen@moby" = lib.homeManagerConfiguration {
+          pkgs = pkgsFor.x86_64-linux;
+          extraSpecialArgs = { inherit inputs outputs; };
+          # > Our main home-manager configuration file <
+          modules = [ ./homes/zchen/moby.nix ];
+        };
       };
     };
-
-    # Darwin configuration entrypoint
-    # Available through 'darwin-rebuild --flake .#your-hostname'
-    darwinConfigurations = {
-      darwin001 = inputs.darwin.lib.darwinSystem {
-        system = "aarch64-darwin";
-        modules = [./machines/darwin001];
-        specialArgs = {inherit inputs outputs;};
-      };
-    };
-
-    # Standalone home-manager configuration entrypoint
-    # Available through 'home-manager switch --flake .#your-username@your-hostname'
-    homeConfigurations = {
-      "amunoz@moby" = lib.homeManagerConfiguration {
-        pkgs = pkgsFor.x86_64-linux;
-        extraSpecialArgs = {inherit inputs outputs;};
-        # > Our main home-manager configuration file <
-        modules = [./homes/amunoz/moby.nix];
-      };
-    };
-
-    homeConfigurations = {
-      "zchen@moby" = lib.homeManagerConfiguration {
-        pkgs = pkgsFor.x86_64-linux;
-        extraSpecialArgs = {inherit inputs outputs;};
-        # > Our main home-manager configuration file <
-        modules = [./homes/zchen/moby.nix];
-      };
-    };
-  };
 }

@@ -2,7 +2,8 @@
   config,
   pkgs,
   ...
-}: {
+}:
+{
   # Home Manager needs a bit of information about you and the
   # paths it should manage.
   home = {
@@ -22,7 +23,7 @@
   };
 
   # Packages that should be installed to the user profile.
-  home.packages = pkgs.callPackage ../../modules/shared/packages.nix {};
+  home.packages = pkgs.callPackage ../../modules/shared/packages.nix { };
 
   # This value determines the Home Manager release that your
   # configuration is compatible with. This helps avoid breakage

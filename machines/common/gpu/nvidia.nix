@@ -2,9 +2,11 @@
   pkgs,
   config,
   ...
-}: let
+}:
+let
   package_ver = config.boot.kernelPackages.nvidiaPackages.latest;
-in {
+in
+{
   hardware = {
     # Enable OpenGL
     graphics = {
@@ -29,7 +31,7 @@ in {
   };
 
   # Nvidia and Cuda support
-  services.xserver.videoDrivers = ["nvidia"];
+  services.xserver.videoDrivers = [ "nvidia" ];
   nixpkgs.config.allowUnfree = true;
   nixpkgs.config.cudaSupport = true;
 }

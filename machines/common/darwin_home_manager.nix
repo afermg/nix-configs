@@ -1,4 +1,5 @@
-{...}: {
+{ ... }:
+{
   # background service
   services = {
     nix-daemon.enable = true;
