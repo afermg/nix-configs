@@ -979,6 +979,11 @@ Initialize org-agenda file and set some key bindings to create tasks.
 #+END_SRC
 
 **** Org TODO
+Log time when closing TODOs
+#+begin_src emacs-lisp
+  (setq org-log-done 'time)
+#+end_src
+
 Set various types and colors for ~org-mode~.
 #+begin_src emacs-lisp
   (setq org-todo-keywords
