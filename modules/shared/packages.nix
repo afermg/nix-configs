@@ -94,6 +94,7 @@ with pkgs;
 
   # media
   inkscape # Graphics editing
+  pinta # Basic image editing
   mpv # video player
   ffmpeg # video processing needs
   imagemagick # image processing
