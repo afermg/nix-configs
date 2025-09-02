@@ -23,6 +23,7 @@ shared-packages
   # Gnome
   gnomeExtensions.forge
   gnomeExtensions.appindicator
+  lynx
   # feh # Manage wallpapers
   # xclip # For the org-download package in Emacs
   # xdotool
