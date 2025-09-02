@@ -1000,9 +1000,10 @@ Set various types and colors for ~org-mode~.
 **** Set org faces
 
 Ensure code blocks have a fixed pitch.
-#+NAME::org-mode-block-fixed-pitch
+#+NAME::org-mode-fixed-pitches
 #+begin_src emacs-lisp
   (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+(set-face-attribute 'org-table nil :inherit 'fixed-pitch)
 #+end_src
 
 TODO: Evaluate if this is useful.
