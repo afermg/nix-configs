@@ -2958,27 +2958,17 @@ Completion
 
 #+end_src
 
-**** magit-gptcommit
-#+begin_src emacs-lisp
-  (use-package magit-gptcommit
-  :straight t
-  :demand t
-  :after gptel magit
-  :config
+***  gptel-magit
+Simple but working gptel+magit integration. Replaced gptcommit-mode
 
-  ;; Enable magit-gptcommit-mode to watch staged changes and generate commit message automatically in magit status buffer
-  ;; This mode is optional, you can also use `magit-gptcommit-generate' to generate commit message manually
-  ;; `magit-gptcommit-generate' should only execute on magit status buffer currently
-  ;; (magit-gptcommit-mode 1)
-
-  ;; Add gptcommit transient commands to `magit-commit'
-  ;; Eval (transient-remove-suffix 'magit-commit '(1 -1)) to remove gptcommit transient commands
-  (setq gptel-api-key "XXXXXXXXXXXXXXXXXXXXXXXXX")
-  (magit-gptcommit-status-buffer-setup)
-  :bind (:map git-commit-mode-map
-              ("C-c C-g" . magit-gptcommit-commit-accept))
-  )
-  #+end_src
+#+begin_src elisp
+  (use-package gptel-magit
+    :ensure t
+    :hook (magit-mode . gptel-magit-install)
+    :config
+    ; From https://github.com/ragnard/gptel-magit/issues/8
+      (setopt gptel-include-reasoning nil))
+#+end_src
 
 
 **** Speech-to-text (whisper-cpp)
