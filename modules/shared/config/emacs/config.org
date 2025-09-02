@@ -114,8 +114,6 @@ Generally-useful modes
   (global-auto-revert-mode t) ;; Auto refresh buffers from disk
   (global-display-line-numbers-mode t)
   (line-number-mode t) ;; Line numbers in the gutter
-  ;; Fix line number misaligning indentation (https://www.reddit.com/r/spacemacs/comments/nwm5vh/comment/k1u9ha5)
-  (set-face-attribute 'line-number nil :inherit 'fixed)
 
   (electric-pair-mode 1)
   (show-paren-mode t) ;; Highlights parens
@@ -1002,8 +1000,10 @@ Set various types and colors for ~org-mode~.
 Ensure code blocks have a fixed pitch.
 #+NAME::org-mode-fixed-pitches
 #+begin_src emacs-lisp
+  ;; Fix line number misaligning indentation (https://www.reddit.com/r/spacemacs/comments/nwm5vh/comment/k1u9ha5)
+  (set-face-attribute 'line-number nil :inherit 'fixed) ; This was in earlier in the confi gbut stopped working there
   (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
-(set-face-attribute 'org-table nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-table nil :inherit 'fixed-pitch)
 #+end_src
 
 TODO: Evaluate if this is useful.
