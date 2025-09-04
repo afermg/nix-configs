@@ -86,7 +86,7 @@
         mode = "";
         rootFsOptions = {
           # Make sure these options are correct
-          canmount = "off";
+          # canmount = "off";
           acltype = "posixacl";
           dnodesize = "auto";
           normalization = "formD";
@@ -128,7 +128,6 @@
         mode = "";
         rootFsOptions = {
           # Make sure these options are correct
-          canmount = "off";
           acltype = "posixacl";
           dnodesize = "auto";
           normalization = "formD";
@@ -144,8 +143,8 @@
         datasets = {
           datastore = {
             type = "zfs_fs";
-            mountpoint = "/datastore";
             options."com.sun:auto-snapshot" = "false";
+            options.mountpoint = "/datastore";
             postCreateHook = "zfs snapshot zstore/datastore@blank";
           };
         };

@@ -21,9 +21,9 @@
     ./disko.nix
     # Path to make boot work with zstore pool
     ./hardware-configuration.nix
-    ./filesystem.nix
 
     # You can also split up your configuration and import pieces of it here:
+    ./boot.nix
     ../common/networking.nix
     ../common/printing.nix
     ../common/gpu/nvidia.nix
@@ -33,7 +33,6 @@
     ../common/input_device.nix
     ../common/ssh.nix
     ../common/us_eng.nix
-    ../common/zfs.nix
   ];
 
   # FHS
