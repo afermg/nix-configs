@@ -1,10 +1,12 @@
 {
+  disko.memSize = 16384; # 16GB
   disko.devices = {
     disk = {
       # SSD cluster
       ssd0 = {
         type = "disk";
         device = "/dev/nvme1n1";
+        imageSize = "10G"; # For VM
         content = {
           type = "gpt";
           partitions = {
@@ -30,6 +32,7 @@
       ssd1 = {
         type = "disk";
         device = "/dev/nvme0n1";
+        imageSize = "10G";
         content = {
           type = "gpt";
           partitions = {
@@ -48,6 +51,7 @@
       hdd0 = {
         type = "disk";
         device = "/dev/sda";
+        imageSize = "10G";
         content = {
           type = "gpt";
           partitions = {
@@ -65,6 +69,7 @@
       hdd1 = {
         type = "disk";
         device = "/dev/sdb";
+        imageSize = "10G";
         content = {
           type = "gpt";
           partitions = {
@@ -104,11 +109,11 @@
             type = "zfs_fs";
             options.mountpoint = "none";
           };
-          "local/home" = {
-            type = "zfs_fs";
-            mountpoint = "/home";
-            options."com.sun:auto-snapshot" = "true";
-          };
+          # "local/home" = {
+          #   type = "zfs_fs";
+          #   mountpoint = "/home";
+          #   options."com.sun:auto-snapshot" = "true";
+          # };
           "local/nix" = {
             type = "zfs_fs";
             mountpoint = "/nix";

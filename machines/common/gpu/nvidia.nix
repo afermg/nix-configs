@@ -16,7 +16,6 @@ in
         vaapiVdpau
       ];
     };
-
     # Configure Nvidia driver
     nvidia = {
       modesetting.enable = true;
@@ -28,6 +27,7 @@ in
 
     # Enable nvidia container
     nvidia-container-toolkit.enable = true;
+    nvidia-container-toolkit.suppressNvidiaDriverAssertion = true;
   };
 
   # Nvidia and Cuda support

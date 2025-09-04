@@ -19,6 +19,7 @@
     # Disko configuration
     inputs.disko.nixosModules.disko
     ./disko.nix
+    ../common/vm.nix
     # Path to make boot work with zstore pool
     ./hardware-configuration.nix
 
