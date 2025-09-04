@@ -2,7 +2,7 @@
 {
   # Bootloader
   # boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+  # boot.loader.efi.canTouchEfiVariables = true;
 
   # https://github.com/nix-community/disko/issues/581
   # This is required because we are not using legacy mounts
