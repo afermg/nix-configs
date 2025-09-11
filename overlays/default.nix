@@ -17,15 +17,20 @@
     ) inputs;
   };
 
-  # master = final: _: let
-  #   mpkgs  = import inputs.nixpkgs-master {
-  #     system = final.system;
-  #     config.allowUnfree = true;
-  #     config.cudaSupport = true;
-  #   };
-  # in {
-  #   master = mpkgs;
-  # };
+  # Add the stable overlay, as we are living on the edge (unstable)
+  # we could replace stable with master too
+  stable =
+    final: _:
+    let
+      spkgs = import inputs.nixpkgs-stable {
+        system = final.system;
+        config.allowUnfree = true;
+        config.cudaSupport = true;
+      };
+    in
+    {
+      stable = spkgs;
+    };
 
   emacs = import (
     builtins.fetchTarball {

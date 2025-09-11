@@ -6,24 +6,24 @@ in
 shared-packages
 ++ [
   # Tex is not building in macos
+  pkgs.stable.nodejs_24 # To install packages using npm
   texliveFull # all the stuff for tex writing  # TODO try to reduce footprint
-  python311Packages.pygments # Needed for my usual Tex templates
-  # (aspellWithDicts (dicts: with dicts; [ en en-computers en-science ]))
+  # python311Packages.pygments # Needed for my usual Tex templates
 
   # office
-  # libreoffice-qt6
+  libreoffice-qt6
 
   # GPU
   cudatoolkit # Necessary to show gpu in btop
   nvitop # top for gpus (prefered)
   #nvtopPackages.full # another top for gpus
-  # pkgs.unstable.ollama # Use a service instead
 
   # Text and terminal utilities
   # Gnome
   gnomeExtensions.forge
   gnomeExtensions.appindicator
   lynx
+  zoom-us # Not working for some reason
   # feh # Manage wallpapers
   # xclip # For the org-download package in Emacs
   # xdotool
