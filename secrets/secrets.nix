@@ -8,5 +8,7 @@ let
   ];
 in
 {
-  "service_account.json.age".publicKeys = keys;
+  "sshkey_personal.age".publicKeys = keys;
+  "tailscale.age".publicKeys = keys;
+  "atuin.age".publicKeys = keys;
 }

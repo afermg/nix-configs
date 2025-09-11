@@ -76,7 +76,13 @@
       };
     };
 
-    tailscale.enable = true;
+    age.secrets.mysecrets.file = ../../secrets/tailscale.age;
+
+    tailscale = {
+      enable = true;
+      authKeyFile = config.age.secrets.mysecrets.path;
+    };
+
   };
 
   nixpkgs = {
@@ -128,7 +134,9 @@
   ];
 
   # Default system wide packages
-  environment.systemPackages = pkgs.callPackage ../../modules/nixos/packages.nix { };
+  environment.systemPackages = pkgs.callPackage ../../modules/nixos/packages.nix { } ++ [
+    inputs.agenix.packages.${pkgs.system}.default
+  ];
   environment.shells = [
     pkgs.zsh
     pkgs.fish
