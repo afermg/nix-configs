@@ -76,8 +76,6 @@
       };
     };
 
-    age.secrets.mysecrets.file = ../../secrets/tailscale.age;
-
     tailscale = {
       enable = true;
       authKeyFile = config.age.secrets.mysecrets.path;
@@ -143,6 +141,11 @@
   ];
   programs.zsh.enable = true;
   programs.fish.enable = true;
+
+  age.secrets = {
+    tailscale.file = ../../secrets/tailscale.age;
+    atuin.file = ../../secrets/atuin.age;
+  };
 
   # For blender
   programs.steam = {
