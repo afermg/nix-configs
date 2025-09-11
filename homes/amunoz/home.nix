@@ -94,6 +94,7 @@ in
       search_mode = "prefix";
       daemon = {
         enabled = true;
+        socket_path = "/home/amunoz/.local/share/atuin/atuin.sock";
       };
     };
   };
