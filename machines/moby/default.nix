@@ -78,7 +78,7 @@
 
     tailscale = {
       enable = true;
-      authKeyFile = config.age.secrets.mysecrets.path;
+      authKeyFile = config.age.secrets.tailscale.path;
     };
 
   };
