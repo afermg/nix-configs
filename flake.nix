@@ -43,9 +43,15 @@
     # system and flake util
     systems.url = "github:nix-systems/default-linux";
 
-    # disko
+    # disko (partitioning)
     disko.url = "github:nix-community/disko";
     disko.inputs.nixpkgs.follows = "nixpkgs";
+
+    # agenix (secrets)
+    agenix = {
+      url = "github:ryantm/agenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # VS Code
     vscode-server.url = "github:nix-community/nixos-vscode-server";
@@ -55,8 +61,6 @@
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    agenix.url = "github:ryantm/agenix";
 
     hardware.url = "github:nixos/nixos-hardware";
 
@@ -136,7 +140,11 @@
           modules = [
             ./machines/moby
             agenix.nixosModules.default
+            {
+              age.secrets."service_account.json".file = ./secrets/service_account.json.age;
+            }
           ];
+
           specialArgs = { inherit inputs outputs; };
         };
       };
@@ -157,8 +165,11 @@
         "amunoz@moby" = lib.homeManagerConfiguration {
           pkgs = pkgsFor.x86_64-linux;
           extraSpecialArgs = { inherit inputs outputs; };
-          # > Our main home-manager configuration file <
-          modules = [ ./homes/amunoz/moby.nix ];
+          modules = [
+            agenix.nixosModules.default
+            # > Our main home-manager configuration file <
+            ./homes/amunoz/moby.nix
+          ];
         };
       };
 
