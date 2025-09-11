@@ -80,6 +80,24 @@ in
     ];
   };
 
+  programs.atuin = {
+    enable = true;
+    # package = pkgs.unstable.atuin;
+    enableFishIntegration = true;
+    enableBashIntegration = true;
+    enableNushellIntegration = true;
+    settings = {
+      # key_path = config.sops.secrets."<atuin-key-file>".path;
+      auto_sync = true;
+      sync_frequency = "5m";
+      sync_address = "https://api.atuin.sh";
+      search_mode = "prefix";
+      daemon = {
+        enabled = true;
+      };
+    };
+  };
+
   programs.git = {
     enable = true;
     userName = "Alán F. Muñoz";

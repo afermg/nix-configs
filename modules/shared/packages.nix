@@ -48,7 +48,7 @@ with pkgs;
   fzf # fuzzy finder
   jq # process json
   mermaid-cli # text to diagrams
-  atuin # shared command history
+  # atuin # shared command history
 
   # Development
   direnv # Per-project isolated environment
@@ -66,7 +66,7 @@ with pkgs;
   automake
 
   ## LSP/formatters/linters
-  semgrep # generalistic
+  semgrep # generalistic semantic grep
   nil # Nix
   yaml-language-server # yaml
   nodePackages.bash-language-server # bash
