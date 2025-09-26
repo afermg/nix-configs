@@ -24,7 +24,6 @@ in
   uv
   conda
 
-  btop
   pzip
 ]
 # Packages shared across users and devices

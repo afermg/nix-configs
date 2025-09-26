@@ -14,7 +14,7 @@ shared-packages
   libreoffice-qt6
 
   # GPU
-  cudatoolkit # Necessary to show gpu in btop
+  # cudatoolkit # Necessary to show gpu in btop
   nvitop # top for gpus (prefered)
   #nvtopPackages.full # another top for gpus
 

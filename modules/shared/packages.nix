@@ -35,7 +35,7 @@ with pkgs;
   magic-wormhole # easy sharing
 
   ## faster/better X
-  btop # nicer top
+  btop-cuda # nicer top
   ripgrep # faster grep in rust
   fd # faster find
   difftastic # better diffs
@@ -48,7 +48,6 @@ with pkgs;
   fzf # fuzzy finder
   jq # process json
   mermaid-cli # text to diagrams
-  # atuin # shared command history
 
   # Development
   direnv # Per-project isolated environment
@@ -104,5 +103,6 @@ with pkgs;
   home-manager
   nix-index # locate packages that provide a certain file
   nix-search-cli # find nix packages
-  nixfmt-rfc-style
+  nixfmt-rfc-style # Nix formatting (for nixpkgs)
+
 ]

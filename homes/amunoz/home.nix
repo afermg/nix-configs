@@ -1,6 +1,8 @@
 {
   pkgs,
   outputs,
+  config,
+  inputs,
   ...
 }:
 let
@@ -8,9 +10,11 @@ let
   home_parent = if pkgs.stdenv.isLinux then "home" else "Users";
 in
 {
+
   nixpkgs = {
     overlays = [
       outputs.overlays.emacs
+      outputs.overlays.stable
     ];
   };
 
@@ -80,14 +84,24 @@ in
     ];
   };
 
+  imports = [
+    inputs.agenix.homeManagerModules.default
+  ];
+
+  age = {
+    identityPaths = [ "/home/amunoz/.ssh/id_ed25519" ];
+    secrets.atuin.file = ../../secrets/atuin.age;
+  };
+
   programs.atuin = {
     enable = true;
-    # package = pkgs.unstable.atuin;
+    # package = pkgs.stable.atuin;
     enableFishIntegration = true;
     enableBashIntegration = true;
     enableNushellIntegration = true;
     settings = {
       # key_path = config.sops.secrets."<atuin-key-file>".path;
+      key_path = config.age.secrets.atuin.path;
       auto_sync = true;
       sync_frequency = "5m";
       sync_address = "https://api.atuin.sh";
@@ -98,6 +112,29 @@ in
       };
     };
   };
+
+  # systemd.user.services = {
+  #   atuin_daemon = {
+  #     Unit = {
+  #       Description = "Run the atuin daemon";
+  #       Documentation = [
+  #         "man:example(1)"
+  #         "man:example(5)"
+  #       ];
+  #     };
+  #     Install = {
+  #       WantedBy = [ "default.target" ];
+  #     };
+  #     Service = {
+  #       ExecStart = "${pkgs.writeShellScript "atuin-daemon" ''
+  #         #!/run/current-system/sw/bin/bash
+  #         rm -r ~/.local/share/atuin/atuin.sock
+  #         nohup atuin daemon &
+  #       ''}";
+  #       Type = "oneshot";
+  #     };
+  #   };
+  # };
 
   programs.git = {
     enable = true;

@@ -141,8 +141,11 @@
             ./machines/moby
             agenix.nixosModules.default
             {
-              age.secrets."service_account.json".file = ./secrets/service_account.json.age;
+              age.secrets = {
+                tailscale.file = ./secrets/tailscale.age;
+              };
             }
+
           ];
 
           specialArgs = { inherit inputs outputs; };
