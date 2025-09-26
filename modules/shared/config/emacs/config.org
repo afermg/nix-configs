@@ -560,7 +560,7 @@ Browse from anywhere
     	(append keyword-search-alist
     		'(
     		  (kagi . "https://kagi.com/search?q=%s")
-    		  (kagi-news . "https://kagi.com/news?q=%s")
+i    		  (kagi-news . "https://kagi.com/news?q=%s")
                 (kagi-videos . "https://kagi.com/videos?q=%s")
                 (kagi-maps . "https://kagi.com/maps?q=%s")
                 (kagi-images . "https://kagi.com/images?q=%s")
@@ -1001,7 +1001,7 @@ Ensure code blocks have a fixed pitch.
 #+NAME::org-mode-fixed-pitches
 #+begin_src emacs-lisp
   ;; Fix line number misaligning indentation (https://www.reddit.com/r/spacemacs/comments/nwm5vh/comment/k1u9ha5)
-  (set-face-attribute 'line-number nil :inherit 'fixed) ; This was in earlier in the confi gbut stopped working there
+  (set-face-attribute 'line-number nil :inherit 'fixed) ; This was in earlier in the config but stopped working there
   (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
   (set-face-attribute 'org-table nil :inherit 'fixed-pitch)
 #+end_src
