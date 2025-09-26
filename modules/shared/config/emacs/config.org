@@ -1174,7 +1174,7 @@ These are templates used to create new notes.
       :unnarrowed t)))
 #+END_SRC
 
-**** COMMENT Org Roam
+**** Org Roam
 ***** Install package
 #+NAME::org-roam-package
 #+BEGIN_SRC emacs-lisp
