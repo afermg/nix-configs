@@ -60,6 +60,11 @@ a specific installation order.
   (use-package transient)
   (use-package magit :after (transient))
 #+END_SRC
+**** Org roam directory
+#+BEGIN_SRC emacs-lisp
+  (setq org-roam-directory-manual (file-truename "~/Documents/org/roam"))
+  (make-directory org-roam-directory-manual t)
+#+END_SRC
 
 *** System Definitions
 **** Conditionals
@@ -1197,7 +1202,7 @@ These are templates used to create new notes.
                (window-width . 0.33)
                (window-height . fit-window-to-buffer)))
     :custom
-      (org-roam-directory (file-truename "~/Documents/broad/org/roam"))
+      (org-roam-directory org-roam-directory-manual)
       (org-roam-dailies-directory "daily/")
       (org-roam-completion-everywhere t)
     :bind
@@ -3228,14 +3233,12 @@ It's surprisingly hard to get a decent screenshot program cross-system
 
 
 ** Temporal
-*** Hyperbole
+*** COMMENT Hyperbole
 #+begin_src emacs-lisp
   (use-package hyperbole
     :ensure t
     :config
     (hyperbole-mode)
-  ;;   :bind (:map evil-normal-state-map 
-  ;; ("M-RET" . 'action-key))
     )
 #+end_src
 
