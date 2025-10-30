@@ -152,15 +152,17 @@
     pkgs.zsh
     pkgs.fish
   ];
-  programs.zsh.enable = true;
-  programs.fish.enable = true;
+  programs = {
+    zsh.enable = true;
+    programs.fish.enable = true;
 
-  # For blender
-  programs.steam = {
-    enable = true;
-    remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
-    dedicatedServer.openFirewall = true; # Open ports in the firewall for Source Dedicated Server
-    localNetworkGameTransfers.openFirewall = true; # Open ports in the firewall for Steam Local Network Game Transfers
+    # For blender
+    steam = {
+      enable = true;
+      remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
+      dedicatedServer.openFirewall = true; # Open ports in the firewall for Source Dedicated Server
+      localNetworkGameTransfers.openFirewall = true; # Open ports in the firewall for Steam Local Network Game Transfers
+    };
   };
 
   # Networking
@@ -186,6 +188,7 @@
   #     };
   # };
 
+  # Users section, as a backup to the homes folder
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.amunoz = {
     shell = pkgs.fish;
@@ -252,24 +255,8 @@
     ];
   };
 
-  users.users.akalinin = {
-    shell = pkgs.zsh;
-    isNormalUser = true;
-    description = "Alex Kalinin";
-    extraGroups = [
-      "networkmanager"
-      "wheel"
-      "libvirtd"
-      "qemu-libvirtd"
-      "input"
-    ];
-    openssh.authorizedKeys.keyFiles = [
-      ../../homes/akalinin/id_rsa.pub
-    ];
-  };
-
   users.users.jfredinh = {
-    shell = pkgs.zsh;
+    shell = pkgs.fish;
     isNormalUser = true;
     description = "Johan Fredinh";
     extraGroups = [
