@@ -154,7 +154,7 @@
   ];
   programs = {
     zsh.enable = true;
-    programs.fish.enable = true;
+    fish.enable = true;
 
     # For blender
     steam = {

@@ -17,11 +17,6 @@ let
   # }));
 in
 [
-  # Terminal extensions
-  fishPlugins.async-prompt
-  fishPlugins.pure
-  fishPlugins.autopair
-
   # Data hammers
   mawk
   duckdb
