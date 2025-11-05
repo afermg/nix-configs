@@ -12,6 +12,7 @@ shared-packages
 
   # office
   libreoffice-qt6
+  kdePackages.okular
 
   # GPU
   # cudatoolkit # Necessary to show gpu in btop
