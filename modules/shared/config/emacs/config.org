@@ -1338,21 +1338,25 @@ org-roam-ui-open-on-start t))
 #+end_src 
 
 *** Exports
+#+begin_src emacs-lisp
+  (setq org-export-in-background t)
+#+end_src
+
 Important export backends.
 #+begin_src emacs-lisp
-    (use-package ox-pandoc
-      :ensure t   ;Auto-install the package from Melpa
-      :pin melpa  ;`package-archives' should already have ("melpa" . "https://melpa.org/packages/")
-      :after org)
+  (use-package ox-pandoc
+    :ensure t   ;Auto-install the package from Melpa
+    :pin melpa  ;`package-archives' should already have ("melpa" . "https://melpa.org/packages/")
+    :after org)
 
-    ; Git-flavoured markdown
-    (use-package ox-gfm
-      :ensure t
-      :after org
-      :config
-      (add-to-list 'org-export-backends 'md )
-      (add-to-list 'org-export-backends 'gfm )
-   )
+   ; Git-flavoured markdown
+   (use-package ox-gfm
+     :ensure t
+     :after org
+     :config
+     (add-to-list 'org-export-backends 'md )
+     (add-to-list 'org-export-backends 'gfm )
+  )
 #+end_src
 
 **** ox-extra

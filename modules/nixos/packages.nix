@@ -8,6 +8,7 @@ shared-packages
   # Tex is not building in macos
   pkgs.stable.nodejs_24 # To install packages using npm
   texliveFull # all the stuff for tex writing  # TODO try to reduce footprint
+  texlivePackages.moloch
   # python311Packages.pygments # Needed for my usual Tex templates
 
   # office
