@@ -294,8 +294,8 @@ Various helpers and packages I find useful for window management.
         "Toggle recording of kmacro."
         (interactive)
         (if defining-kbd-macro
-            (meow-end-kmacro)
-          (meow-start-kmacro)))
+            (kmacro-end-kmacro)
+          (kmacro-start-macro)))
 
       (defun meow-eldoc ()
         "Toggle the display of the eldoc window."
@@ -1338,8 +1338,9 @@ org-roam-ui-open-on-start t))
 #+end_src 
 
 *** Exports
+For now we keep the default org-export being sync.
 #+begin_src emacs-lisp
-  (setq org-export-in-background t)
+  (setq org-export-in-background nil)
 #+end_src
 
 Important export backends.
@@ -2161,6 +2162,37 @@ Set XeLaTex as our compiler
           "latexmk -pdflatex='xelatex -shell-escape -interaction nonstopmode ' -shell-escape -pdf -f %f "))
 
 #+end_src
+
+#+begin_src emacs-lisp
+  (defun org-export-backup (BACKEND FILE &rest _args);;(BACKEND FILE &optional ASYNC SUBTREEP VISIBLE-ONLY BODY-ONLY EXT-PLIST POST-PROCESSBACKEND FILE &optional ASYNC SUBTREEP VISIBLE-ONLY BODY-ONLY EXT-PLIST POST-PROCESS)
+    "Create timestamped backup of target file before export."
+      (when (and (file-exists-p FILE)
+  	       (string-suffix-p "tex" FILE))
+        (message "Backing up %s" FILE)
+        (let* (
+  	     (sans-extension (file-name-sans-extension FILE))
+  	    (backup-name (format "%s.%s.bak.pdf"
+  				 sans-extension
+                                  (format-time-string "%Y%m%dT%H%M%S")))
+  	    )
+  	(copy-file (format "%s.pdf" sans-extension) backup-name))))
+  (defun org-export-backup-after (BACKEND FILE &rest _args);;(BACKEND FILE &optional ASYNC SUBTREEP VISIBLE-ONLY BODY-ONLY EXT-PLIST POST-PROCESSBACKEND FILE &optional ASYNC SUBTREEP VISIBLE-ONLY BODY-ONLY EXT-PLIST POST-PROCESS)
+    "Create timestamped backup of target file after export. TODO combine into one function"
+      (when (and (file-exists-p FILE)
+  	       (string-suffix-p "tex" FILE))
+        (message "Backing up %s" FILE)
+        (let* (
+  	     (sans-extension (file-name-sans-extension FILE))
+  	    (backup-name (format "%s_latest.pdf"
+  				 sans-extension))
+  	    )
+  	(copy-file (format "%s.pdf" sans-extension) backup-name))))
+
+  (advice-add 'org-export-to-file :before 'org-export-backup)
+  (advice-add 'org-export-to-file :after 'org-export-backup-after)
+#+end_src
+
+#+RESULTS:
 
 *** COMMENT LSP
 #+begin_src emacs-lisp
