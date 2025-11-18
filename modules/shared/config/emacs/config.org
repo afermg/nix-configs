@@ -3036,6 +3036,8 @@ Completion
 **** GPTel
 #+begin_src emacs-lisp
    (use-package gptel
+    :straight (:host github :repo "karthink/gptel"
+                     :branch "master")
      :config
      (setq
       ;; OpenRouter offers an OpenAI compatible API
@@ -3051,9 +3053,9 @@ Completion
      ;;             google/palm-2-codechat-bison-32k
      ;;             google/gemini-pro))
       gptel-default-mode #'org-mode
-      gptel-backend
-  	 (gptel-make-gemini "Gemini" :key "XXXXXXXXXXXXXXXXXXXX" :stream t)
-  	 gptel-model 'gemini-2.5-pro
+      gptel-model 'gemini-3-pro-preview
+
+      gptel-backend (gptel-make-gemini "Gemini" :key "XXXXXXXXXXXXXXXXXXXXXXXXXX" :stream t)
      	;; gptel-backend (gptel-make-ollama "Ollama"	;Any name of your choosing
      	;;   :host "localhost:11434"	;Where it's running
      	;;   :stream t			;Stream responses
@@ -3063,7 +3065,6 @@ Completion
   ;; gptel-model 'qwen3:30b-a3b
   	) ;List of models)
      )
-
 #+end_src
 
 ***  gptel-magit
