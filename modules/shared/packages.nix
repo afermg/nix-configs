@@ -105,4 +105,7 @@ with pkgs;
   nix-search-cli # find nix packages
   nixfmt-rfc-style # Nix formatting (for nixpkgs)
 
+  # ocamlPackages.cpdf # PDF compression tools
+  # whois # check info on domain holders
+
 ]
