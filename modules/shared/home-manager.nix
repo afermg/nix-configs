@@ -39,6 +39,8 @@ in
 
   ssh = {
     enable = true;
+    enableDefaultConfig = false;
+    matchBlocks."*".forwardAgent = true;
     # includes = [
     #   (lib.mkIf pkgs.stdenv.hostPlatform.isLinux
     #     "/home/${user}/.ssh/config_external"

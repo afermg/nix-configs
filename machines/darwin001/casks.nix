@@ -8,7 +8,8 @@ _: [
 
   # Utility Tools
   "syncthing"
-
+  "inkscape"
+  
   # Entertainment Tools
   "steam"
 
@@ -27,4 +28,6 @@ _: [
   # Note that these two may require manual `sudo git clone X`
   # "nikitabobko/tap/aerospace"
   "aerospace"
+  "zoom"
+  "tailscale"
 ]
