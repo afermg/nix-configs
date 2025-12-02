@@ -1,5 +1,6 @@
 #+TITLE: Emacs
 #+STARTUP: content
+#+PROPERTY: header-args :results silent
 
 * Configuration   :emacs:
 ** About my Emacs
@@ -62,7 +63,7 @@ a specific installation order.
 #+END_SRC
 **** Org roam directory
 #+BEGIN_SRC emacs-lisp
-  (setq org-roam-directory-manual (file-truename "~/Documents/org/roam"))
+  (setq org-roam-directory-manual (file-truename (concat org-directory "/roam")))
   (make-directory org-roam-directory-manual t)
 #+END_SRC
 
@@ -926,7 +927,7 @@ I usually use Emacs on fullscreen, which prevents me from using the host's compu
 
 ** Org mode
 #+begin_src emacs-lisp 
-(setq org-directory "~/Documents/sync/org/")
+(setq org-directory "~/Documents/broad/org")
 #+end_src 
 
 *** Agenda
