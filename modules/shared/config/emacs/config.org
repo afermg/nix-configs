@@ -1,5 +1,6 @@
 #+TITLE: Emacs
 #+STARTUP: content
+#+PROPERTY: header-args :results silent
 
 * Configuration   :emacs:
 ** About my Emacs
@@ -596,6 +597,16 @@ i    		  (kagi-news . "https://kagi.com/news?q=%s")
   )
 #+end_src
 
+*** My functions
+**** Read file into string
+Useful to read credentials risk of committing to repo.
+#+begin_src emacs-lisp
+  (defun get-string-from-file (filePath)
+    "Return file content as string."
+    (with-temp-buffer
+      (insert-file-contents filePath)
+      (buffer-string)))
+#+end_src
 ** Completion
 #+NAME: completion
 #+begin_src elisp
@@ -3033,14 +3044,18 @@ Completion
 #+end_src
 
 *** NN-based tools
-**** GPTel
+**** GPTEL
+Cutting edge LLM models.
+
 #+begin_src emacs-lisp
-   (use-package gptel
+  (setq gptel-key-file "~/.gemini_key")
+
+  (use-package gptel
     :straight (:host github :repo "karthink/gptel"
                      :branch "master")
-     :config
-     (setq
-      ;; OpenRouter offers an OpenAI compatible API
+    :config
+    (setq
+     ;; OpenRouter offers an OpenAI compatible API
      ;; (gptel-make-openai "OpenRouter"               ;Any name you want
      ;;   :host "openrouter.ai"
      ;;   :endpoint "/api/v1/chat/completions"
@@ -3052,19 +3067,20 @@ Completion
      ;;             codellama/codellama-70b-instruct
      ;;             google/palm-2-codechat-bison-32k
      ;;             google/gemini-pro))
-      gptel-default-mode #'org-mode
-      gptel-model 'gemini-3-pro-preview
-
-      gptel-backend (gptel-make-gemini "Gemini" :key "XXXXXXXXXXXXXXXXXXXXXXXXXX" :stream t)
-     	;; gptel-backend (gptel-make-ollama "Ollama"	;Any name of your choosing
-     	;;   :host "localhost:11434"	;Where it's running
-     	;;   :stream t			;Stream responses
-   	;;   :request-params
-   	;;   '(:options (:num_ctx 16384))
-   	;;   :models '(mistral:latest qwen3:30b-a3b llama3.3:70b))
-  ;; gptel-model 'qwen3:30b-a3b
-  	) ;List of models)
-     )
+     gptel-default-mode #'org-mode
+     gptel-model 'gemini-3-pro-preview
+     
+     ;; gptel-backend (gptel-make-ollama "Ollama"	;Any name of your choosing
+     ;;   :host "localhost:11434"	;Where it's running
+     ;;   :stream t			;Stream responses
+     ;;   :request-params
+     ;;   '(:options (:num_ctx 16384))
+     ;;   :models '(mistral:latest qwen3:30b-a3b llama3.3:70b))
+     ;; gptel-model 'qwen3:30b-a3b
+     ) ;List of models)
+    (when (file-exists-p gptel-key-file)
+      (setq gptel-backend (gptel-make-gemini "Gemini" :key (get-string-from-file gptel-key-file) :stream t)))
+    )
 #+end_src
 
 ***  gptel-magit
