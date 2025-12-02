@@ -17,7 +17,7 @@ with pkgs;
 
   # terminals and shells
   wezterm
-  kitty
+  # kitty
   fish
 
   # Almost essential
@@ -93,7 +93,6 @@ with pkgs;
 
   # media
   inkscape # Graphics editing
-  pinta # Basic image editing
   mpv # video player
   ffmpeg # video processing needs
   imagemagick # image processing

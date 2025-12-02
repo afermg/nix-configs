@@ -25,7 +25,10 @@ shared-packages
   gnomeExtensions.forge
   gnomeExtensions.appindicator
   lynx
+  pinta # Basic image editing # nodarwin
   zoom-us # Not working for some reason
+  kitty # darwin fails
+
   # feh # Manage wallpapers
   # xclip # For the org-download package in Emacs
   # xdotool

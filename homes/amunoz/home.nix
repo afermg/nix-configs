@@ -6,8 +6,10 @@
   ...
 }:
 let
-  user = if pkgs.stdenv.isLinux then "amunoz" else "alan";
+  user = if pkgs.stdenv.isLinux then "amunoz" else "amunozgo";
   home_parent = if pkgs.stdenv.isLinux then "home" else "Users";
+  atuin_key_path = if pkgs.stdenv.isLinux then { key_path = config.age.secrets.atuin.path; } else { };
+  atuin_daemon_p = if pkgs.stdenv.isLinux then true else false;
 in
 {
 
@@ -89,7 +91,7 @@ in
   ];
 
   age = {
-    identityPaths = [ "/home/amunoz/.ssh/id_ed25519" ];
+    identityPaths = [ "/${home_parent}/${user}/.ssh/id_ed25519" ];
     secrets.atuin.file = ../../secrets/atuin.age;
   };
 
@@ -100,16 +102,15 @@ in
     enableBashIntegration = true;
     enableNushellIntegration = true;
     settings = {
-      # key_path = config.sops.secrets."<atuin-key-file>".path;
-      key_path = config.age.secrets.atuin.path;
       auto_sync = true;
       sync_frequency = "5m";
       sync_address = "https://api.atuin.sh";
       search_mode = "prefix";
       daemon = {
-        enabled = true;
+        enabled = atuin_daemon_p;
         socket_path = "/home/amunoz/.local/share/atuin/atuin.sock";
-      };
+      }
+      // atuin_key_path;
     };
   };
 
