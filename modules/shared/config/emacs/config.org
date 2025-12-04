@@ -2377,6 +2377,10 @@ Leader keys for lsp-mode.
   (add-to-list 'auto-mode-alist '("\\.env" . shell-script-mode))
 #+END_SRC
 
+**** GNU plot
+#+begin_src emacs-lisp
+  (use-package gnuplot)
+#+end_src
 **** YAML
 #+NAME: yaml-mode
 #+BEGIN_SRC emacs-lisp :results silent
