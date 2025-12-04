@@ -1017,9 +1017,20 @@ Ensure code blocks have a fixed pitch.
 #+NAME::org-mode-fixed-pitches
 #+begin_src emacs-lisp
   ;; Fix line number misaligning indentation (https://www.reddit.com/r/spacemacs/comments/nwm5vh/comment/k1u9ha5)
-  (set-face-attribute 'line-number nil :inherit 'fixed) ; This was in earlier in the config but stopped working there
-  (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
-  (set-face-attribute 'org-table nil :inherit 'fixed-pitch)
+  (set-face-attribute 'line-number nil :inherit 'fixed) ; This was in earlier in the config but stopped working th
+  ;; (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+  ;; (set-face-attribute 'org-table nil :inherit 'fixed-pitch)
+  ;; (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-code nil :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-table nil :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-drawer nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-mode-line-clock nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-date nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-property-value nil :inherit 'fixed-pitch)
 #+end_src
 
 TODO: Evaluate if this is useful.
@@ -1045,52 +1056,7 @@ TODO: Evaluate if this is useful.
 
 #+END_SRC
 
-*** Conveniences
-**** org-sticky-header
-Always show the current heading's full path in the top line. 
-#+begin_src emacs-lisp
-  (use-package org-sticky-header
-    :after org
-    :config
-    (setq org-sticky-header-full-path 'full)
-    :hook (org-mode . org-sticky-header-mode))
-#+end_src
-
-**** topsy
-Show the function definition line at the top
-#+begin_src emacs-lisp
-  (use-package topsy
-    :hook
-    (prog-mode . topsy-mode)
-    (magit-section-mode . topsy-mode))
-#+end_src
-
-**** org-transclusion
-Let's us move text but still see it in another file. I primarily use this to move text around in my journal.
-
-#+NAME::org-transclusion
-#+BEGIN_SRC emacs-lisp
-  (use-package org-transclusion
-    :after org
-    :hook (org-mode . org-transclusion-mode))
-
-  (defun org-global-props (&optional property buffer)
-    "Helper function to grab org properties"
-    (unless property (setq property "PROPERTY"))
-    (with-current-buffer (or buffer (current-buffer))
-      (org-element-map (org-element-parse-buffer) 'keyword
-      (lambda (el) (when (string-match property (org-element-property :key el)) el)))))
-
-#+END_SRC
-**** org-pandoc-import
-#+begin_src emacs-lisp
-  (use-package org-pandoc-import
-    :straight (:host github
-  		   :repo "tecosaur/org-pandoc-import"
-  		   :files ("*.el" "filters" "preprocessors")))
-#+end_src
-
-*** Install packages 
+*** Basic configuration
 My life in plain text.
 **** Leader key shortcuts
 #+NAME::org-mode-quick-entry
@@ -1190,7 +1156,92 @@ These are templates used to create new notes.
       :unnarrowed t)))
 #+END_SRC
 
-**** Org Roam
+*** Conveniences
+**** org-sticky-header
+Always show the current heading's full path in the top line. 
+#+begin_src emacs-lisp
+  (use-package org-sticky-header
+    :after org
+    :config
+    (setq org-sticky-header-full-path 'full)
+    :hook (org-mode . org-sticky-header-mode))
+#+end_src
+
+**** topsy
+Show the function definition line at the top
+#+begin_src emacs-lisp
+  (use-package topsy
+    :hook
+    (prog-mode . topsy-mode)
+    (magit-section-mode . topsy-mode))
+#+end_src
+
+**** org-transclusion
+Let's us move text but still see it in another file. I primarily use this to move text around in my journal.
+
+#+NAME::org-transclusion
+#+BEGIN_SRC emacs-lisp
+  (use-package org-transclusion
+    :after org
+    :hook (org-mode . org-transclusion-mode))
+
+  (defun org-global-props (&optional property buffer)
+    "Helper function to grab org properties"
+    (unless property (setq property "PROPERTY"))
+    (with-current-buffer (or buffer (current-buffer))
+      (org-element-map (org-element-parse-buffer) 'keyword
+      (lambda (el) (when (string-match property (org-element-property :key el)) el)))))
+
+#+END_SRC
+**** org-pandoc-import
+#+begin_src emacs-lisp
+  (use-package org-pandoc-import
+    :straight (:host github
+  		   :repo "tecosaur/org-pandoc-import"
+  		   :files ("*.el" "filters" "preprocessors")))
+#+end_src
+
+*** Exports
+For now we keep the default org-export being sync.
+#+begin_src emacs-lisp
+  (setq org-export-in-background nil)
+#+end_src
+
+Important export backends.
+#+begin_src emacs-lisp
+  (use-package ox-pandoc
+    :ensure t   ;Auto-install the package from Melpa
+    :pin melpa  ;`package-archives' should already have ("melpa" . "https://melpa.org/packages/")
+    :after org)
+
+   ; Git-flavoured markdown
+   (use-package ox-gfm
+     :ensure t
+     :after org
+     :config
+     (add-to-list 'org-export-backends 'md )
+     (add-to-list 'org-export-backends 'gfm )
+  )
+#+end_src
+
+**** ox-extra
+#+begin_src elisp
+    (use-package org-contrib
+    :config
+    (require 'ox-extra)
+    (ox-extras-activate '(ignore-headlines)))
+#+end_src
+
+**** ox-hugo
+#+begin_src emacs-lisp
+  (use-package ox-hugo
+    :ensure t   ;Auto-install the package from Melpa
+    :pin melpa  ;`package-archives' should already have ("melpa" . "https://melpa.org/packages/")
+    :after org
+    :config)
+#+end_src
+
+*** Org Roam
 ***** Install package
 #+NAME::org-roam-package
 #+BEGIN_SRC emacs-lisp
@@ -1333,7 +1384,7 @@ If UNSAFE is non-nil, assume point is on headline."
 (setq org-refile-targets '((my-org-files-list :maxlevel . 4)))
 #+end_src 
 
-*** Roam
+**** Org-roam-ui
 Provide an org-roam web interface
 #+begin_src emacs-lisp
 (use-package websocket
@@ -1347,46 +1398,6 @@ org-roam-ui-follow t
 org-roam-ui-update-on-save t
 org-roam-ui-open-on-start t))
 #+end_src 
-
-*** Exports
-For now we keep the default org-export being sync.
-#+begin_src emacs-lisp
-  (setq org-export-in-background nil)
-#+end_src
-
-Important export backends.
-#+begin_src emacs-lisp
-  (use-package ox-pandoc
-    :ensure t   ;Auto-install the package from Melpa
-    :pin melpa  ;`package-archives' should already have ("melpa" . "https://melpa.org/packages/")
-    :after org)
-
-   ; Git-flavoured markdown
-   (use-package ox-gfm
-     :ensure t
-     :after org
-     :config
-     (add-to-list 'org-export-backends 'md )
-     (add-to-list 'org-export-backends 'gfm )
-  )
-#+end_src
-
-**** ox-extra
-#+begin_src elisp
-    (use-package org-contrib
-    :config
-    (require 'ox-extra)
-    (ox-extras-activate '(ignore-headlines)))
-#+end_src
-
-**** ox-hugo
-#+begin_src emacs-lisp
-  (use-package ox-hugo
-    :ensure t   ;Auto-install the package from Melpa
-    :pin melpa  ;`package-archives' should already have ("melpa" . "https://melpa.org/packages/")
-    :after org
-    :config)
-#+end_src
 
 *** Babel
 **** Languages
