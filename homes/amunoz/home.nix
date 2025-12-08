@@ -148,8 +148,40 @@ in
       #   src = pkgs.fishPlugins.transient-fish.src;
       # }
     ];
+    # Atuin+fzf history from https://github.com/atuinsh/atuin/issues/68
     interactiveShellInit = ''
       set --universal pure_enable_nixdevshell true
+
+      # Ation + fzf
+      function fzf_history
+          set -l line (commandline)
+
+          # tac reverses order initially, tiebreak sorts(?), -n2..,.. ignores first two fields, +m means no "--multi"
+          set -l result (atuin search --cmd-only | fzf --tac "-n2..,.." --tiebreak=index "+m" --query="$line")
+
+          set -l key $result[1]
+          set -l selected $result[2]
+
+          if test "$key" = enter
+              commandline --replace $selected
+              commandline -f repaint
+              commandline -f execute
+              return
+          end
+
+          if test -n "$selected"
+              commandline -r -- $selected
+          end
+
+          commandline -f repaint
+      end
+      set -gx FZF_DEFAULT_OPTS "--bind=alt-k:up,alt-j:down --expect=tab,enter --layout=reverse 
+        --height=17 --delimiter='\t' --with-nth=1 
+          --preview-window='border-rounded' --prompt='  ' --marker=' ' --pointer=' ' 
+          --separator='─' --scrollbar='┃' --layout='reverse' 
+        "
+      set -x ATUIN_NOBIND = true
+      bind \cR fzf_history
     '';
   };
 
