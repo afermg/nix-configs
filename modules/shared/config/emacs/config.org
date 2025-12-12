@@ -1020,7 +1020,7 @@ Ensure code blocks have a fixed pitch.
   (set-face-attribute 'line-number nil :inherit 'fixed) ; This was in earlier in the config but stopped working th
   ;; (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
   ;; (set-face-attribute 'org-table nil :inherit 'fixed-pitch)
-  ;; (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
   (set-face-attribute 'org-code nil :inherit '(shadow fixed-pitch))
   (set-face-attribute 'org-table nil :inherit '(shadow fixed-pitch))
   (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
