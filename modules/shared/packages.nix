@@ -82,8 +82,8 @@ with pkgs;
 
   # fonts
   emacs-all-the-icons-fonts
-  fontconfig # Needed for napari
-  aporetic
+  # fontconfig # Needed for napari
+  # aporetic
 
   # containers
   podman # for container needs
