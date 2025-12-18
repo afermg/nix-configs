@@ -2775,7 +2775,7 @@ Indentation
     :init
     (elfeed-org)
     :config
-    (setq rmh-elfeed-org-files (list (concat org-directory "personal/rss/elfeed.org"))))
+    (setq rmh-elfeed-org-files (list (concat org-directory "/rss/elfeed.org"))))
 
   ;; (after! elfeed
   ;;   (setq elfeed-search-filter "@2-weeks-ago +unread")
