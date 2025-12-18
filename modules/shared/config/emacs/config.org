@@ -3084,7 +3084,7 @@ Cutting edge LLM models.
      ;;             google/palm-2-codechat-bison-32k
      ;;             google/gemini-pro))
      gptel-default-mode #'org-mode
-     gptel-model 'gemini-3-pro-preview
+     gptel-model 'gemini-3-flash-preview
      
      ;; gptel-backend (gptel-make-ollama "Ollama"	;Any name of your choosing
      ;;   :host "localhost:11434"	;Where it's running
