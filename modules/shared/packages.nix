@@ -91,6 +91,7 @@ with pkgs;
   # writing
   pandoc # Convert between formats
   hugo # blogging
+  go
 
   # media
   inkscape # Graphics editing
