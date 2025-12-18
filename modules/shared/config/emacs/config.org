@@ -53,20 +53,6 @@ This associates our package manager with the right source (MELPA).
     (add-to-list 'package-archives '("nongnu" . "https://elpa.nongnu.org/nongnu/") t))
 #+END_SRC
 
-*** Workarounds
-**** Transient/magit fix 
-There is an incompatibility between transient and magit that requires
-a specific installation order.
-#+BEGIN_SRC emacs-lisp
-  (use-package transient)
-  (use-package magit :after (transient))
-#+END_SRC
-**** Org roam directory
-#+BEGIN_SRC emacs-lisp
-  (setq org-roam-directory-manual (file-truename (concat org-directory "/roam")))
-  (make-directory org-roam-directory-manual t)
-#+END_SRC
-
 *** System Definitions
 **** Conditionals
 
@@ -83,6 +69,20 @@ a specific installation order.
   (when (system-is-mac)
     (setenv "PATH" (concat (getenv "PATH") ":~/.nix-profile/bin:/usr/bin"))
     (setq exec-path (append '("~/bin" "~/.nix-profile/bin" "/nix/var/nix/profiles/default/bin" "/usr/local/bin" "/usr/bin") exec-path)))
+#+END_SRC
+
+*** Workarounds
+**** Transient/magit fix 
+There is an incompatibility between transient and magit that requires
+a specific installation order.
+#+BEGIN_SRC emacs-lisp
+  (use-package transient)
+  (use-package magit :after (transient))
+#+END_SRC
+**** Org roam directory
+#+BEGIN_SRC emacs-lisp
+  (setq org-roam-directory-manual (file-truename (concat org-directory "/roam")))
+  (make-directory org-roam-directory-manual t)
 #+END_SRC
 
 *** Modes
@@ -1654,7 +1654,7 @@ If on a:
 
 *** Tree sitter
 #+begin_src emacs-lisp
-  (unless system-is-mac
+  (unless (system-is-mac)
     (use-package treesit-auto
       :custom
       (treesit-auto-install 'prompt)
@@ -2219,7 +2219,7 @@ Set XeLaTex as our compiler
 
 #+RESULTS:
 
-*** COMMENT LSP
+*** LSP
 #+begin_src emacs-lisp
   (use-package markdown-mode
     :hook (markdown-mode . lsp)
@@ -3061,7 +3061,7 @@ Completion
       (insert insertion)))
 #+end_src
 
-*** NN-based tools
+*** AI-based tools
 **** GPTEL
 Cutting edge LLM models.
 
@@ -3101,7 +3101,7 @@ Cutting edge LLM models.
     )
 #+end_src
 
-***  gptel-magit
+*****  gptel-magit
 Simple but working gptel+magit integration. Replaced gptcommit-mode
 
 #+begin_src elisp
