@@ -54,7 +54,7 @@
     };
 
     # VS Code
-    vscode-server.url = "github:nix-community/nixos-vscode-server";
+    # vscode-server.url = "github:nix-community/nixos-vscode-server";
 
     # Home manager
     home-manager = {
@@ -64,37 +64,37 @@
 
     hardware.url = "github:nixos/nixos-hardware";
 
-    nix-colors.url = "github:misterio77/nix-colors";
+    #nix-colors.url = "github:misterio77/nix-colors";
 
-    nh = {
-      url = "github:viperml/nh";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    #nh = {
+    #  url = "github:viperml/nh";
+    #  inputs.nixpkgs.follows = "nixpkgs";
+    #};
 
-    hyprland = {
-      url = "github:hyprwm/hyprland";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    #hyprland = {
+    #  url = "github:hyprwm/hyprland";
+    #  inputs.nixpkgs.follows = "nixpkgs";
+    #};
 
-    hyprwm-contrib = {
-      url = "github:hyprwm/contrib";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    #hyprwm-contrib = {
+    #  url = "github:hyprwm/contrib";
+    #  inputs.nixpkgs.follows = "nixpkgs";
+    #};
 
-    hyprland-plugins = {
-      url = "github:hyprwm/hyprland-plugins";
-      inputs.hyprland.follows = "hyprland";
-    };
+    #hyprland-plugins = {
+    #  url = "github:hyprwm/hyprland-plugins";
+    #  inputs.hyprland.follows = "hyprland";
+    #};
 
     firefox-addons = {
       url = "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    superfile = {
-      url = "github:yorukot/superfile";
-      inputs.nixpkgs.follows = "nixpkgs-stable";
-    };
+    #superfile = {
+    #  url = "github:yorukot/superfile";
+    #  inputs.nixpkgs.follows = "nixpkgs-stable";
+    #};
   };
 
   outputs =
