@@ -24,8 +24,8 @@ in
 
   programs.git = {
     enable = true;
-    userName = "Zitong Chen";
-    userEmail = "zchen001016@gmail.com";
+    settings.user.name = "Zitong Chen";
+    settings.user.email = "zchen001016@gmail.com";
   };
 
   programs.direnv = {

@@ -44,8 +44,8 @@
 
   programs.git = {
     enable = true;
-    userName = "Alan Munoz";
-    userEmail = "afer.mg@gmail.com";
+    settings.user.name = "Alan Munoz";
+    settings.user.email = "afer.mg@gmail.com";
     #extraConfig = {
     # Sign all commits using ssh key
     #    commit.gpgsign = true;

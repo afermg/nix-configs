@@ -142,22 +142,6 @@
         "type": "indirect"
       }
     },
-    "fuse-t-cask": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1754718280,
-        "narHash": "sha256-zjZnQHCI6HvzOZGPfj7qMzLYVeLMpjJgv/LMCcVx97E=",
-        "owner": "macos-fuse-t",
-        "repo": "homebrew-cask",
-        "rev": "422fabd4154deef41b2e8e9a57d763f0bf1a444f",
-        "type": "github"
-      },
-      "original": {
-        "owner": "macos-fuse-t",
-        "repo": "homebrew-cask",
-        "type": "github"
-      }
-    },
     "hardware": {
       "locked": {
         "lastModified": 1764440730,
@@ -352,7 +336,6 @@
         "disko": "disko",
         "firefox-addons": "firefox-addons",
         "flake-utils": "flake-utils",
-        "fuse-t-cask": "fuse-t-cask",
         "hardware": "hardware",
         "home-manager": "home-manager_2",
         "homebrew-bundle": "homebrew-bundle",
@@ -363,8 +346,7 @@
         "nixpkgs": "nixpkgs",
         "nixpkgs-master": "nixpkgs-master",
         "nixpkgs-stable": "nixpkgs-stable",
-        "systems": "systems_3",
-        "vancluever-tap": "vancluever-tap"
+        "systems": "systems_3"
       }
     },
     "systems": {
@@ -409,22 +391,6 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default-linux",
-        "type": "github"
-      }
-    },
-    "vancluever-tap": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1737663556,
-        "narHash": "sha256-b2+3YTcZhIVscbfdTrAIgYGRpVeooL+yrp0+TvTBNss=",
-        "owner": "vancluever",
-        "repo": "homebrew-input-leap",
-        "rev": "ab741dedba6f71dc76afe2ddeb6849ad6c73d140",
-        "type": "github"
-      },
-      "original": {
-        "owner": "vancluever",
-        "repo": "homebrew-input-leap",
         "type": "github"
       }
     }

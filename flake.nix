@@ -27,14 +27,14 @@
       url = "github:homebrew/homebrew-cask";
       flake = false;
     };
-    vancluever-tap = {
-      url = "github:vancluever/homebrew-input-leap";
-      flake = false;
-    };
-    fuse-t-cask = {
-      url = "github:macos-fuse-t/homebrew-cask";
-      flake = false;
-    };
+    # vancluever-tap = {
+    #   url = "github:vancluever/homebrew-input-leap";
+    #   flake = false;
+    # };
+    # fuse-t-cask = {
+    #   url = "github:macos-fuse-t/homebrew-cask";
+    #   flake = false;
+    # };
     nikitabobko-cask = {
       url = "github:nikitabobko/homebrew-tap";
       flake = false;

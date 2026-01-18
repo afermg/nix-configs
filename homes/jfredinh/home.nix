@@ -25,8 +25,8 @@ in
   programs.home-manager.enable = true;
   programs.git = {
     enable = true;
-    userName = "Johan Fredin";
-    userEmail = "jfredinh@broadinstitute.org";
+    settings.user.name = "Johan Fredin";
+    settings.user.email = "jfredinh@broadinstitute.org";
   };
 
   programs.direnv = {

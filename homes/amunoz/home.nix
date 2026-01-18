@@ -210,8 +210,10 @@ in
 
   programs.git = {
     enable = true;
-    userName = "Alán F. Muñoz";
-    userEmail = "afer.mg@gmail.com";
+    settings = {
+      user.name = "Alán F. Muñoz";
+      user.email = "afer.mg@gmail.com";
+    };
     #extraConfig = {
     # Sign all commits using ssh key
     #    commit.gpgsign = true;

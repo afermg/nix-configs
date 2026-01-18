@@ -16,8 +16,8 @@ in
   git = {
     enable = true;
     ignores = [ "*.swp" ];
-    userName = name;
-    userEmail = email;
+    settings.user.name = name;
+    settings.user.email = email;
     lfs = {
       enable = true;
     };
