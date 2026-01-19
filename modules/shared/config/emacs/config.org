@@ -946,50 +946,49 @@ Initialize org-agenda file and set some key bindings to create tasks.
 #+BEGIN_SRC emacs-lisp
   (setq org-agenda-files "~/.emacs.d/agenda.txt" )
 
-  (defun my-org-insert-subheading (heading-type)
-  "Inserts a new org heading with unique ID and creation date.
-  The type of heading (TODO, PROJECT, etc.) is specified by HEADING-TYPE."
-    (let ((uuid (org-id-uuid))
-          (date (format-time-string "[%Y-%m-%d %a %H:%M]")))
-      (org-end-of-line) ;; Make sure we are at the end of the line
-      (unless (looking-at-p "\n") (insert "\n")) ;; Insert newline if next character is not a newline
-      (org-insert-subheading t) ;; Insert a subheading instead of a heading
-      (insert (concat heading-type " "))
-      (save-excursion
-        (org-set-property "ID" uuid)
-        (org-set-property "CREATED" date))))
+    (defun my-org-insert-subheading (heading-type)
+    "Inserts a new org heading with unique ID and creation date.
+    The type of heading (TODO, PROJECT, etc.) is specified by HEADING-TYPE."
+      (let ((uuid (org-id-uuid))
+            (date (format-time-string "[%Y-%m-%d %a %H:%M]")))
+        (org-end-of-line) ;; Make sure we are at the end of the line
+        (unless (looking-at-p "\n") (insert "\n")) ;; Insert newline if next character is not a newline
+        (org-insert-subheading t) ;; Insert a subheading instead of a heading
+        (insert (concat heading-type " "))
+        (save-excursion
+          (org-set-property "ID" uuid)
+          (org-set-property "CREATED" date))))
 
-  (defun my-org-insert-todo ()
-    "Inserts a new TODO heading with unique ID and creation date."
-    (interactive)
-    (my-org-insert-subheading "TODO"))
+    (defun my-org-insert-todo ()
+      "Inserts a new TODO heading with unique ID and creation date."
+      (interactive)
+      (my-org-insert-subheading "TODO"))
 
-  (defun my-org-insert-project ()
-    "Inserts a new PROJECT heading with unique ID and creation date."
-    (interactive)
-    (my-org-insert-subheading "PROJECT"))
+    (defun my-org-insert-project ()
+      "Inserts a new PROJECT heading with unique ID and creation date."
+      (interactive)
+      (my-org-insert-subheading "PROJECT"))
 
-  (defun my-org-copy-link-from-id ()
-    "Copies a link to the current Org mode item by its ID to clipboard"
-    (interactive)
-    (when (org-at-heading-p)
-      (let* ((element (org-element-at-point))
-             (title (org-element-property :title element))
-             (id (org-entry-get nil "ID"))
-             (link (format "[[id:%s][%s]]" id title)))
-        (when id
-          (kill-new link)
-          (message "Link saved to clipboard")))))
+  ;;   (defun ndk/link-fast-copy ()
+  ;;    (interactive)
+  ;;    (let* ((context (org-element-context))
+  ;;           (type (org-element-type context))
+  ;;           (beg (org-element-property :begin context))
+  ;;           (end (org-element-property :end context)))
+  ;;      (when (eq type 'link)
+  ;;       (copy-region-as-kill beg end))))
 
-  (define-prefix-command 'my-org-todo-prefix)
+  ;; (define-key org-mode-map (kbd "C-c z") #'ndk/link-fast-copy)
 
-  (global-set-key (kbd "C-c c") 'org-capture)
-  (global-set-key (kbd "C-c t") 'my-org-todo-prefix)
+    (define-prefix-command 'my-org-todo-prefix)
 
-  (define-key 'my-org-todo-prefix (kbd "t") 'my-org-insert-todo)
-  (define-key 'my-org-todo-prefix (kbd "p") 'my-org-insert-project)
+    (global-set-key (kbd "C-c c") 'org-capture)
+    (global-set-key (kbd "C-c t") 'my-org-todo-prefix)
 
-  (define-key org-mode-map (kbd "C-c l") 'my-org-copy-link-from-id)
+    (define-key 'my-org-todo-prefix (kbd "t") 'my-org-insert-todo)
+    (define-key 'my-org-todo-prefix (kbd "p") 'my-org-insert-project)
+
+    (define-key org-mode-map (kbd "C-c l") 'embark-org-copy-link-target)
 #+END_SRC
 
 **** Org TODO
@@ -1238,7 +1237,7 @@ Important export backends.
     :ensure t   ;Auto-install the package from Melpa
     :pin melpa  ;`package-archives' should already have ("melpa" . "https://melpa.org/packages/")
     :after org
-    :config)
+    )
 #+end_src
 
 *** Org Roam
