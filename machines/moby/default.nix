@@ -68,8 +68,8 @@
     # Ollama service
     ollama = {
       enable = true;
-      package = pkgs.ollama;
-      acceleration = "cuda";
+      package = pkgs.ollama-cuda;
+      # acceleration = "cuda";
       environmentVariables = {
         CUDA_VISIBLE_DEVICES = "0";
         LD_LIBRARY_PATH = "${pkgs.cudaPackages.cudatoolkit}/lib:${pkgs.cudaPackages.cudatoolkit}/lib64";
@@ -131,9 +131,8 @@
     emacs-all-the-icons-fonts
     font-awesome
     noto-fonts
-    noto-fonts-emoji
+    noto-fonts-color-emoji
     noto-fonts-cjk-sans
-    noto-fonts-emoji
     liberation_ttf
     fira-code
     fira-code-symbols
