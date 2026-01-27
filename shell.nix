@@ -21,7 +21,7 @@
       home-manager
       git
 
-      inputs.agenix.packages.${system}.default
+      inputs.agenix.packages.${stdenv.hostPlatform.system}.default
       ssh-to-age
       gnupg
       age

@@ -53,8 +53,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    overleaf.url = "github:adega318/nix-overleaf";
+
     # VS Code
-    # vscode-server.url = "github:nix-community/nixos-vscode-server";
+    vscode-server.url = "github:nix-community/nixos-vscode-server";
 
     # Home manager
     home-manager = {
@@ -103,6 +105,7 @@
       nixpkgs,
       home-manager,
       agenix,
+      overleaf,
       systems,
       flake-utils,
       ...
@@ -140,12 +143,13 @@
           modules = [
             ./machines/moby
             agenix.nixosModules.default
+            overleaf.nixosModules.default
+
             {
               age.secrets = {
                 tailscale.file = ./secrets/tailscale.age;
               };
             }
-
           ];
 
           specialArgs = { inherit inputs outputs; };

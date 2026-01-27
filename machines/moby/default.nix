@@ -78,6 +78,7 @@
 
     # Apache tika: Processs documents for LLM ingestion
     tika.enable = true;
+    overleaf.enable = true;
 
     # Emacs: The one and only True Editor.
     emacs = {
@@ -145,7 +146,7 @@
 
   # Default system wide packages
   environment.systemPackages = pkgs.callPackage ../../modules/nixos/packages.nix { } ++ [
-    inputs.agenix.packages.${pkgs.system}.default
+    inputs.agenix.packages.${pkgs.stdenv.hostPlatform.system}.default
   ];
   environment.shells = [
     pkgs.zsh
