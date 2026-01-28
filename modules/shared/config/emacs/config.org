@@ -2375,6 +2375,7 @@ Leader keys for lsp-mode.
   (defun select-python-interpreter ()
     (if (executable-find "jupyter")
         (setq
+         python-interpreter "jupyter"
          python-shell-interpreter "jupyter"
          python-shell-interpreter-args "console --simple-prompt")
       (setq
