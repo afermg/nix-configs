@@ -195,7 +195,8 @@ Various helpers and packages I find useful for window management.
   (global-set-key (kbd "C-x K") 'kill-buffer)
 #+END_SRC
 
-*** Remote-exclusive modes
+*** Share clipboard in remote sessions or terminal
+Clipetty works well for macOS
 #+begin_src emacs-lisp
   (unless window-system
     (xterm-mouse-mode 1))
@@ -204,6 +205,11 @@ Various helpers and packages I find useful for window management.
   (use-package clipetty
     :config
     (global-clipetty-mode 1))
+#+end_src
+
+I needed this for it to work on Linux-Linux connections. [[https://www.rahuljuliato.com/posts/emacs-clipboard-terminal][source]].
+#+begin_src emacs-elisp
+  (setq xterm-extra-capabilities '(getSelection setSelection modifyOtherKeys))
 #+end_src
 
 ** Navigation and editing
