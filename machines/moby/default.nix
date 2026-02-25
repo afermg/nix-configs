@@ -77,8 +77,8 @@
     };
 
     # Apache tika: Processs documents for LLM ingestion
-    tika.enable = true;
-    overleaf.enable = true;
+    # tika.enable = true;
+    # overleaf.enable = true;
 
     # Emacs: The one and only True Editor.
     emacs = {

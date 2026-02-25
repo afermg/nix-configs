@@ -143,7 +143,7 @@
           modules = [
             ./machines/moby
             agenix.nixosModules.default
-            overleaf.nixosModules.default
+            # overleaf.nixosModules.default
 
             {
               age.secrets = {

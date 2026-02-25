@@ -28,6 +28,7 @@ shared-packages
   pinta # Basic image editing # nodarwin
   zoom-us # Not working for some reason
   kitty # darwin fails
+  ghostty # Only needed to be able to share clipboard, since wezterm is not working https://github.com/wezterm/wezterm/pull/6239
 
   # feh # Manage wallpapers
   # xclip # For the org-download package in Emacs

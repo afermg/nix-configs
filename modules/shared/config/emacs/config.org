@@ -1038,7 +1038,36 @@ Ensure code blocks have a fixed pitch.
   (set-face-attribute 'org-property-value nil :inherit 'fixed-pitch)
 #+end_src
 
-TODO: Evaluate if this is useful.
+Add specific font face for org-babel result blocks
+***** COMMENT Custom font
+#+begin_src emacs-lisp
+  (defface my-org-result '((t (:inherit 'fixed-pitch)))
+  "Face used for org-babel results."
+  :group 'org-faces)
+
+  ;; (defun my-set-org-result-face ()
+  ;;   "Set the font for `org-agenda-mode'."
+  ;;   (buffer-face-set 'my-org-result))
+
+  ;; (add-hook 'org-mode-hook 'my-set-org-result-face)
+  (defun my/org-fontify-proof-blocks (&optional window)
+    (interactive)
+    (add-to-list 'font-lock-extra-managed-props 'display)
+    (let ((margin-format (format "%%%ds" left-margin-width)))
+      (font-lock-add-keywords nil
+                              `(
+                                ("#\\+begin_proof.*?\\(\n\\)"
+                                 1 'my-org-result)
+                                ("\\(#\\+begin_proof.*$\\)"
+                                 1 '(face nil display ,(propertize "Proof." 'face '(:family "TeX Gyre Pagella" :slant italic :height 130 :weight semibold))))
+                                ;; ("\\(#\\+end_proof.*\\)$"
+                                 ;; 1 '(face nil display ,(propertize (concat (make-string (- (window-width) (* (string-width "⏹") 2)) ?\ ) "⏹") 'face '(:inherit nil))))
+                                )))
+    (add-hook 'window-size-change-functions #'my/org-fontify-proof-blocks nil t))
+  (add-hook 'org-mode-hook #'my/org-fontify-proof-blocks)
+#+end_src
+
+# TODO: Evaluate if this is useful.
 #+NAME::org-mode-faces
 #+BEGIN_SRC emacs-lisp
   ;; Fast access to tag common contexts I use
