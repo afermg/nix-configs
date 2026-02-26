@@ -43,6 +43,7 @@ in
   xclip # clipboard manipulation tool
 
   ## AI
+  gemini-cli
   #openai-whisper-cpp
   #piper-tts
 
