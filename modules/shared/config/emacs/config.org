@@ -445,7 +445,6 @@ I needed this for it to work on Linux-Linux connections. [[https://www.rahuljuli
         '(";hr" . dl/reload-emacs)
         '(";hn" . dl/load-buffer-with-nix-config)
         '(";hp" . dl/load-buffer-with-emacs-config)
-        '(";ot" . projectile-run-vterm-other-window)
         '(";oT" . +vterm/here)
         '(";ox" . toggle-scratch-buffer)
         '(";lf" . dl/lsp-find-references-other-window)
@@ -844,9 +843,9 @@ Useful to read credentials risk of committing to repo.
         ;; By default `consult-project-function' uses `project-root' from project.el.
         ;; Optionally configure a different project root function.
         ;;;; 1. project.el (the default)
-        ;; (setq consult-project-function #'consult--default-project--function)
+        (setq consult-project-function #'consult--default-project--function)
         ;;;; 2. vc.el (vc-root-dir)
-        (setq consult-project-function (lambda (_) (vc-root-dir)))
+        ;; (setq consult-project-function (lambda (_) (vc-root-dir)))
         ;;;; 3. locate-dominating-file
         ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
         ;;;; 4. projectile.el (projectile-project-root)
@@ -1493,6 +1492,22 @@ Found [[https://emacs.stackexchange.com/questions/44664/apply-ansi-color-escape-
   (add-hook 'org-babel-after-execute-hook 'dl/babel-ansi)
 #+END_SRC
 
+**** QOL
+#+begin_src emacs-lisp
+  (add-hook 'org-babel-after-execute-hook 'semacs/ob-args-ext-session-reset)
+
+  (defun semacs/ob-args-ext-session-reset()
+    (let* ((src-block-info (org-babel-get-src-block-info 'light))
+           (language (nth 0 src-block-info))
+           (arguments (nth 2 src-block-info))
+           (should-reset (member '(:session-reset . "yes") arguments))
+           (session (cdr (assoc :session arguments)))
+           (session-process
+            (cond ((equal language "duckdb") (format "*duckdb-%s*" session))
+                  (t nil))))
+      (if (and should-reset (get-process session-process))
+          (kill-process session-process))))
+#+end_src
 *** Contrib
 Unmaintained add-ons that can be useful
 #+begin_src emacs-lisp
@@ -1906,34 +1921,7 @@ These settings keep emacs from littering the filesystem with buffer backups. The
 #+END_SRC
 
 test
-** Projects
-*** Projectile
-Projectile enables me to organize projects with a killer grep interface.
-
-#+NAME: projectile
-#+BEGIN_SRC emacs-lisp
-  (use-package ripgrep)
-  (use-package projectile
-  :diminish projectile-mode
-  :config (projectile-mode)
-  :bind-keymap
-    ("C-c p" . projectile-command-map)
-  ;; @       :bind (:map projectile-command-map ("m" . project-vterm))
-  :init
-    (setq projectile-enable-caching t)
-    (setq projectile-sort-order 'recently-active)
-    (setq projectile-switch-project-action #'projectile-dired)
-  :config
-    (setq projectile-project-root-files-bottom-up '("package.json" ".projectile" ".project" ".git"))
-    (setq projectile-ignored-projects '("~/.emacs.d/"))
-    (setq projectile-globally-ignored-directories '("dist" "node_modules" ".log" ".git"))
-
-    (define-key projectile-mode-map [?\s-d] 'projectile-find-dir)
-    (define-key projectile-mode-map [?\s-p] 'projectile-switch-project)
-    (define-key projectile-mode-map [?\s-f] 'projectile-find-file)
-    (define-key projectile-mode-map [?\s-g] 'projectile-grep))
-#+END_SRC
-
+** Project/Buffers/Perspectives
 *** COMMENT Persp-mode
 #+begin_src emacs-lisp 
   (use-package persp-mode
@@ -1960,16 +1948,15 @@ Projectile enables me to organize projects with a killer grep interface.
     (setq dashboard-set-footer nil))
   (setq dashboard-banner-logo-title "Here be dragons")
   (setq dashboard-set-file-icons t)
-  (setq dashboard-projects-backend 'projectile)
 
   (setq initial-buffer-choice (lambda ()
                                 (get-buffer-create "*dashboard*")
                                 (dashboard-refresh-buffer)))
 
-  (defun dashboard-insert-custom (list-size)
-    (insert (shell-command-to-string "curl -s \"wttr.in/Boston?m&format=3\"")))
-  (add-to-list 'dashboard-item-generators  '(custom . dashboard-insert-custom))
-  (add-to-list 'dashboard-items '(custom) t)
+  ;; (defun dashboard-insert-custom (list-size)
+  ;;   (insert (shell-command-to-string "curl -s \"wttr.in/Boston?m&format=3\"")))
+  ;; (add-to-list 'dashboard-item-generators  '(custom . dashboard-insert-custom))
+  ;; (add-to-list 'dashboard-items '(custom) t)
 #+END_SRC
 
 *** Bufler 
@@ -2023,7 +2010,7 @@ Projectile enables me to organize projects with a killer grep interface.
   Returns the vterm buffer."
       (unless (fboundp 'module-load)
         (user-error "Your build of Emacs lacks dynamic modules support and cannot load vterm"))
-      (let* ((project-root (or (projectile-project-root) default-directory))
+      (let* ((project-root default-directory)
              (default-directory
               (if arg
   		default-directory
@@ -2158,44 +2145,51 @@ Make use of extarticle by default
 
 Captions and cdlatex
 #+begin_src emacs-lisp 
-      (setq org-latex-prefer-user-labels t
-            org-latex-caption-above nil
-            ;; org-latex-listings 'minted
-            org-latex-listings nil
-            )
+     (setq org-latex-prefer-user-labels t
+           org-latex-caption-above nil
+           ;; org-latex-listings 'minted
+           org-latex-listings nil
+           )
 
 
-      ;;Colours
-    ;; (add-to-list 'org-latex-packages-alist '("" "minted"))
-    ;(add-to-list 'org-latex-packages-alist '("" "tabularx"))
-    ;(plist-put org-format-latex-options :scale 1.75        )
-    ;(add-to-list 'org-latex-packages-alist '("" "unicode-math")))
-     (add-to-list 'org-latex-classes
-           '("beamerposter"
-             "\\documentclass[final]{beamer}
-             \\usepackage[T1]{fontenc}
-             \\usepackage{lmodern}
-             \\usepackage[size=custom,width=84.1,height=118.9,scale=1.0]{beamerposter}  
-             \\usepackage{graphicx}
-             \\usepackage{booktabs}
-             \\usepackage{tikz}
-             \\usepackage{pgfplots}
-             \\pgfplotsset{compat=1.18}
-             \\usepackage{anyfontsize}
-             [NO-DEFAULT-PACKAGES]"))
-   (add-to-list 'org-latex-classes
-           '("extarticle"
-                   "\\documentclass{extarticle}"
-                   ("\\section{%s}" . "\\section*{%s}")
-                   ("\\subsection{%s}" . "\\subsection*{%s}")
-                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
-   (add-to-list 'org-latex-classes
-           '("article-minimal"
-                   "\\documentclass{article}
-                    [NO-DEFAULT-PACKAGES]"
-                   ("\\section{%s}" . "\\subsection*{%s}")
-                   ("\\subsection{%s}" . "\\subsubsection*{%s}")
-                   ("\\subsubsection{%s}" . "\\subsubsubsection*{%s}")))
+     ;;Colours
+  (add-to-list 'org-latex-packages-alist '("" "minted" nil))
+  (setq org-latex-minted-options nil)
+        ;; '(
+        ;; 				 ("frame" "leftline")
+        ;; 				 ("lineos" "true")
+        ;; 				 ))
+  (setq org-latex-src-block-backend 'minted)
+   ;; (add-to-list 'org-latex-packages-alist '("" "minted"))
+   ;(add-to-list 'org-latex-packages-alist '("" "tabularx"))
+   ;(plist-put org-format-latex-options :scale 1.75        )
+   ;(add-to-list 'org-latex-packages-alist '("" "unicode-math")))
+    (add-to-list 'org-latex-classes
+          '("beamerposter"
+            "\\documentclass[final]{beamer}
+            \\usepackage[T1]{fontenc}
+            \\usepackage{lmodern}
+            \\usepackage[size=custom,width=84.1,height=118.9,scale=1.0]{beamerposter}  
+            \\usepackage{graphicx}
+            \\usepackage{booktabs}
+            \\usepackage{tikz}
+            \\usepackage{pgfplots}
+            \\pgfplotsset{compat=1.18}
+            \\usepackage{anyfontsize}
+            [NO-DEFAULT-PACKAGES]"))
+  (add-to-list 'org-latex-classes
+          '("extarticle"
+                  "\\documentclass{extarticle}"
+                  ("\\section{%s}" . "\\section*{%s}")
+                  ("\\subsection{%s}" . "\\subsection*{%s}")
+                  ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
+  (add-to-list 'org-latex-classes
+          '("article-minimal"
+                  "\\documentclass{article}
+                   [NO-DEFAULT-PACKAGES]"
+                  ("\\section{%s}" . "\\subsection*{%s}")
+                  ("\\subsection{%s}" . "\\subsubsection*{%s}")
+                  ("\\subsubsection{%s}" . "\\subsubsubsection*{%s}")))
 #+end_src
 
 
@@ -3121,7 +3115,7 @@ Cutting edge LLM models.
      ;;             google/palm-2-codechat-bison-32k
      ;;             google/gemini-pro))
      gptel-default-mode #'org-mode
-     gptel-model 'gemini-3-flash-preview
+     gptel-model 'gemini-pro-latest
      
      ;; gptel-backend (gptel-make-ollama "Ollama"	;Any name of your choosing
      ;;   :host "localhost:11434"	;Where it's running
