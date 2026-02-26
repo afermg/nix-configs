@@ -18,7 +18,7 @@ Just me!
 #+NAME: personal-info
 #+BEGIN_SRC emacs-lisp
   (setq user-full-name "Alán F. Muñoz"
-    user-mail-address "afer.mg@gmail.com")
+    user-mail-address "alan@quasimorphic.com")
 #+END_SRC
 
 *** System-side functions
@@ -72,13 +72,6 @@ This associates our package manager with the right source (MELPA).
 #+END_SRC
 
 *** Workarounds
-**** Transient/magit fix 
-There is an incompatibility between transient and magit that requires
-a specific installation order.
-#+BEGIN_SRC emacs-lisp
-  (use-package transient)
-  (use-package magit :after (transient))
-#+END_SRC
 **** Org roam directory
 #+BEGIN_SRC emacs-lisp
   (setq org-roam-directory-manual (file-truename (concat org-directory "/roam")))
@@ -105,7 +98,7 @@ This is used primarily to center org mode text.
 #+end_src
 
 ** Global Settings
-** Global Modes
+*** Global Modes
 Generally-useful modes
 
 #+NAME: global-modes
@@ -160,19 +153,6 @@ To snipe things on the screen
   (global-set-key (kbd "M-g e") 'avy-goto-word-0)
 #+end_src
 
-**** COMMENT Emacs cleanup
-Helpful keybindings to help keep Emacs sane.
-
-#+NAME: emacs-cleanup
-#+BEGIN_SRC emacs-lisp
-    (dl/leader-keys
-      "k"  '(:ignore k :which-key "cleanup")
-      "ko" '(kill-buffer-and-window :which-key "kill buffer and window")
-      "kk" '(kill-some-buffers :which-key "cleanup buffers")
-      "fr" '(recentf :which-key "Recent files"))
-    (global-set-key (kbd "C-x -") 'kill-buffer-and-window)
-#+END_SRC
-
 **** Rotate windows
 Various helpers and packages I find useful for window management.
 
@@ -212,8 +192,20 @@ I needed this for it to work on Linux-Linux connections. [[https://www.rahuljuli
   (setq xterm-extra-capabilities '(getSelection setSelection modifyOtherKeys))
 #+end_src
 
-** Navigation and editing
-*** Modal editing 
+*** Navigation and editing
+**** Undo-tree
+Undo tree for better undo visualisation.
+#+BEGIN_SRC emacs-lisp
+  (use-package undo-tree
+    :ensure t
+    :init
+    (global-undo-tree-mode)
+    :config
+    ;; Save undo history to a dedicated directory to avoid cluttering working directories
+    (setq undo-tree-history-directory-alist '(("." . "~/.local/state/emacs/undo"))))
+#+END_SRC
+
+**** Modal editing 
 #+begin_src emacs-lisp
   (use-package meow
     :config
@@ -412,8 +404,8 @@ I needed this for it to work on Linux-Linux connections. [[https://www.rahuljuli
 
         '("z" . query-replace-regexp)
 
-        '("h" . undo-only)
-        '("H" . undo-redo)
+        '("h" . undo-tree-undo)
+        '("H" . undo-tree-redo)
 
         '("m"  . meow-kmacro)
         '("M"  . kmacro-call-macro)
@@ -505,7 +497,7 @@ I needed this for it to work on Linux-Linux connections. [[https://www.rahuljuli
     (meow-global-mode 1)
 #+end_src
 
-*** Meow+vterm support
+**** Meow+vterm support
 #+begin_src elisp
   (use-package meow-vterm
     :after vterm
@@ -517,14 +509,14 @@ I needed this for it to work on Linux-Linux connections. [[https://www.rahuljuli
     )
 #+end_src
 
-*** Surround
+**** Surround
 #+begin_src elisp
 (use-package surround
   :ensure t
   :bind-keymap ("M-'" . surround-keymap))
 #+end_src
 
-*** COMMENT RE builder
+**** COMMENT RE builder
 #+begin_src emacs-lisp
   (use-package re-builder
     :defer t)
@@ -539,14 +531,15 @@ I needed this for it to work on Linux-Linux connections. [[https://www.rahuljuli
 #+end_src
 ** Conveniences
 #+begin_src emacs-lisp
-(defun copy-and-comment-region (beg end &optional arg)
-  "Duplicate the region and comment-out the copied text.
-See `comment-region' for behavior of a prefix arg."
-  (interactive "r\nP")
-  (copy-region-as-kill beg end)
-  (goto-char end)
-  (yank)
-  (comment-region beg end arg))
+  (defun copy-and-comment-region (beg end &optional arg)
+    "Duplicate the region and comment-out the copied text.
+  See `comment-region' for behavior of a prefix arg."
+    (interactive "r\nP")
+    (copy-region-as-kill beg end)
+    (copy-region-as-kill beg end)
+    (goto-char end)
+    (yank)
+    (comment-region beg end arg))
 #+end_src
 
 *** Go to last change
@@ -569,29 +562,29 @@ Browse from anywhere
   (use-package keyword-search
     :config
     (setq keyword-search-alist
-    	(append keyword-search-alist
-    		'(
-    		  (kagi . "https://kagi.com/search?q=%s")
-i    		  (kagi-news . "https://kagi.com/news?q=%s")
-                (kagi-videos . "https://kagi.com/videos?q=%s")
-                (kagi-maps . "https://kagi.com/maps?q=%s")
-                (kagi-images . "https://kagi.com/images?q=%s")
-                (kagi-podcasts . "https://kagi.com/podcasts?q=%s")
-                (kagi-discussion . "https://kagi.com/discussdoc?url=%s")
-                (kagi-fastgpt . "https://kagi.com/fastgpt?query=%s")
-                (kagi-quick answer . "https://kagi.com/search?q=%s&qa=true")
-                (kagi-calc . "https://kagi.com/search?q=calc+%s")
-                (kagi-timer . "https://kagi.com/search?q=timer+%s")
-                (pdfs . "https://kagi.com/search?q=%s+filetype:pdf")
-                (kagi-universal summarizer . "https://kagi.com/summarizer?url=%s")
-                (kagi-universal summarizer (key moments)  ."https://kagi.com/summarizer?url=%s&summary=takeaway")
-                (kagi-universal summarizer (summary) . "https://kagi.com/summarizer?url=%s&summary=summary")
-                (kagi-knowledgebase . "https://help.kagi.com/kagi?search=%s")
-                (orion-knowledgebase . "https://help.kagi.com/orion?search=%s"))))
+      	(append keyword-search-alist
+      		'(
+      		  (kagi . "https://kagi.com/search?q=%s")
+      		  (kagi-news . "https://kagi.com/news?q=%s")
+                    (kagi-videos . "https://kagi.com/videos?q=%s")
+                    (kagi-maps . "https://kagi.com/maps?q=%s")
+                    (kagi-images . "https://kagi.com/images?q=%s")
+                    (kagi-podcasts . "https://kagi.com/podcasts?q=%s")
+                    (kagi-discussion . "https://kagi.com/discussdoc?url=%s")
+                    (kagi-fastgpt . "https://kagi.com/fastgpt?query=%s")
+                    (kagi-quick answer . "https://kagi.com/search?q=%s&qa=true")
+                    (kagi-calc . "https://kagi.com/search?q=calc+%s")
+                    (kagi-timer . "https://kagi.com/search?q=timer+%s")
+                    (pdfs . "https://kagi.com/search?q=%s+filetype:pdf")
+                    (kagi-universal summarizer . "https://kagi.com/summarizer?url=%s")
+                    (kagi-universal summarizer (key moments)  ."https://kagi.com/summarizer?url=%s&summary=takeaway")
+                    (kagi-universal summarizer (summary) . "https://kagi.com/summarizer?url=%s&summary=summary")
+                    (kagi-knowledgebase . "https://help.kagi.com/kagi?search=%s")
+                    (orion-knowledgebase . "https://help.kagi.com/orion?search=%s"))))
     (setq keyword-search-default 'kagi))
 #+end_src
 
-*** Multiple cursors
+*** COMMENT Multiple cursors
 #+begin_src elisp
     (use-package multiple-cursors
       :bind (:map global-mode-map
@@ -946,11 +939,18 @@ I usually use Emacs on fullscreen, which prevents me from using the host's compu
 (setq org-directory "~/Documents/broad/org")
 #+end_src 
 
+*** Basics
+These were recommended by Gemini. check if they are useful
+#+begin_src emacs-lisp
+  (setq org-catch-invisible-edits 'show-and-error)
+  (setq org-cycle-separator-lines 0)
+#+end_src
+
 *** Agenda
 Initialize org-agenda file and set some key bindings to create tasks.
 #+NAME::org-mode-agenda
 #+BEGIN_SRC emacs-lisp
-  (setq org-agenda-files "~/.emacs.d/agenda.txt" )
+  (setq org-agenda-files (concat org-directory "/agenda.txt"))
 
     (defun my-org-insert-subheading (heading-type)
     "Inserts a new org heading with unique ID and creation date.
@@ -1424,6 +1424,14 @@ org-roam-ui-open-on-start t))
 #+end_src 
 
 *** Babel
+**** Async
+#+begin_src emacs-lisp
+(use-package ob-async
+  :after org
+  :config
+  (setq ob-async-no-async-languages-alist '("ipython" "jupyter-python")))
+#+end_src
+
 **** Languages
 ***** Duckdb
 #+begin_src emacs-lisp
