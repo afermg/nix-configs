@@ -606,7 +606,9 @@ Useful to read credentials risk of committing to repo.
       (insert-file-contents filePath)
       (buffer-string)))
 #+end_src
+
 ** Completion
+*** Vertico
 #+NAME: completion
 #+begin_src elisp
   ;; The `vertico' package applies a vertical layout to the minibuffer.
@@ -634,11 +636,10 @@ Useful to read credentials risk of committing to repo.
                 ("DEL" . vertico-directory-delete-char)
                 ("M-DEL" . vertico-directory-delete-word)))
 
-  ;; Persist history over Emacs restarts. Vertico sorts by history position.
-  (use-package savehist
-    :init
-    (savehist-mode))
+#+end_src
 
+*** Marginalia
+#+begin_src emacs-lisp
   ;; Enable rich annotations using the Marginalia package
   (use-package marginalia
     ;; Bind `marginalia-cycle' locally in the minibuffer.  To make the binding
@@ -656,6 +657,13 @@ Useful to read credentials risk of committing to repo.
     ;; the mode gets enabled right away. Note that this forces loading the
     ;; package.
     (marginalia-mode))
+#+end_src
+
+#+begin_src emacs-lisp
+  ;; Persist history over Emacs restarts. Vertico sorts by history position.
+  (use-package savehist
+    :init
+    (savehist-mode))
 
   ;; A few more useful configurations...
   (use-package emacs
@@ -684,14 +692,6 @@ Useful to read credentials risk of committing to repo.
     ;; useful beyond Vertico.
     (setq read-extended-command-predicate #'command-completion-default-include-p))
 
-  ;; Ensure evil keybindings work
-  ;;   (eval-after-load 'vertico
-  ;;      '(general-define-key :keymaps '(vertico-map)
-  ;;         ;; "C-J"      #'vertico-next-group
-  ;;         ;; "C-K"      #'vertico-previous-group
-  ;;         "C-j"      #'vertico-next
-  ;;         "C-k"      #'vertico-previous))
-
   (use-package all-the-icons
     :if (display-graphic-p))
   (use-package all-the-icons-completion
@@ -700,6 +700,16 @@ Useful to read credentials risk of committing to repo.
     :init
     (all-the-icons-completion-mode))
 
+  ;; The built-in `savehist-mode' saves minibuffer histories.  Vertico
+  ;; can then use that information to put recently selected options at
+  ;; the top.
+  ;;
+  ;; Further reading: https://protesilaos.com/emacs/dotemacs#h:25765797-27a5-431e-8aa4-cc890a6a913a
+  (savehist-mode 1)
+#+end_src
+
+*** Orderless
+#+begin_src emacs-lisp
   ;; The `orderless' package lets the minibuffer use an out-of-order
   ;; pattern matching algorithm.  It matches space-separated words or
   ;; regular expressions in any order.  In its simplest form, something
@@ -720,7 +730,10 @@ Useful to read credentials risk of committing to repo.
     (setq completion-styles '(orderless basic)
           completion-category-defaults nil
           completion-category-overrides '((file (styles partial-completion)))))
+#+end_src
 
+*** Consult
+#+begin_src emacs-lisp
   ;; The `consult' package provides lots of commands that are enhanced
   ;; variants of basic, built-in functionality.  One of the headline
   ;; features of `consult' is its preview facility, where it shows in
@@ -865,6 +878,64 @@ Useful to read credentials risk of committing to repo.
   ;; `grep-mode' buffer.
   ;;
   ;; Further reading: https://protesilaos.com/emacs/dotemacs#h:61863da4-8739-42ae-a30f-6e9d686e1995
+
+#+end_src
+
+*** Corfu
+#+begin_src emacs-lisp
+  (use-package corfu
+    ;; Optional customizations
+    :custom
+    (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
+    (corfu-auto t)                 ;; Enable auto completion
+    ;; (corfu-separator ?\s)          ;; Orderless field separator
+    ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
+    ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
+    ;; (corfu-preview-current nil)    ;; Disable current candidate preview
+    (corfu-preselect 'first)      ;; Preselect the prompt
+    ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
+    ;; (corfu-scroll-margin 5)        ;; Use scroll margin
+    ;; (corfu-preselect-first t)
+    ;; Enable Corfu only for certain modes.
+    ;; :hook ((prog-mode . corfu-mode)
+    ;;        (shell-mode . corfu-mode)
+    ;;        (eshell-mode . corfu-mode))
+
+    ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
+    ;; be used globally (M-/).  See also the customization variable
+    ;; `global-corfu-modes' to exclude certain modes.
+    :init
+    (global-corfu-mode)
+    ;; Enable Corfu history mode to act like `prescient'    (corfu-history-mode t)
+    ;; Allow Corfu to show help text next to suggested completion
+    (corfu-popupinfo-mode t)
+    :config
+    ;; Enable auto completion and configure quitting
+    (setq corfu-auto t
+  	corfu-quit-no-match 'separator)) ;; or t
+
+  ;; A few more useful configurations...
+  (use-package emacs
+    :init
+    ;; TAB cycle if there are only few candidates
+    ;; (setq completion-cycle-threshold 3)
+
+    ;; Enable indentation+completion using the TAB key.
+    ;; `completion-at-point' is often bound to M-TAB.
+    (setq tab-always-indent 'complete)
+
+    ;; Emacs 30 and newer: Disable Ispell completion function. As an alternative,
+    ;; try `cape-dict'.
+    (setq text-mode-ispell-word-completion #'capf-dict)
+
+    ;; Emacs 28 and newer: Hide commands in M-x which do not apply to the current
+    ;; mode.  Corfu commands are hidden, since they are not used via M-x. This
+    ;; setting is useful beyond Corfu.
+    (setq read-extended-command-predicate #'command-completion-default-include-p))
+#+end_src
+
+*** Embark
+#+begin_src emacs-lisp
   (use-package embark
     :ensure t
     :bind (("C-." . embark-act)
@@ -883,20 +954,53 @@ Useful to read credentials risk of committing to repo.
   ;; or C-c C-k to abort.
   ;;
   ;; Further reading: https://protesilaos.com/emacs/dotemacs#h:9a3581df-ab18-4266-815e-2edd7f7e4852
+#+end_src
+
+** Wgrep
+#+begin_src emacs-lisp
   (use-package wgrep
     :ensure t
     :bind ( :map grep-mode-map
             ("e" . wgrep-change-to-wgrep-mode)
             ("C-x C-q" . wgrep-change-to-wgrep-mode)
             ("C-c C-c" . wgrep-finish-edit)))
+#+end_src
 
-  ;; The built-in `savehist-mode' saves minibuffer histories.  Vertico
-  ;; can then use that information to put recently selected options at
-  ;; the top.
-  ;;
-  ;; Further reading: https://protesilaos.com/emacs/dotemacs#h:25765797-27a5-431e-8aa4-cc890a6a913a
-  (savehist-mode 1)
+*** Tempel
+Completion
+#+begin_src emacs-lisp
+  ;; Configure Tempel
+  (use-package tempel
+    ;; Require trigger prefix before template name when completing.
+    ;; :custom
+    ;; (tempel-trigger-prefix "<")
 
+    :bind (("M-+" . tempel-complete) ;; Alternative tempel-expand
+           ("M-*" . tempel-insert))
+
+    :init
+    (setq tempel-path (concat config-dir "templates"))
+
+    ;; Setup completion at point
+    (defun tempel-setup-capf ()
+      ;; Add the Tempel Capf to `completion-at-point-functions'.
+      ;; `tempel-expand' only triggers on exact matches. Alternatively use
+      ;; `tempel-complete' if you want to see all matches, but then you
+      ;; should also configure `tempel-trigger-prefix', such that Tempel
+      ;; does not trigger too often when you don't expect it. NOTE: We add
+      ;; `tempel-expand' *before* the main programming mode Capf, such
+      ;; that it will be tried first.
+      (setq-local completion-at-point-functions
+                  (cons #'tempel-expand
+                        completion-at-point-functions)))
+
+    (add-hook 'conf-mode-hook 'tempel-setup-capf)
+    (add-hook 'prog-mode-hook 'tempel-setup-capf)
+    (add-hook 'text-mode-hook 'tempel-setup-capf))
+
+  ;; Optional: Add tempel-collection.
+  ;; The package is young and doesn't have comprehensive coverage.
+  (use-package tempel-collection)
 #+end_src
 
 ** Aesthetics
@@ -1038,34 +1142,7 @@ Ensure code blocks have a fixed pitch.
 #+end_src
 
 Add specific font face for org-babel result blocks
-***** COMMENT Custom font
-#+begin_src emacs-lisp
-  (defface my-org-result '((t (:inherit 'fixed-pitch)))
-  "Face used for org-babel results."
-  :group 'org-faces)
-
-  ;; (defun my-set-org-result-face ()
-  ;;   "Set the font for `org-agenda-mode'."
-  ;;   (buffer-face-set 'my-org-result))
-
-  ;; (add-hook 'org-mode-hook 'my-set-org-result-face)
-  (defun my/org-fontify-proof-blocks (&optional window)
-    (interactive)
-    (add-to-list 'font-lock-extra-managed-props 'display)
-    (let ((margin-format (format "%%%ds" left-margin-width)))
-      (font-lock-add-keywords nil
-                              `(
-                                ("#\\+begin_proof.*?\\(\n\\)"
-                                 1 'my-org-result)
-                                ("\\(#\\+begin_proof.*$\\)"
-                                 1 '(face nil display ,(propertize "Proof." 'face '(:family "TeX Gyre Pagella" :slant italic :height 130 :weight semibold))))
-                                ;; ("\\(#\\+end_proof.*\\)$"
-                                 ;; 1 '(face nil display ,(propertize (concat (make-string (- (window-width) (* (string-width "⏹") 2)) ?\ ) "⏹") 'face '(:inherit nil))))
-                                )))
-    (add-hook 'window-size-change-functions #'my/org-fontify-proof-blocks nil t))
-  (add-hook 'org-mode-hook #'my/org-fontify-proof-blocks)
-#+end_src
-
+***** Custom fonts
 # TODO: Evaluate if this is useful.
 #+NAME::org-mode-faces
 #+BEGIN_SRC emacs-lisp
@@ -2971,97 +3048,6 @@ These packages may come and go, but ultimately aid in my understanding of emacs 
 #+END_SRC
 
 ** Learning-in-progress
-*** Tempel
-Completion
-#+begin_src emacs-lisp
-  ;; Configure Tempel
-  (use-package tempel
-    ;; Require trigger prefix before template name when completing.
-    ;; :custom
-    ;; (tempel-trigger-prefix "<")
-
-    :bind (("M-+" . tempel-complete) ;; Alternative tempel-expand
-           ("M-*" . tempel-insert))
-
-    :init
-    (setq tempel-path (concat config-dir "templates"))
-
-    ;; Setup completion at point
-    (defun tempel-setup-capf ()
-      ;; Add the Tempel Capf to `completion-at-point-functions'.
-      ;; `tempel-expand' only triggers on exact matches. Alternatively use
-      ;; `tempel-complete' if you want to see all matches, but then you
-      ;; should also configure `tempel-trigger-prefix', such that Tempel
-      ;; does not trigger too often when you don't expect it. NOTE: We add
-      ;; `tempel-expand' *before* the main programming mode Capf, such
-      ;; that it will be tried first.
-      (setq-local completion-at-point-functions
-                  (cons #'tempel-expand
-                        completion-at-point-functions)))
-
-    (add-hook 'conf-mode-hook 'tempel-setup-capf)
-    (add-hook 'prog-mode-hook 'tempel-setup-capf)
-    (add-hook 'text-mode-hook 'tempel-setup-capf))
-
-  ;; Optional: Add tempel-collection.
-  ;; The package is young and doesn't have comprehensive coverage.
-  (use-package tempel-collection)
-#+end_src
-
-*** Corfu
-
-#+begin_src emacs-lisp
-  (use-package corfu
-    ;; Optional customizations
-    :custom
-    (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
-    (corfu-auto t)                 ;; Enable auto completion
-    ;; (corfu-separator ?\s)          ;; Orderless field separator
-    ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
-    ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
-    ;; (corfu-preview-current nil)    ;; Disable current candidate preview
-    (corfu-preselect 'first)      ;; Preselect the prompt
-    ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
-    ;; (corfu-scroll-margin 5)        ;; Use scroll margin
-    ;; (corfu-preselect-first t)
-    ;; Enable Corfu only for certain modes.
-    ;; :hook ((prog-mode . corfu-mode)
-    ;;        (shell-mode . corfu-mode)
-    ;;        (eshell-mode . corfu-mode))
-
-    ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
-    ;; be used globally (M-/).  See also the customization variable
-    ;; `global-corfu-modes' to exclude certain modes.
-    :init
-    (global-corfu-mode)
-    ;; Enable Corfu history mode to act like `prescient'    (corfu-history-mode t)
-    ;; Allow Corfu to show help text next to suggested completion
-    (corfu-popupinfo-mode t)
-    :config
-    ;; Enable auto completion and configure quitting
-    (setq corfu-auto t
-  	corfu-quit-no-match 'separator)) ;; or t
-
-  ;; A few more useful configurations...
-  (use-package emacs
-    :init
-    ;; TAB cycle if there are only few candidates
-    ;; (setq completion-cycle-threshold 3)
-
-    ;; Enable indentation+completion using the TAB key.
-    ;; `completion-at-point' is often bound to M-TAB.
-    (setq tab-always-indent 'complete)
-
-    ;; Emacs 30 and newer: Disable Ispell completion function. As an alternative,
-    ;; try `cape-dict'.
-    (setq text-mode-ispell-word-completion #'capf-dict)
-
-    ;; Emacs 28 and newer: Hide commands in M-x which do not apply to the current
-    ;; mode.  Corfu commands are hidden, since they are not used via M-x. This
-    ;; setting is useful beyond Corfu.
-    (setq read-extended-command-predicate #'command-completion-default-include-p))
-#+end_src
-
 *** Cape
 #+begin_src emacs-lisp
   (use-package cape
@@ -3107,17 +3093,6 @@ Cutting edge LLM models.
     :config
     (setq
      ;; OpenRouter offers an OpenAI compatible API
-     ;; (gptel-make-openai "OpenRouter"               ;Any name you want
-     ;;   :host "openrouter.ai"
-     ;;   :endpoint "/api/v1/chat/completions"
-     ;;   :stream t
-     ;;   :key "sk-or-v1----------------------------------------------" 
-     ;;   :models '(openai/gpt-3.5-turbo
-     ;;             mistralai/mixtral-8x7b-instruct
-     ;;             meta-llama/codellama-34b-instruct
-     ;;             codellama/codellama-70b-instruct
-     ;;             google/palm-2-codechat-bison-32k
-     ;;             google/gemini-pro))
      gptel-default-mode #'org-mode
      gptel-model 'gemini-pro-latest
      
@@ -3128,7 +3103,7 @@ Cutting edge LLM models.
      ;;   '(:options (:num_ctx 16384))
      ;;   :models '(mistral:latest qwen3:30b-a3b llama3.3:70b))
      ;; gptel-model 'qwen3:30b-a3b
-     ) ;List of models)
+     )
     (when (file-exists-p gptel-key-file)
       (setq gptel-backend (gptel-make-gemini "Gemini" :key (get-string-from-file gptel-key-file) :stream t)))
     )
@@ -3147,7 +3122,7 @@ Simple but working gptel+magit integration. Replaced gptcommit-mode
 #+end_src
 
 
-**** Speech-to-text (whisper-cpp)
+**** COMMENT Speech-to-text (whisper-cpp)
 I use whisper to record notes to text. Its use-case is limited but worth a test. It is also an example on how I can integrate AI models into my workflow.
 #+begin_src emacs-lisp 
     (use-package whisper
@@ -3249,7 +3224,7 @@ Select the audio device
         (setq whisper--ffmpeg-input-device (format ":%s" rk/default-audio-device)))))
 #+end_src
 
-**** Text-to-speech (Piper)
+**** COMMENT Text-to-speech (Piper)
 #+begin_src emacs-lisp
   (defun build-piper-model-url (model-name model-file-p)
     "Generates the url from which to download models. Covers only high-quality models"
@@ -3309,6 +3284,7 @@ Select the audio device
 #+end_src
 
 ;; tts
+
 
 ** Screenshots
 It's surprisingly hard to get a decent screenshot program cross-system
@@ -3450,29 +3426,9 @@ TODO: make this lazy-loaded again
   (advice-add #'org-export-get-reference :override #'unpackaged/org-export-get-reference)
 #+end_src
 
-*** COMMENT Monitor-specific size
-#+begin_src emacs-lisp
-  ;; (defun td/adapt-font-size (&optional frame)
-  ;;   (when (display-graphic-p)
-  ;;     (let* ((default-height 200)
-  ;;            (attrs (frame-monitor-attributes frame))
-  ;;            (size (alist-get 'mm-size attrs))
-  ;;            (geometry (alist-get 'geometry attrs))
-  ;;            (ppi (/ (caddr geometry) (/ (car size) 25.4))))
-  ;;       ;; (message "PPI: %s" ppi)
-  ;;       (if (> ppi 65)
-  ;;           (set-face-attribute 'default (selected-frame) :height default-height)
-  ;;         (set-face-attribute 'default (selected-frame) :height (* default-height (/ 694 612)))))))
-
-
-  ;; (add-function :after after-focus-change-function #'td/adapt-font-size)
-  ;; (add-hook 'after-make-frame-functions #'td/adapt-font-size)
-#+end_src
-
 ** PDF tools
 #+begin_src emacs-lisp
   (use-package pdf-tools)
-
 #+end_src
 
 *** Other Packages
