@@ -445,6 +445,7 @@ I needed this for it to work on Linux-Linux connections. [[https://www.rahuljuli
         '(";hr" . dl/reload-emacs)
         '(";hn" . dl/load-buffer-with-nix-config)
         '(";hp" . dl/load-buffer-with-emacs-config)
+        '(";ot" . toggle-vterm-window)
         '(";oT" . +vterm/here)
         '(";ox" . toggle-scratch-buffer)
         '(";lf" . dl/lsp-find-references-other-window)
@@ -1094,86 +1095,76 @@ My life in plain text.
 **** Leader key shortcuts
 #+NAME::org-mode-quick-entry
 #+BEGIN_SRC emacs-lisp
-  (defvar current-time-format "%H:%M:%S"
-    "Format of date to insert with `insert-current-time' func.
-                  Note the weekly scope of the command's precision.")
+    (defvar current-time-format "%H:%M:%S"
+      "Format of date to insert with `insert-current-time' func.
+                    Note the weekly scope of the command's precision.")
 
-  (defun dl/find-file (path)
-    "Helper function to open a file in a buffer"
-    (interactive)
-    (find-file path))
+    (defun dl/find-file (path)
+      "Helper function to open a file in a buffer"
+      (interactive)
+      (find-file path))
 
-  (defun dl/load-buffer-with-emacs-config ()
-    "Open the emacs configuration"
-    (interactive)
-    (find-file (if (boundp 'org-config-file) org-config-file "~/.local/share/src/nixos-config/modules/shared/config/emacs/config.org" )))
+    (defun dl/load-buffer-with-emacs-config ()
+      "Open the emacs configuration"
+      (interactive)
+      (find-file (if (boundp 'org-config-file) org-config-file "~/.local/share/src/nixos-config/modules/shared/config/emacs/config.org" )))
 
-  (defun dl/load-buffer-with-nix-config ()
-    "Open the emacs configuration"
-    (interactive)
-    (find-file "~/.local/share/src/nixos-config/modules/shared/home-manager.nix"))
+    (defun dl/load-buffer-with-nix-config ()
+      "Open the emacs configuration"
+      (interactive)
+      (find-file "~/.local/share/src/nixos-config/modules/shared/home-manager.nix"))
 
-  (defun dl/reload-emacs ()
-    "Reload the emacs configuration"
-    (interactive)
-    (load "~/.emacs.d/init.el"))
+    (defun dl/reload-emacs ()
+      "Reload the emacs configuration"
+      (interactive)
+      (load "~/.emacs.d/init.el"))
 
-  (defun dl/insert-header ()
-    "Insert a header indented one level from the current header, unless the current header is a timestamp."
-    (interactive)
-    (let* ((level (org-current-level))
-           (headline (org-get-heading t t t t))
-           (next-level (if (string-match "^\\([0-9]\\{2\\}:[0-9]\\{2\\}:[0-9]\\{2\\}\\)" headline)
-                           (1+ level)
-                         level)))
-      (end-of-line)
-      (newline)
-      (insert (make-string next-level ?*))
-      (insert " ")))
+    (defun dl/insert-header ()
+      "Insert a header indented one level from the current header, unless the current header is a timestamp."
+      (interactive)
+      (let* ((level (org-current-level))
+             (headline (org-get-heading t t t t))
+             (next-level (if (string-match "^\\([0-9]\\{2\\}:[0-9]\\{2\\}:[0-9]\\{2\\}\\)" headline)
+                             (1+ level)
+                           level)))
+        (end-of-line)
+        (newline)
+        (insert (make-string next-level ?*))
+        (insert " ")))
 
-  (defun dl/insert-current-time ()
-    "Insert the current time into the current buffer, at a level one deeper than the current heading."
-    (interactive)
-    (let* ((level (org-current-level))
-           (next-level (1+ level)))
-      (end-of-line)
-      (newline)
-      (insert (make-string next-level ?*))
-      (insert " " (format-time-string "%H:%M:%S" (current-time)) "\n")))
+    (defun dl/insert-current-time ()
+      "Insert the current time into the current buffer, at a level one deeper than the current heading."
+      (interactive)
+      (let* ((level (org-current-level))
+             (next-level (1+ level)))
+        (end-of-line)
+        (newline)
+        (insert (make-string next-level ?*))
+        (insert " " (format-time-string "%H:%M:%S" (current-time)) "\n")))
 
-  (defun dl/insert-current-date-prompt ()
-    "Prompt a calendar and insert the current date into the current buffer, at a level one deeper than the current heading."
-    (interactive)
-    (let* ((level (org-current-level))
-           (next-level (1+ level)))
-      (end-of-line)
-      (newline)
-      (insert (make-string next-level ?*))
-      (insert " ")
-      (org-time-stamp nil)))
-
-  (defun open-in-root-window-below (buffer-name fn-create-buffer)
-    (let ((buffer-window (get-buffer-window buffer-name)))
-      (if buffer-window
-        	(select-window buffer-window)
-        (progn
-        	;; (split-window (let ((tree (car (window-tree)))) (if (listp tree) (car (reverse tree)) tree)) '(nil 100) 'below 'nil)
-        	(split-window (car (window-tree)) '(nill 100) 'below nil)
-        	(select-window (get-lru-window))
-        	(switch-to-buffer (funcall fn-create-buffer))))))
-
-  (defun open-scratch-below ()
-    (open-in-root-window-below "*scratch*" 'get-scratch-buffer-create))
+    (defun dl/insert-current-date-prompt ()
+      "Prompt a calendar and insert the current date into the current buffer, at a level one deeper than the current heading."
+      (interactive)
+      (let* ((level (org-current-level))
+             (next-level (1+ level)))
+        (end-of-line)
+        (newline)
+        (insert (make-string next-level ?*))
+        (insert " ")
+        (org-time-stamp nil)))
 
   (defun toggle-window-bottom (buffer-name fn-create-buffer)
     (let ((buffer-window (get-buffer-window buffer-name)))
       (if buffer-window
           (delete-window buffer-window)
-        (open-in-root-window-below buffer-name fn-create-buffer))))
+        (pop-to-buffer (or (get-buffer buffer-name)
+                           (funcall fn-create-buffer))
+                       '((display-buffer-at-bottom)
+  		       (window-height . 0.4))))))
 
-  (defun toggle-scratch-buffer ()
-    (interactive)
-    (toggle-window-bottom "*scratch*" 'get-scratch-buffer-create))
+    (defun toggle-scratch-buffer ()
+      (interactive)
+      (toggle-window-bottom "*scratch*" 'get-scratch-buffer-create))
 
 #+end_src
   
@@ -1976,70 +1967,77 @@ test
     :init
     (defun toggle-vterm-window ()
       (interactive)
-      (toggle-window-bottom
-       "*vterm*"
-       (lambda ()
-         (progn (get-buffer-create "*vterm*") (vterm) ))))
+      (let ((buffer (get-buffer-create "*vterm*")))
+        (if (get-buffer-window buffer)
+            (delete-window (get-buffer-window buffer))
+  	(with-current-buffer buffer
+            (unless (eq major-mode 'vterm-mode)
+  	    (vterm-mode)))
+  	(select-window
+  	 (display-buffer buffer
+  			 '((display-buffer-in-side-window)
+                             (side . bottom)
+                             (window-height . 0.4)))))))
     :config
     (setq term-prompt-regexp "^[^#$%>\n]*[#$%>] *")
     (setq vterm-shell "fish")
     (setq vterm-kill-buffer-on-exit t)
     (setq vterm-max-scrollback 10000))
-    (defun +vterm/here (arg)
-      "Open a terminal buffer in the current window at project root.
+      (defun +vterm/here (arg)
+        "Open a terminal buffer in the current window at project root.
 
-  If prefix ARG is non-nil, cd into `default-directory' instead of project root.
+    If prefix ARG is non-nil, cd into `default-directory' instead of project root.
 
-  Returns the vterm buffer."
-      (interactive "P")
-      (+vterm--configure-project-root-and-display
-       arg
-       (lambda()
-         (require 'vterm)
-         ;; HACK forces vterm to redraw, fixing strange artefacting in the tty.
-         (save-window-excursion
-  	 (pop-to-buffer "*scratch*"))
-         (let (display-buffer-alist)
-  	 (vterm vterm-buffer-name)))))
+    Returns the vterm buffer."
+        (interactive "P")
+        (+vterm--configure-project-root-and-display
+         arg
+         (lambda()
+           (require 'vterm)
+           ;; HACK forces vterm to redraw, fixing strange artefacting in the tty.
+           (save-window-excursion
+    	 (pop-to-buffer "*scratch*"))
+           (let (display-buffer-alist)
+    	 (vterm vterm-buffer-name)))))
 
-    (defun +vterm--configure-project-root-and-display (arg display-fn)
-      "Sets the environment variable PROOT and displays a terminal using `display-fn`.
+      (defun +vterm--configure-project-root-and-display (arg display-fn)
+        "Sets the environment variable PROOT and displays a terminal using `display-fn`.
 
-  If prefix ARG is non-nil, cd into `default-directory' instead of project root.
+    If prefix ARG is non-nil, cd into `default-directory' instead of project root.
 
-  Returns the vterm buffer."
-      (unless (fboundp 'module-load)
-        (user-error "Your build of Emacs lacks dynamic modules support and cannot load vterm"))
-      (let* ((project-root default-directory)
-             (default-directory
-              (if arg
-  		default-directory
-                project-root)))
-        (setenv "PROOT" project-root)
-        (funcall display-fn)))
+    Returns the vterm buffer."
+        (unless (fboundp 'module-load)
+          (user-error "Your build of Emacs lacks dynamic modules support and cannot load vterm"))
+        (let* ((project-root default-directory)
+               (default-directory
+                (if arg
+    		default-directory
+                  project-root)))
+          (setenv "PROOT" project-root)
+          (funcall display-fn)))
 
-  ;; :bind (:map vterm-mode-map ("C-q") #'vterm-send-next-key)
-  ;; Add different font
-  ;; (add-hook 'vterm-mode-hook
-  ;;           (lambda ()
-  ;;                (set (make-local-variable 'buffer-face-mode-face) '(:family "IosevkaTerm Nerd Font"))
-  ;;                (buffer-face-mode t)))
+    ;; :bind (:map vterm-mode-map ("C-q") #'vterm-send-next-key)
+    ;; Add different font
+    ;; (add-hook 'vterm-mode-hook
+    ;;           (lambda ()
+    ;;                (set (make-local-variable 'buffer-face-mode-face) '(:family "IosevkaTerm Nerd Font"))
+    ;;                (buffer-face-mode t)))
 
-  ;; (defun project-vterm ()
-  ;;   "Start Eshell in the current project's root directory.
-  ;; If a buffer already exists for running Eshell in the project's root,
-  ;; switch to it.  Otherwise, create a new Eshell buffer.
-  ;; With \\[universal-argument] prefix arg, create a new Eshell buffer even
-  ;; if one already exists."
-  ;;   (interactive)
-  ;;   (defvar eshell-buffer-name)
-  ;;   (let* ((default-directory (project-root (project-current t)))
-  ;;          (eshell-buffer-name (project-prefixed-buffer-name "eshell"))
-  ;;          (eshell-buffer (get-buffer eshell-buffer-name)))
-  ;;     (if (and eshell-buffer (not current-prefix-arg))
-  ;;         (pop-to-buffer eshell-buffer (bound-and-true-p display-comint-buffer-action))
-  ;;       (vterm))))
-  ;; (global-set-key (kbd "C-x C-t") 'vterm)
+    ;; (defun project-vterm ()
+    ;;   "Start Eshell in the current project's root directory.
+    ;; If a buffer already exists for running Eshell in the project's root,
+    ;; switch to it.  Otherwise, create a new Eshell buffer.
+    ;; With \\[universal-argument] prefix arg, create a new Eshell buffer even
+    ;; if one already exists."
+    ;;   (interactive)
+    ;;   (defvar eshell-buffer-name)
+    ;;   (let* ((default-directory (project-root (project-current t)))
+    ;;          (eshell-buffer-name (project-prefixed-buffer-name "eshell"))
+    ;;          (eshell-buffer (get-buffer eshell-buffer-name)))
+    ;;     (if (and eshell-buffer (not current-prefix-arg))
+    ;;         (pop-to-buffer eshell-buffer (bound-and-true-p display-comint-buffer-action))
+    ;;       (vterm))))
+    ;; (global-set-key (kbd "C-x C-t") 'vterm)
 #+END_SRC
 
 *** EAT
