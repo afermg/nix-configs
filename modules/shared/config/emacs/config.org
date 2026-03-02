@@ -2376,7 +2376,7 @@ Everything related to M-x compile.
 #+begin_src emacs-lisp
   (require 'eglot)
 
-  (dolist (mode '(nix-mode python-mode python-ts-mode markdown-mode envrc-mode))
+  (dolist (mode '(nix-mode python-mode python-ts-mode markdown-mode envrc-mode racket-mode))
     (add-hook (intern (format "%s-hook" mode)) #'eglot-ensure))
 
   (setq eglot-autoshutdown t)
@@ -2590,6 +2590,23 @@ Very useful for interactive parsing
     :mode (("\\.Rmd" . poly-quarto-mode))
     )
 #+end_src
+
+**** Racket
+#+NAME: racket-mode
+#+BEGIN_SRC emacs-lisp
+  (use-package racket-mode
+    :ensure t
+    :mode "\\.rkt\\'"
+    :hook 
+    (racket-mode . racket-xp-mode) ; Enable IDE-like features (xref, docs, errors)
+    (racket-mode . rainbow-delimiters-mode)
+    :config
+    ;; Define custom keybindings if needed, though racket-mode defaults are standard
+    ;; C-c C-c : Run buffer
+    ;; C-c C-k : Stop
+    ;; M-.     : Jump to definition (via racket-xp)
+    )
+#+END_SRC
 
 *** Git
 #+NAME: magit-git

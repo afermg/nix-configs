@@ -25,6 +25,7 @@ in
   # Development
   devenv
   pigz # threaded gunzip
+  racket
 
   ## Python
   uv
