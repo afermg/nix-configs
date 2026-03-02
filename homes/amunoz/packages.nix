@@ -20,6 +20,7 @@ in
   # Data hammers
   mawk
   duckdb
+  python314
 
   # Development
   devenv

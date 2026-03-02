@@ -440,16 +440,26 @@ Undo tree for better undo visualisation.
         '(";ot" . toggle-vterm-window)
         '(";oT" . +vterm/here)
         '(";ox" . toggle-scratch-buffer)
-        '(";lf" . dl/lsp-find-references-other-window)
-        '(";lc" . dl/lsp-find-implementation-other-window)
-        '(";ls" . lsp-treemacs-symbols)
-        '(";le" . list-flycheck-errors)
-        '(";lh" . lsp-treemacs-call-hierarchy)
-        '(";lF" . lsp-format-buffer)
-        '(";li" . lsp-organize-imports)
-        '(";ll" . lsp)
-        '(";lr" . lsp-rename)
-        '(";ld" . dl/lsp-find-definition-other-window)
+        '(";lf" . dl/xref-find-references-other-window)
+        '(";lc" . dl/xref-find-implementation-other-window)
+        '(";ls" . consult-imenu) ;; Eglot uses standard imenu
+        '(";le" . consult-flymake) ;; Eglot uses flymake, not flycheck
+        '(";lh" . eglot-find-typeDefinition)
+        '(";lF" . eglot-format-buffer)
+        '(";li" . eglot-code-action-organize-imports)
+        '(";ll" . eglot)
+        '(";lr" . eglot-rename)
+        '(";ld" . dl/xref-find-definition-other-window)
+        ;; '(";lf" . dl/lsp-find-references-other-window)
+        ;; '(";lc" . dl/lsp-find-implementation-other-window)
+        ;; '(";ls" . lsp-treemacs-symbols)
+        ;; '(";le" . list-flycheck-errors)
+        ;; '(";lh" . lsp-treemacs-call-hierarchy)
+        ;; '(";lF" . lsp-format-buffer)
+        ;; '(";li" . lsp-organize-imports)
+        ;; '(";ll" . lsp)
+        ;; '(";lr" . lsp-rename)
+        ;; '(";ld" . dl/lsp-find-definition-other-window)
         '(";lt" . org-toggle-link-display)
         '(";," . dl/insert-header)
         '(";<" . dl/insert-current-time)
@@ -484,17 +494,17 @@ Undo tree for better undo visualisation.
     ;; End of keybindings
     
     (setq meow-use-cursor-position-hack t
-    	meow-use-enhanced-selection-effect t) 
+      	meow-use-enhanced-selection-effect t) 
     
 
     
     '("<escape>" . ignore)) ; ignore escape
 
-    (setq meow-use-cursor-position-hack t
-    	meow-use-enhanced-selection-effect t) 
+      (setq meow-use-cursor-position-hack t
+      	meow-use-enhanced-selection-effect t) 
 
-    (meow-setup)
-    (meow-global-mode 1)
+      (meow-setup)
+      (meow-global-mode 1)
 #+end_src
 
 **** Meow+vterm support
@@ -1043,10 +1053,29 @@ I usually use Emacs on fullscreen, which prevents me from using the host's compu
 #+end_src 
 
 *** Basics
-These were recommended by Gemini. check if they are useful
+Some conveniences
 #+begin_src emacs-lisp
   (setq org-catch-invisible-edits 'show-and-error)
   (setq org-cycle-separator-lines 0)
+#+end_src
+
+*** Org-appear
+Toggle markers when cursor is on the word.
+#+begin_src elisp
+(use-package org-appear
+  :hook (org-mode . org-appear-mode)
+  :config
+  (setq org-appear-autoemphasis t   ; Show bold/italic markers
+        org-appear-autolinks t      ; Show full link url on hover
+        org-appear-autosubmarkers t)) ; Show sub/superscript markers
+#+end_src
+
+*** Org-cliplink
+It pastes a URL from the clipboard and automatically fetches the page title to format it as =[[url][Title]]=.
+
+#+begin_src elisp
+(use-package org-cliplink
+  :bind ("C-c p i" . org-cliplink))
 #+end_src
 
 *** Agenda
@@ -1117,7 +1146,7 @@ Ensure code blocks have a fixed pitch.
   (set-face-attribute 'line-number nil :inherit 'fixed) ; This was in earlier in the config but stopped working th
   ;; (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
   ;; (set-face-attribute 'org-table nil :inherit 'fixed-pitch)
-  (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-block nil :foreground 'unspecified :inherit 'fixed-pitch)
   (set-face-attribute 'org-code nil :inherit '(shadow fixed-pitch))
   (set-face-attribute 'org-table nil :inherit '(shadow fixed-pitch))
   (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
@@ -1809,13 +1838,9 @@ If on a:
 
 #+end_src
 
-*** Tables
-#+begin_src elisp
-  ;; (require 'tables)
-#+end_src
 *** Web images
 Insert images from the web ([[https://emacs.stackexchange.com/questions/26613/is-it-possible-to-insert-images-from-the-web-with-its-url][source]])
-#+begin_src elisp
+#+begin_src emacs-lisp
   (org-add-link-type
    "image-url"
    (lambda (path)
@@ -1851,7 +1876,6 @@ Insert images from the web ([[https://emacs.stackexchange.com/questions/26613/is
   (interactive)
   (require 'ov)
   (ov-clear 'image-url))
-
 #+end_src
 
 ** Managing files
@@ -2129,7 +2153,7 @@ test
 
 ** Writing
 
-**** Language tool
+**** COMMENT Language tool
 At then moment this only works if the jar is ="../../X"= away from the executable (to work with the Nix installation).
 #+begin_src emacs-lisp
   (use-package lsp-ltex
@@ -2318,7 +2342,7 @@ Set XeLaTex as our compiler
 
 #+RESULTS:
 
-*** LSP
+*** COMMENT LSP
 #+begin_src emacs-lisp
   (use-package markdown-mode
     :hook (markdown-mode . lsp)
@@ -2347,7 +2371,49 @@ Everything related to M-x compile.
 (add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
 #+END_SRC
 
-*** LSP
+*** Eglot
+#+NAME: eglot-mode
+#+begin_src emacs-lisp
+  (require 'eglot)
+
+  (dolist (mode '(nix-mode python-mode python-ts-mode markdown-mode envrc-mode))
+    (add-hook (intern (format "%s-hook" mode)) #'eglot-ensure))
+
+  (setq eglot-autoshutdown t)
+
+  ;; Optimization for performance
+  (fset #'jsonrpc--log-event #'ignore)
+
+  ;; Key prefix (optional, eglot mostly uses standard emacs commands)
+  (with-eval-after-load 'eglot
+    (define-key eglot-mode-map (kbd "C-c l") 'eglot-code-actions))
+
+(add-hook 'eglot-managed-mode-hook
+          (lambda ()
+            ;; Use `t` at the end to make it buffer-local
+            (add-hook 'before-save-hook 'eglot-format-buffer nil t)))
+#+END_SRC
+
+**** Shortcuts
+#+NAME: eglot-leader-keys
+#+BEGIN_SRC emacs-lisp
+  (defun dl/xref-find-references-other-window ()
+    (interactive)
+    (switch-to-buffer-other-window (current-buffer))
+    (xref-find-references))
+
+  (defun dl/xref-find-implementation-other-window ()
+    (interactive)
+    (switch-to-buffer-other-window (current-buffer))
+    (eglot-find-implementation))
+
+  (defun dl/xref-find-definition-other-window ()
+    (interactive)
+    (switch-to-buffer-other-window (current-buffer))
+    (xref-find-definitions))
+#+END_SRC
+
+*** COMMENT LSP
 This is my IDE. It includes the same engine that powers VS Code, in addition to Github Copilot.
 
 #+NAME: lsp-mode
@@ -2361,6 +2427,7 @@ This is my IDE. It includes the same engine that powers VS Code, in addition to 
   	lsp-headerline-breadcrumb-enable nil
   	lsp-auto-guess-root t
   	lsp-warn-no-matched-clients nil ; remove warnings
+  	lsp-enable-snippet nil
   	lsp-ruff-server-command '("ruff" "server" "--preview")
   	)
     :hook
@@ -2375,32 +2442,9 @@ This is my IDE. It includes the same engine that powers VS Code, in addition to 
 
   (use-package lsp-treemacs
     :after lsp)
-
-  ;;   (use-package company
-  ;;     :after lsp-mode
-  ;;     :hook (lsp-mode . company-mode)
-  ;;     :bind (:map company-active-map
-  ;;           ("<tab>" . company-complete-selection))
-  ;;           (:map lsp-mode-map
-  ;;           ("<tab>" . company-indent-or-complete-common))
-  ;;      :custom
-  ;;        (company-minimum-prefix-length 1)
-  ;;        (company-idle-delay 0.0))
-
-  ;;   (use-package company-box
-  ;;     :hook (company-mode . company-box-mode))
-
-  ;; (use-package lsp-pyright
-  ;;   :ensure t
-  ;;   :hook (python-mode . (lambda ()
-  ;;                           (require 'lsp-pyright)
-  ;;                           (lsp))))  ; or lsp-deferred
-  ;; (add-hook 'lsp-mode-hook #'lsp-headerline-breadcrumb-mode)
 #+END_SRC
 
-#+RESULTS: lsp-mode
-
-**** Shortcuts
+**** COMMENT Shortcuts
 Leader keys for lsp-mode.
 
 #+NAME: lsp-leader-keys
@@ -2464,13 +2508,22 @@ Leader keys for lsp-mode.
            (python-shell-send-region (region-beginning) (region-end)))
           (t (python-shell-send-current-statement))))
 
-  (defun
-      add-lsp-before-save-hooks ()
-    (add-hook 'before-save-hook #'lsp-format-buffer nil 'local)
-    (add-hook 'before-save-hook #'lsp-organize-imports nil 'local)
-    )
-  (add-hook 'lsp-mode-hook #'add-lsp-before-save-hooks)
+  ;; (defun
+  ;;     add-lsp-before-save-hooks ()
+  ;;   (add-hook 'before-save-hook #'lsp-format-buffer nil 'local)
+  ;;   (add-hook 'before-save-hook #'lsp-organize-imports nil 'local)
+  ;;   )
+  ;; (add-hook 'lsp-mode-hook #'add-lsp-before-save-hooks)
+  ;; Add a hook to adjust the python interpreter. Prefer jupyter if possible.
+  ;; (add-hook 'lsp-mode-hook #'select-python-interpreter)
 
+  ;; (defun dl/eglot-format-on-save ()
+  ;;   (add-hook 'before-save-hook #'eglot-format-buffer -10 t)
+  ;;   (add-hook 'before-save-hook #'eglot-code-action-organize-imports -10 t))
+
+  ;; (add-hook 'eglot-managed-mode-hook #'dl/eglot-format-on-save)
+
+  ;; Interpreter selection
   (defun select-python-interpreter ()
     (if (executable-find "jupyter")
         (setq
@@ -2480,8 +2533,9 @@ Leader keys for lsp-mode.
       (setq
        python-shell-interpreter "python"
        python-shell-interpreter-args "")))
-  ;; Add a hook to adjust the python interpreter. Prefer jupyter if possible.
-  (add-hook 'lsp-mode-hook #'select-python-interpreter)
+
+  ;; Hook into eglot instead of lsp-mode
+  (add-hook 'eglot-managed-mode-hook #'select-python-interpreter)
 #+end_src
 
 **** Shell scripts
@@ -2724,14 +2778,6 @@ Nix is my package manager and operating system of choice; this mode enables me t
 
 #+NAME: nix-mode
 #+begin_src emacs-lisp
-  ;; (use-package lsp-nix
-  ;;   :straight nil
-  ;;   :ensure lsp-mode
-  ;;   :after (lsp-mode)
-  ;;   :demand t
-  ;;   :custom
-  ;;   (lsp-nix-nil-formatter ["nixfmt"]))
-
   (use-package nix-mode
     :mode "\\.nix\\'"
     :hook (nix-mode . lsp-deferred)
