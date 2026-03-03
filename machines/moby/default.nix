@@ -43,13 +43,15 @@
     # systemd-resolved for DNS
     resolved = {
       enable = true;
-      dnssec = "true";
-      domains = [ "~." ];
-      fallbackDns = [
-        "1.1.1.1#one.one.one.one"
-        "1.0.0.1#one.one.one.one"
-      ];
-      dnsovertls = "true";
+      settings.Resolve = {
+        domains = [ "~." ];
+        DNSOverTLS = "true";
+        dnssec = "true";
+        fallbackDns = [
+          "1.1.1.1#one.one.one.one"
+          "1.0.0.1#one.one.one.one"
+        ];
+      };
     };
 
     # Desktop components

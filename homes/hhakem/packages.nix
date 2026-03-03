@@ -19,7 +19,7 @@ in
   clang # c language
   clang-tools # tools for c language
 
-  python310 # the standard python
+  python3 # the standard python
   pyright
 ]
 # Packages shared across users and devices

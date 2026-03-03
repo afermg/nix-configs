@@ -104,7 +104,7 @@ with pkgs;
   home-manager
   nix-index # locate packages that provide a certain file
   nix-search-cli # find nix packages
-  nixfmt-rfc-style # Nix formatting (for nixpkgs)
+  nixfmt # Nix formatting (for nixpkgs)
 
   # ocamlPackages.cpdf # PDF compression tools
   # whois # check info on domain holders
