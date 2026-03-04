@@ -2712,6 +2712,18 @@ Very useful for interactive parsing
 
 #+end_src
 
+*** Difftastic
+#+begin_src emacs-lisp
+  (use-package difftastic
+    :defer t
+    :vc (:url "https://github.com/pkryger/difftastic.el.git"
+  	    :rev :newest))
+
+  (use-package difftastic-bindings
+    :ensure difftastic ;; or nil if you prefer manual installation
+    :config (difftastic-bindings-mode))
+#+end_src
+
 When in a file, go back in commit history.
 #+NAME: git-timemachine
 #+BEGIN_SRC emacs-lisp
