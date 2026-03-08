@@ -3158,7 +3158,8 @@ Cutting edge LLM models.
     (setq
      ;; OpenRouter offers an OpenAI compatible API
      gptel-default-mode #'org-mode
-     gptel-model 'gemini-pro-latest
+     ;; gptel-model 'gemini-pro-latest
+     gptel-model 'gemini-flash-latest
      
      ;; gptel-backend (gptel-make-ollama "Ollama"	;Any name of your choosing
      ;;   :host "localhost:11434"	;Where it's running
