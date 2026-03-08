@@ -23,6 +23,7 @@ in
   python314
 
   # Development
+  gh
   devenv
   pigz # threaded gunzip
   racket

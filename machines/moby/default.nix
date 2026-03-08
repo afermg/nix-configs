@@ -30,7 +30,7 @@
     ../common/gpu/nvidia.nix
     ../common/substituters.nix
     ../common/pipewire.nix
-    ../common/virtualization.nix
+    # ../common/virtualization.nix
     ../common/input_device.nix
     ../common/ssh.nix
     ../common/us_eng.nix
