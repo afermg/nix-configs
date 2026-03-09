@@ -136,38 +136,6 @@ I use ~general.el~ to define groups of keybindings under my 'leader' definition.
   (global-set-key (kbd "C--") 'text-scale-decrease)
 #+END_SRC
 
-*** Avy
-To snipe things on the screen
-#+begin_src emacs-lisp
-  (global-set-key (kbd "C-:") 'avy-goto-char)
-  (global-set-key (kbd "C-\"") 'avy-goto-char-2)
-  (global-set-key (kbd "M-g f") 'avy-goto-line)
-  (global-set-key (kbd "M-g w") 'avy-goto-word-1)
-  (global-set-key (kbd "M-g e") 'avy-goto-word-0)
-#+end_src
-
-**** Rotate windows
-Various helpers and packages I find useful for window management.
-
-#+BEGIN_SRC emacs-lisp
-  ;; Rotates windows and layouts
-  (use-package rotate)
-#+END_SRC
-
-**** Buffers
-#+NAME: next-buffer
-#+BEGIN_SRC emacs-lisp
-  (defun kill-current-buffer ()
-    (interactive)
-    ;; kill-buffer does not always work
-    (kill-buffer (current-buffer))
-    )
-  
-  (global-set-key (kbd "<C-tab>") 'next-buffer)
-  (global-set-key (kbd "C-x k") 'kill-current-buffer)
-  (global-set-key (kbd "C-x K") 'kill-buffer)
-#+END_SRC
-
 *** Share clipboard in remote sessions or terminal
 Clipetty works well for macOS
 #+begin_src emacs-lisp
@@ -532,6 +500,42 @@ Undo tree for better undo visualisation.
            reb-lisp-mode-map ("C-o" . casual-re-builder-tmenu))
     :after (re-builder))
 #+end_src
+**** Avy
+To snipe things on the screen
+#+begin_src emacs-lisp
+(use-package avy
+  :ensure t
+  :bind (("C-:" . avy-goto-char)
+         ("C-'" . avy-goto-char-2)
+         ("M-g f" . avy-goto-line)
+         ("M-g w" . avy-goto-word-1)
+         ("C-;" . avy-goto-char-timer)) ; Type multiple chars then jump
+  :config
+  (setq avy-timeout-seconds 0.3))
+#+end_src
+
+***** Rotate windows
+Various helpers and packages I find useful for window management.
+
+#+BEGIN_SRC emacs-lisp
+  ;; Rotates windows and layouts
+  (use-package rotate)
+#+END_SRC
+
+***** Buffers
+#+NAME: next-buffer
+#+BEGIN_SRC emacs-lisp
+  (defun kill-current-buffer ()
+    (interactive)
+    ;; kill-buffer does not always work
+    (kill-buffer (current-buffer))
+    )
+  
+  (global-set-key (kbd "<C-tab>") 'next-buffer)
+  (global-set-key (kbd "C-x k") 'kill-current-buffer)
+  (global-set-key (kbd "C-x K") 'kill-buffer)
+#+END_SRC
+
 ** Conveniences
 #+begin_src emacs-lisp
   (defun copy-and-comment-region (beg end &optional arg)
