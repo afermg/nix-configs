@@ -71,13 +71,6 @@ This associates our package manager with the right source (MELPA).
     (setq exec-path (append '("~/bin" "~/.nix-profile/bin" "/nix/var/nix/profiles/default/bin" "/usr/local/bin" "/usr/bin") exec-path)))
 #+END_SRC
 
-*** Workarounds
-**** Org roam directory
-#+BEGIN_SRC emacs-lisp
-  (setq org-roam-directory-manual (file-truename (concat org-directory "/roam")))
-  (make-directory org-roam-directory-manual t)
-#+END_SRC
-
 *** Modes
 
 This is used primarily to center org mode text.
@@ -1049,7 +1042,9 @@ I usually use Emacs on fullscreen, which prevents me from using the host's compu
 
 ** Org mode
 #+begin_src emacs-lisp 
-(setq org-directory "~/Documents/broad/org")
+  (setq org-directory "~/Documents/broad/org")
+  (setq org-roam-directory-manual (file-truename (concat org-directory "/roam")))
+  (make-directory org-roam-directory-manual t)
 #+end_src 
 
 *** Basics
@@ -2712,7 +2707,7 @@ Very useful for interactive parsing
 
 #+end_src
 
-*** Difftastic
+*** COMMENT Difftastic
 #+begin_src emacs-lisp
   (use-package difftastic
     :defer t
