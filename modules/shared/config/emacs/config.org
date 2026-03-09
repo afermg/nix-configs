@@ -944,7 +944,10 @@ Useful to read credentials risk of committing to repo.
     :bind (("C-." . embark-act)
            :map minibuffer-local-map
            ("C-c C-c" . embark-collect)
-           ("C-c C-e" . embark-export)))
+           ("C-c C-e" . embark-export)
+  	 :map embark-file-map
+  	 ("O" . embark-open-externally))
+    )
 
   ;; The `embark-consult' package is glue code to tie together `embark'
   ;; and `consult'.
