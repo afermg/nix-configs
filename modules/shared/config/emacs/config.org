@@ -3189,6 +3189,22 @@ Simple but working gptel+magit integration. Replaced gptcommit-mode
 #+end_src
 
 
+**** Agents-shell
+
+#+begin_src emacs-lisp
+  (use-package agent-shell
+    :ensure t
+    ;; :ensure-system-package
+    ;; Add agent installation configs here
+    ;; ((claude . "brew install claude-code")
+    ;;  (claude-agent-acp . "npm install -g @zed-industries/claude-agent-acp"))
+    :config
+    ;; With string
+    (setq agent-shell-google-authentication
+  	(agent-shell-google-make-authentication :api-key (get-string-from-file gptel-key-file)))
+    )
+#+end_src
+
 **** COMMENT Speech-to-text (whisper-cpp)
 I use whisper to record notes to text. Its use-case is limited but worth a test. It is also an example on how I can integrate AI models into my workflow.
 #+begin_src emacs-lisp 
