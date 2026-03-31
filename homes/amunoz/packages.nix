@@ -17,33 +17,29 @@ let
   # }));
 in
 [
-  # Data hammers
+  # Programming
   mawk
   duckdb
   python314
+  uv
+  racket
 
   # Development
   gh
   devenv
-  pigz # threaded gunzip
-  racket
 
-  ## Python
-  uv
-
+  # Server stuff
   http-server
-  shiori
+  shiori # download whole html websites
+
+  # Utils
+  pigz # threaded gunzip
 
   # Benchmark
   gprof2dot
 
   # Graphics processing
   graphviz
-
-  # packages under examination
-  luajitPackages.fennel # lua in fennel
-  shiori # download whole html websites
-  xclip # clipboard manipulation tool
 
   ## AI
   gemini-cli
@@ -53,9 +49,16 @@ in
   ## docs
   pdftk
   gnumeric
-  # (gnumeric.overrideAttrs(p: { buildInputs = p.buildInputs ++ [ zlib12 ]; }))
   ltex-ls # language tool LSP for latex and org-mode
   autotools-language-server
+
+  ## Linting/Formatting/LSP
+  dprint # yaml,md,json
+  ruff # Python
+  nixfmt # ruff
+
+  # Music
+  ncspot
 
   ## very specific needs
   haskellPackages.xml-to-json-fast
@@ -63,8 +66,10 @@ in
   zotero
   nix-output-monitor
 
-  # Music
-  ncspot
+  # packages under examination
+  luajitPackages.fennel # lua in fennel
+  xclip # clipboard manipulation tool
+
 ]
 ++ shared-packages
 # Linux-only packages
