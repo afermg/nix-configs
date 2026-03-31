@@ -562,7 +562,7 @@ Various helpers and packages I find useful for window management.
   (use-package goto-chg)
 #+end_src
 
-*** COMMENT Beacon mode
+*** Beacon mode
 Highlights the line temporarily when the cursor moves windows.
 #+begin_src emacs-lisp
   (use-package beacon
@@ -2162,21 +2162,6 @@ test
 #+end_src
 
 ** Writing
-
-**** COMMENT Language tool
-At then moment this only works if the jar is ="../../X"= away from the executable (to work with the Nix installation).
-#+begin_src emacs-lisp
-  (use-package lsp-ltex
-    :ensure t
-    :hook (text-mode . (lambda ()
-                         (require 'lsp-ltex)
-                         (lsp)))  ; or lsp-deferred
-    :config
-    (setq lsp-ltex-language "en-GB"
-  	lsp-ltex-version "16.0.0")
-    )
-#+end_src
-
 *** Spell
 #+begin_src emacs-lisp 
 (setq synosaurus-choose-method 'popup)
@@ -2351,18 +2336,6 @@ Set XeLaTex as our compiler
 #+end_src
 
 #+RESULTS:
-
-*** COMMENT LSP
-#+begin_src emacs-lisp
-  (use-package markdown-mode
-    :hook (markdown-mode . lsp)
-    :config
-    (require 'lsp-marksman))
-  
-  (setq org-link-frame-setup '(
-                               (file . find-file-other-window) ;;modified line
-                               (wl . wl-other-frame)))
-#+end_src
 
 ** Coding
 *** Compile buffers
