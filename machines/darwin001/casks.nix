@@ -7,9 +7,9 @@ _: [
   # "zoom" # this is managed by the admin :(
 
   # Utility Tools
-  "syncthing"
+  "syncthing-app"
   "inkscape"
-  
+
   # Entertainment Tools
   "steam"
 
@@ -29,5 +29,5 @@ _: [
   # "nikitabobko/tap/aerospace"
   "aerospace"
   "zoom"
-  "tailscale"
+  "tailscale-app"
 ]

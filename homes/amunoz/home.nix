@@ -213,14 +213,11 @@ in
     settings = {
       user.name = "Alán F. Muñoz";
       user.email = "afer.mg@gmail.com";
+      commit.gpgsign = true;
+      gpg.format = "ssh";
+      gpg.ssh.allowedSignersFile = "~/.ssh/allowed_signers";
+      user.signingkey = "~/.ssh/id_ed25519.pub";
     };
-    extraConfig = {
-    # Sign all commits using ssh key
-       commit.gpgsign = true;
-       gpg.format = "ssh";
-       gpg.ssh.allowedSignersFile = "~/.ssh/allowed_signers";
-       user.signingkey = "~/.ssh/id_ed25519.pub";
-     };
   };
 
   programs.direnv = {

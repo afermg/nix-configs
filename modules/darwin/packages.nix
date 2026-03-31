@@ -1,7 +1,7 @@
 { pkgs }:
 with pkgs;
 let
-  shared-packages = import ../shared/packages.nix { inherit pkgs; };
+  shared-packages = import ../../homes/amunoz/packages.nix { inherit pkgs; };
   # shared-packages = [];
 in
 shared-packages
