@@ -430,7 +430,7 @@ Undo tree for better undo visualisation.
         '(";k" . yank-from-kill-ring)
         
         
-        ; Rotation
+  					; Rotation
         '(";rw" . rotate-window)
         '(";rl" . rotate-layout)
 
@@ -446,12 +446,20 @@ Undo tree for better undo visualisation.
         '(";se" . code-cells-eval)
         '(";y" . realgud)
         
-        '("<escape>" . ignore))		; ignore escape
-      
-      ;; gptel
-      '(";dr" . gptel-rewrite)
-      '(";da" . gptel-add)
-      )
+        '("<escape>" . ignore)		; ignore escape
+        
+        ;; version control
+        '(";v" . +vc/browse-at-remote-kill-commit)
+        '(";V" . +vc/browse-at-remote-kill)
+
+        ;; gptel
+        '(";dr" . gptel-rewrite)
+        '(";da" . gptel-add)
+        '(";dq" . gptel-context-remove-all)
+
+        ;; Agent-shell
+        '(";as" . agent-shell)
+        ))
     ;; End of keybindings
     
     (setq meow-use-cursor-position-hack t
@@ -2389,11 +2397,15 @@ Everything related to M-x compile.
   ;; Key prefix (optional, eglot mostly uses standard emacs commands)
   (with-eval-after-load 'eglot
     (define-key eglot-mode-map (kbd "C-c l") 'eglot-code-actions))
+  (with-eval-after-load 'eglot
+    ;; Register dprint-lsp for YAML (and other supported files)
+    (add-to-list 'eglot-server-programs
+                 '(yaml-mode . ("dprint" "lsp"))))
 
-(add-hook 'eglot-managed-mode-hook
-          (lambda ()
-            ;; Use `t` at the end to make it buffer-local
-            (add-hook 'before-save-hook 'eglot-format-buffer nil t)))
+  (add-hook 'eglot-managed-mode-hook
+            (lambda ()
+              ;; Use `t` at the end to make it buffer-local
+              (add-hook 'before-save-hook 'eglot-format-buffer nil t)))
 #+END_SRC
 
 **** Shortcuts
@@ -2413,58 +2425,6 @@ Everything related to M-x compile.
     (interactive)
     (switch-to-buffer-other-window (current-buffer))
     (xref-find-definitions))
-#+END_SRC
-
-*** COMMENT LSP
-This is my IDE. It includes the same engine that powers VS Code, in addition to Github Copilot.
-
-#+NAME: lsp-mode
-#+BEGIN_SRC emacs-lisp
-  (use-package lsp-mode
-    :commands lsp lsp-deferred
-    :init
-    (setq lsp-keymap-prefix "C-c l"
-  	;;(setq lsp-keep-workspace-alive nil)
-  	;;(setq lsp-restart 'ignore)
-  	lsp-headerline-breadcrumb-enable nil
-  	lsp-auto-guess-root t
-  	lsp-warn-no-matched-clients nil ; remove warnings
-  	lsp-enable-snippet nil
-  	lsp-ruff-server-command '("ruff" "server" "--preview")
-  	)
-    :hook
-    (envrc-mode . lsp)
-    )
-
-
-  (use-package lsp-ui
-    :hook (lsp-mode . lsp-ui-mode)
-    :custom
-    (lsp-ui-doc-position 'bottom))
-
-  (use-package lsp-treemacs
-    :after lsp)
-#+END_SRC
-
-**** COMMENT Shortcuts
-Leader keys for lsp-mode.
-
-#+NAME: lsp-leader-keys
-#+BEGIN_SRC emacs-lisp
-  (defun dl/lsp-find-references-other-window ()
-    (interactive)
-    (switch-to-buffer-other-window (current-buffer))
-    (lsp-find-references))
-
-  (defun dl/lsp-find-implementation-other-window ()
-    (interactive)
-    (switch-to-buffer-other-window (current-buffer))
-    (lsp-find-implementation))
-
-  (defun dl/lsp-find-definition-other-window ()
-    (interactive)
-    (switch-to-buffer-other-window (current-buffer))
-    (lsp-find-definition))
 #+END_SRC
 
 *** Languages
@@ -2713,19 +2673,7 @@ Very useful for interactive parsing
         magit-bury-buffer-function #'magit-mode-quit-window)
 
 #+end_src
-
-*** COMMENT Difftastic
-#+begin_src emacs-lisp
-  (use-package difftastic
-    :defer t
-    :vc (:url "https://github.com/pkryger/difftastic.el.git"
-  	    :rev :newest))
-
-  (use-package difftastic-bindings
-    :ensure difftastic ;; or nil if you prefer manual installation
-    :config (difftastic-bindings-mode))
-#+end_src
-
+**** Timemachine
 When in a file, go back in commit history.
 #+NAME: git-timemachine
 #+BEGIN_SRC emacs-lisp
@@ -2736,12 +2684,15 @@ When in a file, go back in commit history.
     )
 #+END_SRC
 
+**** Dired-git
 Track file-moving/copying operations with git when in dired.
 #+NAME:dired-git
 #+BEGIN_SRC emacs-lisp
   (setq dired-vc-rename-file t)
 #+END_SRC
+
 **** Browse at remote
+(Copied from doom emacs)
 #+begin_src emacs-lisp 
   (use-package browse-at-remote
     :config
@@ -2790,6 +2741,12 @@ Track file-moving/copying operations with git when in dired.
       (browse-at-remote-kill)
       (if interactive? (message "Copied to clipboard"))))
 
+  (defun +vc/browse-at-remote-kill-commit (&optional interactive?)
+    "Copy URL to current file (and line if selection is active) using the commit hash to clipboard."
+    (interactive (list 'interactive))
+    (require 'browse-at-remote)
+    (+vc/browse-at-remote-kill (if browse-at-remote-prefer-symbolic t nil) interactive?))
+
   (defun +vc/browse-at-remote-homepage ()
     "Open homepage for current project in browser."
     (interactive)
@@ -2803,17 +2760,6 @@ Track file-moving/copying operations with git when in dired.
       (message "Copied to clipboard: %S" url))))
 #+end_src
 
-*** Infrastructure
-**** Nix
-Nix is my package manager and operating system of choice; this mode enables me to have a better time writing Nix expressions.
-
-#+NAME: nix-mode
-#+begin_src emacs-lisp
-  (use-package nix-mode
-    :mode "\\.nix\\'"
-    :hook (nix-mode . lsp-deferred)
-    :ensure t)
-#+end_src
 
 *** Debugger
 ***** Realgud
