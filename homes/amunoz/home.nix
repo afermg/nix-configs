@@ -14,6 +14,7 @@ in
 {
 
   nixpkgs = {
+    config.allowUnfree = true;
     overlays = [
       outputs.overlays.emacs
       outputs.overlays.stable

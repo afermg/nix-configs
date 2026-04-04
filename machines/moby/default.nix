@@ -103,10 +103,7 @@
     # You can add overlays here
     overlays = builtins.attrValues outputs.overlays;
     # Configure your nixpkgs instance
-    config = {
-      # Disable if you don't want unfree packages
-      allowUnfree = true;
-    };
+    # config.allowUnfree = true;
   };
 
   # This will add each flake input as a registry

@@ -43,6 +43,8 @@ in
 
   ## AI
   opencode
+  lmstudio
+  claude-code
   gemini-cli
   #openai-whisper-cpp
   #piper-tts
