@@ -1088,7 +1088,7 @@ It pastes a URL from the clipboard and automatically fetches the page title to f
   :bind ("C-c p i" . org-cliplink))
 #+end_src
 
-*** Agenda
+*** COMMENT Agenda
 Initialize org-agenda file and set some key bindings to create tasks.
 #+NAME::org-mode-agenda
 #+BEGIN_SRC emacs-lisp
@@ -2955,7 +2955,7 @@ Get feed from youtube.
   
 #+end_src
 
-** Email
+** COMMENT Email
 #+begin_src emacs-lisp
             (use-package notmuch
               :ensure t
@@ -3333,6 +3333,7 @@ It's surprisingly hard to get a decent screenshot program cross-system
 *** COMMENT alphapapa tricks
 Org export with useful labels
 TODO: make this lazy-loaded again
+The main issue with this is that "%" markers, commonly used for spaces in html export, appear as comments in LaTeX.
 #+begin_src emacs-lisp
   (eval-when-compile
     (require 'easy-mmode)

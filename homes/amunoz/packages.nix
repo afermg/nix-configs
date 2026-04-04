@@ -42,6 +42,7 @@ in
   graphviz
 
   ## AI
+  opencode
   gemini-cli
   #openai-whisper-cpp
   #piper-tts
