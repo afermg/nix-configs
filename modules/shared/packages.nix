@@ -68,7 +68,6 @@ with pkgs;
   semgrep # generalistic semantic grep
   nil # Nix
   yaml-language-server # yaml
-  nodePackages.bash-language-server # bash
   lemminx # xml
   marksman # markdown
   ruff # python

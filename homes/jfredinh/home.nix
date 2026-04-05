@@ -27,6 +27,8 @@ in
     enable = true;
     settings.user.name = "Johan Fredin";
     settings.user.email = "jfredinh@broadinstitute.org";
+    signing.format = null;
+
   };
 
   programs.direnv = {

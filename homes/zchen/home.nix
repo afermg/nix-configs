@@ -26,6 +26,7 @@ in
     enable = true;
     settings.user.name = "Zitong Chen";
     settings.user.email = "zchen001016@gmail.com";
+    signing.format = null;
   };
 
   programs.direnv = {

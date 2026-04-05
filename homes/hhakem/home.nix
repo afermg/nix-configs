@@ -27,6 +27,7 @@ in
     enable = true;
     settings.user.name = "HugoHakem";
     settings.user.email = "hugo.hakem@berkeley.edu";
+    signing.format = null;
   };
 
   programs.direnv = {

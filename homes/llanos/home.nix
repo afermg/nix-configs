@@ -27,6 +27,7 @@ in
     enable = true;
     settings.user.name = "PaulaLlanos";
     settings.user.email = "llanos.paula@gmail.com";
+    signing.format = null;
   };
 
   programs.direnv = {

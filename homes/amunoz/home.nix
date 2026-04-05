@@ -211,6 +211,7 @@ in
 
   programs.git = {
     enable = true;
+    signing.format = "openpgp";
     settings = {
       user.name = "Alán F. Muñoz";
       user.email = "afer.mg@gmail.com";
