@@ -32,10 +32,5 @@
       stable = spkgs;
     };
 
-  emacs = import (
-    builtins.fetchTarball {
-      url = "https://github.com/nix-community/emacs-overlay/archive/master.tar.gz";
-      sha256 = "sha256:08labbn2klkcvcz03z5b211g4jb954z3cbrzwrq6jp4c6kxa872w";
-    }
-  );
+  emacs = inputs.emacs-overlay.overlay;
 }

@@ -97,6 +97,8 @@
     #  url = "github:yorukot/superfile";
     #  inputs.nixpkgs.follows = "nixpkgs-stable";
     #};
+
+    emacs-overlay.url = "github:nix-community/emacs-overlay";
   };
 
   outputs =
