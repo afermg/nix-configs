@@ -101,8 +101,8 @@ in
   programs.atuin = {
     enable = true;
     enableFishIntegration = true;
-    flags = [ "--disable-up-arrow" ];
     daemon.enable = atuin_daemon_p;
+    flags = [ "--disable-up-arrow" ];
     settings = {
       auto_sync = true;
       sync_frequency = "5m";
