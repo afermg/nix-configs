@@ -12,7 +12,6 @@ let
   atuin_daemon_p = if pkgs.stdenv.isLinux then true else false;
 in
 {
-
   nixpkgs = {
     config.allowUnfree = true;
     overlays = [
@@ -88,6 +87,7 @@ in
   };
 
   imports = [
+    ../../modules/shared/config/opencode/opencode.nix
     inputs.agenix.homeManagerModules.default
   ];
 
