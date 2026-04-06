@@ -108,7 +108,6 @@ in
       sync_frequency = "5m";
       sync_address = "https://api.atuin.sh";
       search_mode = "prefix";
-      key_path = atuin_key_path;
     };
   };
 
