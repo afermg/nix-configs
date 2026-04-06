@@ -2962,31 +2962,6 @@ Deploy a web server to read feed from my phone.
   (use-package elfeed-web)
 #+end_src
 
-**** COMMENT elfeed-tube
-Get feed from youtube.
-#+begin_src elisp 
-(use-package elfeed-tube
-  :ensure t ;; or :straight t
-  :after elfeed
-  :demand t
-  :config
-  ;; (setq elfeed-tube-auto-save-p nil) ; default value
-  ;; (setq elfeed-tube-auto-fetch-p t)  ; default value
-  (elfeed-tube-setup)
-
-  :bind (:map elfeed-show-mode-map
-         ("F" . elfeed-tube-fetch)
-         ([remap save-buffer] . elfeed-tube-save)
-         :map elfeed-search-mode-map
-         ("F" . elfeed-tube-fetch)
-         ([remap save-buffer] . elfeed-tube-save)))
-  (defun kill-elfeed-show-url ()
-    (interactive)
-    (kill-new (elfeed-entry-link elfeed-show-entry))
-    )
-  
-#+end_src
-
 ** COMMENT Email
 #+begin_src emacs-lisp
             (use-package notmuch
@@ -3004,15 +2979,8 @@ Get feed from youtube.
   ;; 				     (setq message-sendmail-extra-arguments '("send" "--quiet" "-t" "-C" "~/.mail/broad.email"))))))
 #+end_src
 
-** Remote
-*** Tramp
-Automatically update open images when changed remotely.
-#+begin_src emacs-lisp :tangle no
-;; (after! tramp
-;;   (setq auto-revert-remote-files t))
-#+end_src
-
-** Media
+** COMMENT Media
+These I may replace with EAF
 *** Images
 #+begin_src emacs-lisp
 (use-package blimp
@@ -3025,80 +2993,8 @@ Automatically update open images when changed remotely.
     :bind-keymap ("C-x m" . empv-map))
 #+end_src
 
-** Learning Emacs
-These packages may come and go, but ultimately aid in my understanding of emacs and emacs lisp.
-
-*** Show real-time key bindings in a separate buffer
-#+NAME: command-log
-#+BEGIN_SRC emacs-lisp
-  ;; Gives me a fancy list of commands I run
-  (use-package command-log-mode)
-  (setq global-command-log-mode t)
-#+END_SRC
-
-*** Panel popup to show key bindings
-#+NAME: which-key
-#+BEGIN_SRC emacs-lisp
-  ;; Gives me a fancy list of commands I run
-  (use-package which-key
-    :init (which-key-mode)
-    :diminish which-key-mode
-    :config
-    (setq which-key-idle-delay 0.3))
-#+END_SRC
-
-*** Helpful documentation strings for common functions
-#+NAME: helpful
-#+BEGIN_SRC emacs-lisp
-  (use-package helpful
-;    :custom
-      ;; Remap Counsel help functions
-;      (counsel-describe-function-function #'helpful-callable)
-;      (counsel-describe-variable-function #'helpful-variable)
-    :bind
-      ;; Remap default help functions
-      ([remap describe-function] . helpful-function)
-      ([remap describe-symbol] . helpful-symbol)
-      ([remap describe-variable] . helpful-variable)
-      ([remap describe-command] . helpful-command)
-      ([remap describe-key] . helpful-key))
-#+END_SRC
-
-** Learning-in-progress
-*** Cape
-#+begin_src emacs-lisp
-  (use-package cape
-    ;; Bind prefix keymap providing all Cape commands under a mnemonic key.
-    ;; Press C-c p ? to for help.
-    :bind ("C-c p" . cape-prefix-map) ;; Alternative key: M-<tab>, M-p, M-+
-    :init
-    ;; Add to the global default value of `completion-at-point-functions' which is
-    ;; used by `completion-at-point'.  The order of the functions matters, the
-    ;; first function returning a result wins.  Note that the list of buffer-local
-    ;; completion functions takes precedence over the global list.
-    (add-hook 'completion-at-point-functions #'cape-dabbrev)
-    (add-hook 'completion-at-point-functions #'cape-file)
-    (add-hook 'completion-at-point-functions #'cape-elisp-block)
-    (add-hook 'completion-at-point-functions #'cape-history)
-    )
-#+end_src
-
-
-*** Snippets that are Nice to have
-#+begin_src emacs-lisp 
-  (defun arrayify (start end quote)
-    "Turn strings on newlines into a QUOTEd, comma-separated one-liner."
-    (interactive "r\nMQuote: ")
-    (let ((insertion
-           (mapconcat
-            (lambda (x) (format "%s%s%s" quote x quote))
-            (split-string (buffer-substring start end)) ", ")))
-      (delete-region start end)
-      (insert insertion)))
-#+end_src
-
-*** AI-based tools
-**** GPTEL
+** AI tools
+*** GPTEL
 Cutting edge LLM models.
 
 #+begin_src emacs-lisp
@@ -3127,7 +3023,7 @@ Cutting edge LLM models.
     )
 #+end_src
 
-*****  gptel-magit
+****  gptel-magit
 Simple but working gptel+magit integration. Replaced gptcommit-mode
 
 #+begin_src elisp
@@ -3140,7 +3036,7 @@ Simple but working gptel+magit integration. Replaced gptcommit-mode
 #+end_src
 
 
-**** Agents-shell
+*** Agents-shell
 
 #+begin_src emacs-lisp
   (use-package agent-shell
@@ -3159,7 +3055,7 @@ Simple but working gptel+magit integration. Replaced gptcommit-mode
     )
 #+end_src
 
-**** COMMENT Speech-to-text (whisper-cpp)
+*** COMMENT Speech-to-text (whisper-cpp)
 I use whisper to record notes to text. Its use-case is limited but worth a test. It is also an example on how I can integrate AI models into my workflow.
 #+begin_src emacs-lisp 
     (use-package whisper
@@ -3261,7 +3157,7 @@ Select the audio device
         (setq whisper--ffmpeg-input-device (format ":%s" rk/default-audio-device)))))
 #+end_src
 
-**** COMMENT Text-to-speech (Piper)
+*** COMMENT Text-to-speech (Piper)
 #+begin_src emacs-lisp
   (defun build-piper-model-url (model-name model-file-p)
     "Generates the url from which to download models. Covers only high-quality models"
@@ -3323,35 +3219,77 @@ Select the audio device
 ;; tts
 
 
-** Screenshots
-It's surprisingly hard to get a decent screenshot program cross-system
+** Learning Emacs
+These packages may come and go, but ultimately aid in my understanding of emacs and emacs lisp.
 
-- screenshot: Seems to work in linux, missing =x-export-frame= (Cairo?)
-- org-screenshot: requires =scrot=, which doesn't work for darwin
-- org-ros: works okay in darwin
+*** Show real-time key bindings in a separate buffer
+#+NAME: command-log
+#+BEGIN_SRC emacs-lisp
+  ;; Gives me a fancy list of commands I run
+  (use-package command-log-mode)
+  (setq global-command-log-mode t)
+#+END_SRC
 
-#+begin_src emacs-lisp
-  (if (system-is-linux)
-      (straight-use-package '(el-patch :type git :host github :repo "tecosaur/screenshot"))
-  (use-package org-download
-    :after org
-    :defer nil
-    :custom
-    (org-download-method 'directory)
-    (org-download-image-dir "images")
-    (org-download-heading-lvl nil)
-    (org-download-timestamp "%Y%m%d-%H%M%S_")
-    (org-image-actual-width 300)
-    (org-download-screenshot-method "/opt/homebrew/bin/pngpaste %s")
-    :bind
-    ("C-M-y" . org-download-screenshot)
+*** Panel popup to show key bindings
+#+NAME: which-key
+#+BEGIN_SRC emacs-lisp
+  ;; Gives me a fancy list of commands I run
+  (use-package which-key
+    :init (which-key-mode)
+    :diminish which-key-mode
     :config
-    (require 'org-download)) )
+    (setq which-key-idle-delay 0.3))
+#+END_SRC
+
+*** Helpful documentation strings for common functions
+#+NAME: helpful
+#+BEGIN_SRC emacs-lisp
+  (use-package helpful
+;    :custom
+      ;; Remap Counsel help functions
+;      (counsel-describe-function-function #'helpful-callable)
+;      (counsel-describe-variable-function #'helpful-variable)
+    :bind
+      ;; Remap default help functions
+      ([remap describe-function] . helpful-function)
+      ([remap describe-symbol] . helpful-symbol)
+      ([remap describe-variable] . helpful-variable)
+      ([remap describe-command] . helpful-command)
+      ([remap describe-key] . helpful-key))
+#+END_SRC
+
+** Learning-in-progress
+*** Cape
+#+begin_src emacs-lisp
+  (use-package cape
+    ;; Bind prefix keymap providing all Cape commands under a mnemonic key.
+    ;; Press C-c p ? to for help.
+    :bind ("C-c p" . cape-prefix-map) ;; Alternative key: M-<tab>, M-p, M-+
+    :init
+    ;; Add to the global default value of `completion-at-point-functions' which is
+    ;; used by `completion-at-point'.  The order of the functions matters, the
+    ;; first function returning a result wins.  Note that the list of buffer-local
+    ;; completion functions takes precedence over the global list.
+    (add-hook 'completion-at-point-functions #'cape-dabbrev)
+    (add-hook 'completion-at-point-functions #'cape-file)
+    (add-hook 'completion-at-point-functions #'cape-elisp-block)
+    (add-hook 'completion-at-point-functions #'cape-history)
+    )
 #+end_src
 
-# #+RESULTS:
-# : org-download-screenshot
 
+*** Snippets that are Nice to have
+#+begin_src emacs-lisp 
+  (defun arrayify (start end quote)
+    "Turn strings on newlines into a QUOTEd, comma-separated one-liner."
+    (interactive "r\nMQuote: ")
+    (let ((insertion
+           (mapconcat
+            (lambda (x) (format "%s%s%s" quote x quote))
+            (split-string (buffer-substring start end)) ", ")))
+      (delete-region start end)
+      (insert insertion)))
+#+end_src
 
 ** Temporal
 *** COMMENT Hyperbole
@@ -3464,16 +3402,60 @@ The main issue with this is that "%" markers, commonly used for spaces in html e
   (advice-add #'org-export-get-reference :override #'unpackaged/org-export-get-reference)
 #+end_src
 
-** PDF tools
-#+begin_src emacs-lisp
-  (use-package pdf-tools)
-#+end_src
-
-*** Other Packages
-
+** Other Packages
+*** affe
 #+begin_src emacs-lisp
     (use-package affe) ; fzf-like https://github.com/minad/affe
 #+end_src
 
+*** EAF
+
+#+BEGIN_SRC emacs-lisp
+  (use-package eaf
+  :custom
+  ; See https://github.com/emacs-eaf/emacs-application-framework/wiki/Customization
+  (eaf-browser-continue-where-left-off t)
+  (eaf-browser-enable-adblocker t)
+  (browse-url-browser-function 'eaf-open-browser)
+  :config
+  (defalias 'browse-web #'eaf-open-browser)
+  (eaf-bind-key scroll_up "C-n" eaf-pdf-viewer-keybinding)
+  (eaf-bind-key scroll_down "C-p" eaf-pdf-viewer-keybinding)
+  ;; (eaf-bind-key take_photo "p" eaf-camera-keybinding)
+  (eaf-bind-key nil "M-q" eaf-browser-keybinding)) ;; unbind, see more in the Wiki
+#+END_SRC
+*** PDF tools
+#+begin_src emacs-lisp
+  (use-package pdf-tools)
+#+end_src
+
+*** Screenshots
+It's surprisingly hard to get a decent screenshot program cross-system
+
+- screenshot: Seems to work in linux, missing =x-export-frame= (Cairo?)
+- org-screenshot: requires =scrot=, which doesn't work for darwin
+- org-ros: works okay in darwin
+
+#+begin_src emacs-lisp
+  (if (system-is-linux)
+      (straight-use-package '(el-patch :type git :host github :repo "tecosaur/screenshot"))
+  (use-package org-download
+    :after org
+    :defer nil
+    :custom
+    (org-download-method 'directory)
+    (org-download-image-dir "images")
+    (org-download-heading-lvl nil)
+    (org-download-timestamp "%Y%m%d-%H%M%S_")
+    (org-image-actual-width 300)
+    (org-download-screenshot-method "/opt/homebrew/bin/pngpaste %s")
+    :bind
+    ("C-M-y" . org-download-screenshot)
+    :config
+    (require 'org-download)) )
+#+end_src
+
+# #+RESULTS:
+# : org-download-screenshot
 
 
