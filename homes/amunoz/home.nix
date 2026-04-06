@@ -25,7 +25,24 @@ in
 
     stateVersion = "24.05";
     packages = pkgs.callPackage ./packages.nix { };
-    #file = import ../../modules/shared/files.nix { inherit config pkgs; };
+    file = import ../../modules/shared/files.nix { inherit config pkgs; };
+  };
+
+  age = {
+    identityPaths = [ "/${home_parent}/${user}/.ssh/id_ed25519" ];
+    secrets.atuin = {
+      file = ../../secrets/atuin.age;
+      path = "${config.home.homeDirectory}/.local/share/atuin/key";
+    };
+  };
+
+  services.emacs = {
+    enable = true;
+    startWithUserSession = "graphical";
+    package = pkgs.emacs.override {
+      withImageMagick = true;
+      withXwidgets = false;
+    };
   };
 
   # Gnome graphical interface
@@ -89,14 +106,6 @@ in
     ../../modules/shared/config/opencode/opencode.nix
     inputs.agenix.homeManagerModules.default
   ];
-
-  age = {
-    identityPaths = [ "/${home_parent}/${user}/.ssh/id_ed25519" ];
-    secrets.atuin = {
-      file = ../../secrets/atuin.age;
-      path = "${config.home.homeDirectory}/.local/share/atuin/key";
-    };
-  };
 
   programs.atuin = {
     enable = true;

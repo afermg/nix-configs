@@ -477,7 +477,7 @@ Undo tree for better undo visualisation.
       (meow-global-mode 1)
 #+end_src
 
-***** Meow + paredit                                               :eval:
+***** Hydra (Meow + paredit)                                       :eval:
 Repeatedly pressing =SPC >= is tedious. A Hydra allows you to enter a "mode" for structural changes:
 
 #+begin_src elisp

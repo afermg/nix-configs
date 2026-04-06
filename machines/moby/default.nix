@@ -78,13 +78,14 @@
       };
     };
 
-    # Apache tika: Processs documents for LLM ingestion
+    # Apache tika: Processs documents for LLM ingestion of PDFs
     # tika.enable = true;
     # overleaf.enable = true;
 
     # Emacs: The one and only True Editor.
     emacs = {
       enable = true;
+      startWithGraphical = true;
       # Xwidgets are not working # https://github.com/nix-community/emacs-overlay/issues/455
       package = pkgs.emacs.override {
         withImageMagick = true;

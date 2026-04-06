@@ -8,4 +8,7 @@
   ".emacs.d/init.el" = {
     text = builtins.readFile ../shared/config/emacs/init.el;
   };
+  ".emacs.d/config.org" = {
+    text = builtins.readFile ../shared/config/emacs/config.org;
+  };
 }
