@@ -3408,10 +3408,12 @@ The main issue with this is that "%" markers, commonly used for spaces in html e
     (use-package affe) ; fzf-like https://github.com/minad/affe
 #+end_src
 
-*** EAF
+*** COMMENT EAF
 
+I deactivated this because it is a bit too buggy and doesn't play along with non-gtk emacs.
 #+BEGIN_SRC emacs-lisp
   (use-package eaf
+  :load-path "~/.emacs.d/site-lisp/emacs-application-framework"
   :custom
   ; See https://github.com/emacs-eaf/emacs-application-framework/wiki/Customization
   (eaf-browser-continue-where-left-off t)

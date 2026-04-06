@@ -22,7 +22,6 @@ in
   home = {
     username = "${user}";
     homeDirectory = "/${home_parent}/${user}";
-
     stateVersion = "24.05";
     packages = pkgs.callPackage ./packages.nix { };
     file = import ../../modules/shared/files.nix { inherit config pkgs; };
@@ -35,14 +34,26 @@ in
       path = "${config.home.homeDirectory}/.local/share/atuin/key";
     };
   };
-
   services.emacs = {
     enable = true;
     startWithUserSession = "graphical";
-    package = pkgs.emacs.override {
-      withImageMagick = true;
-      withXwidgets = false;
-    };
+    package =
+      (pkgs.emacs.override {
+        withImageMagick = true;
+        withXwidgets = false; # https://github.com/nix-community/emacs-overlay/issues/466
+      }).pkgs.withPackages
+        (epkgs:
+        # with epkgs;
+        [
+          # (eaf.withApplications [
+          #   eaf-browser
+          #   eaf-pdf-viewer
+          #   eaf-file-manager
+          #   eaf-image-viewer
+          #   eaf-map
+          #   eaf-js-video-player
+          # ])
+        ]);
   };
 
   # Gnome graphical interface
