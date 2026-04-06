@@ -98,10 +98,8 @@ in
 
   programs.atuin = {
     enable = true;
-    # package = pkgs.stable.atuin;
+    flags = [ "--disable-up-arrow" ];
     enableFishIntegration = true;
-    enableBashIntegration = true;
-    enableNushellIntegration = true;
     settings = {
       auto_sync = true;
       sync_frequency = "5m";
@@ -109,7 +107,7 @@ in
       search_mode = "prefix";
       daemon = {
         enabled = atuin_daemon_p;
-        socket_path = "/home/amunoz/.local/share/atuin/atuin.sock";
+        # socket_path = "/home/amunoz/.local/share/atuin/atuin.sock";
       }
       // atuin_key_path;
     };
@@ -185,29 +183,6 @@ in
       bind \cR fzf_history
     '';
   };
-
-  # systemd.user.services = {
-  #   atuin_daemon = {
-  #     Unit = {
-  #       Description = "Run the atuin daemon";
-  #       Documentation = [
-  #         "man:example(1)"
-  #         "man:example(5)"
-  #       ];
-  #     };
-  #     Install = {
-  #       WantedBy = [ "default.target" ];
-  #     };
-  #     Service = {
-  #       ExecStart = "${pkgs.writeShellScript "atuin-daemon" ''
-  #         #!/run/current-system/sw/bin/bash
-  #         rm -r ~/.local/share/atuin/atuin.sock
-  #         nohup atuin daemon &
-  #       ''}";
-  #       Type = "oneshot";
-  #     };
-  #   };
-  # };
 
   programs.git = {
     enable = true;
