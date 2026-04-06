@@ -166,7 +166,8 @@ Undo tree for better undo visualisation.
     (setq undo-tree-history-directory-alist '(("." . "~/.local/state/emacs/undo"))))
 #+END_SRC
 
-**** Modal editing 
+**** Meow modal editing 
+
 #+begin_src emacs-lisp
   (use-package meow
     :config
@@ -474,6 +475,35 @@ Undo tree for better undo visualisation.
 
       (meow-setup)
       (meow-global-mode 1)
+#+end_src
+
+***** Meow + paredit                                               :eval:
+Repeatedly pressing =SPC >= is tedious. A Hydra allows you to enter a "mode" for structural changes:
+
+#+begin_src elisp
+(defhydra hydra-paredit (global-map "C-c p")
+  "Paredit Edit"
+  (">" paredit-forward-slurp-sexp "slurp")
+  ("<" paredit-forward-barf-sexp "barf")
+  ("w" paredit-wrap-round "wrap")
+  ("u" paredit-splice-sexp "unwrap")
+  ("q" nil "quit"))
+
+;; Bind the hydra to a meow leader key
+(meow-leader-define-key
+ '("p" . hydra-paredit/body))
+#+end_src
+
+**** Paredit
+#+begin_src emacs-lisp
+  (use-package paredit
+    :straight t
+    :hook ((emacs-lisp-mode . enable-paredit-mode)
+           (eval-expression-minibuffer-setup . enable-paredit-mode)
+           (ielm-mode . enable-paredit-mode)
+           (lisp-mode . enable-paredit-mode)
+           (lisp-interaction-mode . enable-paredit-mode)
+           (scheme-mode . enable-paredit-mode)))
 #+end_src
 
 **** Meow+vterm support
