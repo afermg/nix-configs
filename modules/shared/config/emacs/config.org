@@ -481,17 +481,21 @@ Undo tree for better undo visualisation.
 Repeatedly pressing =SPC >= is tedious. A Hydra allows you to enter a "mode" for structural changes:
 
 #+begin_src elisp
-(defhydra hydra-paredit (global-map "C-c p")
-  "Paredit Edit"
-  (">" paredit-forward-slurp-sexp "slurp")
-  ("<" paredit-forward-barf-sexp "barf")
-  ("w" paredit-wrap-round "wrap")
-  ("u" paredit-splice-sexp "unwrap")
-  ("q" nil "quit"))
+  (use-package hydra
+    :straight t
+    :after paredit
+    :config
+    (defhydra hydra-paredit (global-map "C-c p")
+      "Paredit Edit"
+      (">" paredit-forward-slurp-sexp "slurp")
+      ("<" paredit-forward-barf-sexp "barf")
+      ("w" paredit-wrap-round "wrap")
+      ("u" paredit-splice-sexp "unwrap")
+      ("q" nil "quit"))
 
-;; Bind the hydra to a meow leader key
-(meow-leader-define-key
- '("p" . hydra-paredit/body))
+    ;; Bind the hydra to a meow leader key
+    (meow-leader-define-key
+     '("p" . hydra-paredit/body)))
 #+end_src
 
 **** Paredit
