@@ -401,7 +401,7 @@ Undo tree for better undo visualisation.
         '(";hp" . dl/load-buffer-with-emacs-config)
         '(";ot" . toggle-vterm-window)
         '(";oT" . +vterm/here)
-        '(";ox" . toggle-scratch-buffer)
+        '(";ox" . afermg/toggle-scratch-buffer)
         '(";lf" . dl/xref-find-references-other-window)
         '(";lc" . dl/xref-find-implementation-other-window)
         '(";ls" . consult-imenu) ;; Eglot uses standard imenu
@@ -1122,7 +1122,7 @@ It pastes a URL from the clipboard and automatically fetches the page title to f
   :bind ("C-c p i" . org-cliplink))
 #+end_src
 
-*** COMMENT Agenda
+*** Notes/Capture/Agenda
 Initialize org-agenda file and set some key bindings to create tasks.
 #+NAME::org-mode-agenda
 #+BEGIN_SRC emacs-lisp
@@ -1162,7 +1162,7 @@ Initialize org-agenda file and set some key bindings to create tasks.
     (define-key org-mode-map (kbd "C-c l") 'embark-org-copy-link-target)
 #+END_SRC
 
-**** Org TODO
+*** Org TODO
 Log time when closing TODOs
 #+begin_src emacs-lisp
   (setq
@@ -1181,7 +1181,7 @@ Set various types and colors for ~org-mode~.
      (sequence "APPT(a)" "|" "DONE(d@)" "CANCELED(x@)")))
 #+end_src
 
-**** Set org faces
+*** Fixed pitch in code blocks
 
 Ensure code blocks have a fixed pitch.
 #+NAME::org-mode-fixed-pitches
@@ -1204,7 +1204,7 @@ Ensure code blocks have a fixed pitch.
 #+end_src
 
 Add specific font face for org-babel result blocks
-***** Custom fonts
+***** COMMENT Custom fonts
 # TODO: Evaluate if this is useful.
 #+NAME::org-mode-faces
 #+BEGIN_SRC emacs-lisp
@@ -1236,11 +1236,6 @@ My life in plain text.
     (defvar current-time-format "%H:%M:%S"
       "Format of date to insert with `insert-current-time' func.
                     Note the weekly scope of the command's precision.")
-
-    (defun dl/find-file (path)
-      "Helper function to open a file in a buffer"
-      (interactive)
-      (find-file path))
 
     (defun dl/load-buffer-with-emacs-config ()
       "Open the emacs configuration"
@@ -1291,7 +1286,7 @@ My life in plain text.
         (insert " ")
         (org-time-stamp nil)))
 
-  (defun toggle-window-bottom (buffer-name fn-create-buffer)
+  (defun afermg/toggle-window-bottom (buffer-name fn-create-buffer)
     (let ((buffer-window (get-buffer-window buffer-name)))
       (if buffer-window
           (delete-window buffer-window)
@@ -1300,7 +1295,7 @@ My life in plain text.
                        '((display-buffer-at-bottom)
   		       (window-height . 0.4))))))
 
-    (defun toggle-scratch-buffer ()
+    (defun afermg/toggle-scratch-buffer ()
       (interactive)
       (toggle-window-bottom "*scratch*" 'get-scratch-buffer-create))
 
@@ -3157,6 +3152,7 @@ Simple but working gptel+magit integration. Replaced gptcommit-mode
   	(agent-shell-google-make-authentication :api-key (get-string-from-file gptel-key-file)))
     (setq agent-shell-prefer-viewport-interaction t)
     (setq agent-shell-google-gemini-acp-command (list "gemini" "--experimental-acp" "--approval-mode=yolo"))
+    (setq agent-shell-session-strategy 'prompt)
     )
 #+end_src
 
