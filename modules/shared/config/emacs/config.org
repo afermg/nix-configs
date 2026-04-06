@@ -492,7 +492,10 @@ Repeatedly pressing =SPC >= is tedious. A Hydra allows you to enter a "mode" for
       ("w" paredit-wrap-round "wrap")
       ("u" paredit-splice-sexp "unwrap")
       ("q" nil "quit"))
-
+    
+    ;; https://old.reddit.com/r/emacs/comments/17k6pu4/m_aka_mx_evalexpression_does_nothing_upon_hitting/kg4q52f/
+    (define-key paredit-mode-map (kbd "RET") nil)
+    
     ;; Bind the hydra to a meow leader key
     (meow-leader-define-key
      '("p" . hydra-paredit/body)))
