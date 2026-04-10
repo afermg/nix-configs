@@ -175,7 +175,7 @@
           pkgs = pkgsFor.x86_64-linux;
           extraSpecialArgs = { inherit inputs outputs; };
           modules = [
-            agenix.nixosModules.default
+            agenix.homeManagerModules.default
             # > Our main home-manager configuration file <
             ./homes/amunoz/moby.nix
           ];
