@@ -2999,6 +2999,7 @@ Cutting edge LLM models.
 
 #+begin_src emacs-lisp
   (setq gptel-key-file "~/.gemini_key")
+  (setq claude-key-file "~/.claude_token")
 
   (use-package gptel
     :straight (:host github :repo "karthink/gptel"
@@ -3042,10 +3043,10 @@ Simple but working gptel+magit integration. Replaced gptcommit-mode
   (use-package agent-shell
     :ensure t
     ;; :ensure-system-package
-    ;; Add agent installation configs here
-    ;; ((claude-agent-acp . "npm install -g @zed-industries/claude-agent-acp"))
     :config
     ;; With string
+    (setq agent-shell-anthropic-authentication
+      (agent-shell-anthropic-make-authentication :oauth (get-string-from-file claude-key-file)))
     (setq agent-shell-google-authentication
   	(agent-shell-google-make-authentication :api-key (get-string-from-file gptel-key-file)))
     (setq agent-shell-prefer-viewport-interaction t)
