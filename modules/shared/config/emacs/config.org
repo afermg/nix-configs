@@ -3047,6 +3047,7 @@ Simple but working gptel+magit integration. Replaced gptcommit-mode
     ;; With string
     (setq agent-shell-anthropic-authentication
       (agent-shell-anthropic-make-authentication :oauth (get-string-from-file claude-key-file)))
+    (setq agent-shell-anthropic-default-session-mode-id "bypassPermissions")
     (setq agent-shell-google-authentication
   	(agent-shell-google-make-authentication :api-key (get-string-from-file gptel-key-file)))
     (setq agent-shell-prefer-viewport-interaction t)

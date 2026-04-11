@@ -207,22 +207,6 @@
     ];
   };
 
-  users.users.llanos = {
-    shell = pkgs.fish;
-    isNormalUser = true;
-    description = "Paula Llanos";
-    extraGroups = [
-      "networkmanager"
-      "wheel"
-      "libvirtd"
-      "qemu-libvirtd"
-      "input"
-    ];
-    openssh.authorizedKeys.keyFiles = [
-      ../../homes/llanos/id_rsa.pub
-    ];
-  };
-
   users.users.hhakem = {
     shell = pkgs.zsh;
     isNormalUser = true;
@@ -284,13 +268,6 @@
       # ../../modules/nixos/home-manager.nix;
       inputs.agenix.homeManagerModules.default
       ../../homes/amunoz/moby.nix
-    ];
-  };
-
-  home-manager.users.llanos = {
-    imports = [
-      inputs.agenix.homeManagerModules.default
-      ../../homes/llanos/moby.nix
     ];
   };
 
