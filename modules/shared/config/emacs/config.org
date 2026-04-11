@@ -1129,7 +1129,7 @@ It pastes a URL from the clipboard and automatically fetches the page title to f
 Initialize org-agenda file and set some key bindings to create tasks.
 #+NAME::org-mode-agenda
 #+BEGIN_SRC emacs-lisp
-  (setq org-agenda-files (concat org-directory "/agenda.txt"))
+  (setq org-agenda-files (list (concat org-directory "/notes.org")))
 
     (defun my-org-insert-subheading (heading-type)
     "Inserts a new org heading with unique ID and creation date.
