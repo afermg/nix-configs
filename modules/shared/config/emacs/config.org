@@ -1126,7 +1126,7 @@ It pastes a URL from the clipboard and automatically fetches the page title to f
 
 #+begin_src elisp
 (use-package org-cliplink
-  :bind ("C-c p i" . org-cliplink))
+  :bind ("C-c l" . org-cliplink))
 #+end_src
 
 *** Notes/Capture/Agenda
