@@ -154,7 +154,8 @@ I needed this for it to work on Linux-Linux connections. [[https://www.rahuljuli
 #+end_src
 
 *** Navigation and editing
-**** Undo-tree
+**** COMMENT Undo-tree
+# Deactivated because it slows down org-mode saving quite a lot
 Undo tree for better undo visualisation.
 #+BEGIN_SRC emacs-lisp
   (use-package undo-tree
@@ -366,8 +367,11 @@ Undo tree for better undo visualisation.
 
         '("z" . query-replace-regexp)
 
-        '("h" . undo-tree-undo)
-        '("H" . undo-tree-redo)
+        
+        ;; '("h" . undo-tree-undo)
+        ;; '("H" . undo-tree-redo)
+        '("h" . undo)
+        '("H" . undo-redo)
 
         '("m"  . meow-kmacro)
         '("M"  . kmacro-call-macro)
@@ -599,7 +603,7 @@ Various helpers and packages I find useful for window management.
   (use-package goto-chg)
 #+end_src
 
-*** Beacon mode
+*** COMMENT Beacon mode
 Highlights the line temporarily when the cursor moves windows.
 #+begin_src emacs-lisp
   (use-package beacon
@@ -1130,6 +1134,7 @@ Initialize org-agenda file and set some key bindings to create tasks.
 #+NAME::org-mode-agenda
 #+BEGIN_SRC emacs-lisp
   (setq org-agenda-files (list (concat org-directory "/notes.org")))
+  (setq org-agenda-span 14)
 
     (defun my-org-insert-subheading (heading-type)
     "Inserts a new org heading with unique ID and creation date.
@@ -1336,23 +1341,6 @@ Show the function definition line at the top
     (magit-section-mode . topsy-mode))
 #+end_src
 
-**** org-transclusion
-Let's us move text but still see it in another file. I primarily use this to move text around in my journal.
-
-#+NAME::org-transclusion
-#+BEGIN_SRC emacs-lisp
-  (use-package org-transclusion
-    :after org
-    :hook (org-mode . org-transclusion-mode))
-
-  (defun org-global-props (&optional property buffer)
-    "Helper function to grab org properties"
-    (unless property (setq property "PROPERTY"))
-    (with-current-buffer (or buffer (current-buffer))
-      (org-element-map (org-element-parse-buffer) 'keyword
-      (lambda (el) (when (string-match property (org-element-property :key el)) el)))))
-
-#+END_SRC
 **** org-pandoc-import
 #+begin_src emacs-lisp
   (use-package org-pandoc-import
@@ -2248,6 +2236,11 @@ For bibliography and citations
 *** Latex
 
 #+begin_src emacs-lisp
+  ;; Use a minimal init for async export to avoid package conflicts (e.g. org-transclusion)
+  (setq org-export-async-init-file (expand-file-name "~/.local/share/src/nixos-config/modules/shared/org-export-init.el"))
+#+end_src
+
+#+begin_src emacs-lisp
   (defun org/parse-headings (backend)
     (if (member backend '(latex))
         (org-map-entries
@@ -2338,6 +2331,7 @@ Set XeLaTex as our compiler
 
 #+end_src
 
+*** COMMENT Org export backup
 #+begin_src emacs-lisp
   (defun org-export-backup (BACKEND FILE &rest _args);;(BACKEND FILE &optional ASYNC SUBTREEP VISIBLE-ONLY BODY-ONLY EXT-PLIST POST-PROCESSBACKEND FILE &optional ASYNC SUBTREEP VISIBLE-ONLY BODY-ONLY EXT-PLIST POST-PROCESS)
     "Create timestamped backup of target file before export."
@@ -2474,21 +2468,6 @@ Everything related to M-x compile.
            (setq deactivate-mark t)
            (python-shell-send-region (region-beginning) (region-end)))
           (t (python-shell-send-current-statement))))
-
-  ;; (defun
-  ;;     add-lsp-before-save-hooks ()
-  ;;   (add-hook 'before-save-hook #'lsp-format-buffer nil 'local)
-  ;;   (add-hook 'before-save-hook #'lsp-organize-imports nil 'local)
-  ;;   )
-  ;; (add-hook 'lsp-mode-hook #'add-lsp-before-save-hooks)
-  ;; Add a hook to adjust the python interpreter. Prefer jupyter if possible.
-  ;; (add-hook 'lsp-mode-hook #'select-python-interpreter)
-
-  ;; (defun dl/eglot-format-on-save ()
-  ;;   (add-hook 'before-save-hook #'eglot-format-buffer -10 t)
-  ;;   (add-hook 'before-save-hook #'eglot-code-action-organize-imports -10 t))
-
-  ;; (add-hook 'eglot-managed-mode-hook #'dl/eglot-format-on-save)
 
   ;; Interpreter selection
   (defun select-python-interpreter ()
@@ -3461,4 +3440,6 @@ It's surprisingly hard to get a decent screenshot program cross-system
 # #+RESULTS:
 # : org-download-screenshot
 
-
+** Graveyard
+- org-transclusion: Conflicted with org-mode async export
+- beacon-mode: A bit annoying, wasn't that nice anyway
