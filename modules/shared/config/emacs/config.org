@@ -1350,12 +1350,24 @@ Show the function definition line at the top
 #+end_src
 
 *** Exports
-For now we keep the default org-export being sync.
-#+begin_src emacs-lisp
+:PROPERTIES:
+:header-args:emacs-lisp: :tangle org-export-init.el
+:END:
+#+begin_src emacs-lisp :tangle no
   (setq org-export-in-background nil)
+  ;; Use a minimal init for async export to avoid package conflicts (e.g. org-transclusion)
+  (setq org-export-async-init-file (expand-file-name "~/.local/share/src/nixos-config/modules/shared/config/emacs/org-export-init.el"))
 #+end_src
 
-Important export backends.
+**** ox-extra
+#+begin_src emacs-lisp
+    (use-package org-contrib
+    :config
+    (require 'ox-extra)
+    (ox-extras-activate '(ignore-headlines)))
+#+end_src
+
+**** Markdown
 #+begin_src emacs-lisp
   (use-package ox-pandoc
     :ensure t   ;Auto-install the package from Melpa
@@ -1372,21 +1384,105 @@ Important export backends.
   )
 #+end_src
 
-**** ox-extra
-#+begin_src elisp
-    (use-package org-contrib
-    :config
-    (require 'ox-extra)
-    (ox-extras-activate '(ignore-headlines)))
-#+end_src
-
-**** ox-hugo
+**** Hugo
 #+begin_src emacs-lisp
   (use-package ox-hugo
     :ensure t   ;Auto-install the package from Melpa
     :pin melpa  ;`package-archives' should already have ("melpa" . "https://melpa.org/packages/")
     :after org
     )
+#+end_src
+
+**** Latex/Beamer
+
+#+begin_src emacs-lisp
+  (defun org/parse-headings (backend)
+    (if (member backend '(latex))
+        (org-map-entries
+         (lambda ()
+           (progn
+             (insert-string "#+LATEX: \\newpage")))
+
+         "+newpage")))
+
+  (add-hook 'org-export-before-parsing-hook 'org/parse-headings)
+#+end_src
+
+Make use of extarticle by default
+#+begin_src emacs-lisp
+(setq org-latex-default-class "extarticle")
+#+end_src
+
+Captions and cdlatex
+#+begin_src emacs-lisp
+     (setq org-latex-prefer-user-labels t
+           org-latex-caption-above nil
+           ;; org-latex-listings 'minted
+           org-latex-listings nil
+           )
+
+
+     ;;Colours
+  (add-to-list 'org-latex-packages-alist '("" "minted" nil))
+  (setq org-latex-minted-options nil)
+        ;; '(
+        ;; 				 ("frame" "leftline")
+        ;; 				 ("lineos" "true")
+        ;; 				 ))
+  (setq org-latex-src-block-backend 'minted)
+   ;; (add-to-list 'org-latex-packages-alist '("" "minted"))
+   ;(add-to-list 'org-latex-packages-alist '("" "tabularx"))
+   ;(plist-put org-format-latex-options :scale 1.75        )
+   ;(add-to-list 'org-latex-packages-alist '("" "unicode-math")))
+    (add-to-list 'org-latex-classes
+          '("beamerposter"
+            "\\documentclass[final]{beamer}
+            \\usepackage[T1]{fontenc}
+            \\usepackage{lmodern}
+            \\usepackage[size=custom,width=84.1,height=118.9,scale=1.0]{beamerposter}
+            \\usepackage{graphicx}
+            \\usepackage{booktabs}
+            \\usepackage{tikz}
+            \\usepackage{pgfplots}
+            \\pgfplotsset{compat=1.18}
+            \\usepackage{anyfontsize}
+            [NO-DEFAULT-PACKAGES]"))
+  (add-to-list 'org-latex-classes
+          '("extarticle"
+                  "\\documentclass{extarticle}"
+                  ("\\section{%s}" . "\\section*{%s}")
+                  ("\\subsection{%s}" . "\\subsection*{%s}")
+                  ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
+  (add-to-list 'org-latex-classes
+          '("article-minimal"
+                  "\\documentclass{article}
+                   [NO-DEFAULT-PACKAGES]"
+                  ("\\section{%s}" . "\\subsection*{%s}")
+                  ("\\subsection{%s}" . "\\subsubsection*{%s}")
+                  ("\\subsubsection{%s}" . "\\subsubsubsection*{%s}")))
+#+end_src
+
+Set XeLaTex as our compiler
+#+begin_src emacs-lisp
+(setq org-latex-compiler "xelatex")
+#+end_src
+
+Open new windows (such as exported PDF's in a new window)
+#+begin_src emacs-lisp
+;; Custom latex->PDF conversion
+  ;; (setq org-latex-pdf-process
+  ;;       '("latexmk -pdflatex='pdflatex -interaction nonstopmode' -shell-escape -pdf -bibtex --synctex=1 -f %f"))
+  ;; (setq org-latex-pdf-process
+  ;;       '("latexmk -pdflatex='lualatex -interaction nonstopmode' -shell-escape -pdf -bibtex --synctex=1 -f %f"))
+  (setq latex-run-command "xelatex")
+  (setq org-latex-pdf-process
+        '("latexmk -pdflatex='xelatex -shell-escape -interaction nonstopmode ' -shell-escape -pdf -f %f "
+          ;; "makeglossaries %
+          ;; "biber %b"
+          ;; "makeindex %b"
+          "latexmk -pdflatex='xelatex -interaction -shell-escape nonstopmode ' -shell-escape -pdf -f %f "
+          "latexmk -pdflatex='xelatex -shell-escape -interaction nonstopmode ' -shell-escape -pdf -f %f "))
+
 #+end_src
 
 *** Org Roam
@@ -2232,136 +2328,6 @@ For bibliography and citations
    (org-cite-csl-styles-dir
     (expand-file-name "~/Zotero/styles/")))
 #+end_src
-
-*** Latex
-
-#+begin_src emacs-lisp
-  ;; Use a minimal init for async export to avoid package conflicts (e.g. org-transclusion)
-  (setq org-export-async-init-file (expand-file-name "~/.local/share/src/nixos-config/modules/shared/org-export-init.el"))
-#+end_src
-
-#+begin_src emacs-lisp
-  (defun org/parse-headings (backend)
-    (if (member backend '(latex))
-        (org-map-entries
-         (lambda ()
-           (progn
-             (insert-string "#+LATEX: \\newpage")))
-
-         "+newpage")))
-
-  (add-hook 'org-export-before-parsing-hook 'org/parse-headings)
-#+end_src
-
-Make use of extarticle by default
-#+begin_src emacs-lisp 
-(setq org-latex-default-class "extarticle") 
-#+end_src
-
-Captions and cdlatex
-#+begin_src emacs-lisp 
-     (setq org-latex-prefer-user-labels t
-           org-latex-caption-above nil
-           ;; org-latex-listings 'minted
-           org-latex-listings nil
-           )
-
-
-     ;;Colours
-  (add-to-list 'org-latex-packages-alist '("" "minted" nil))
-  (setq org-latex-minted-options nil)
-        ;; '(
-        ;; 				 ("frame" "leftline")
-        ;; 				 ("lineos" "true")
-        ;; 				 ))
-  (setq org-latex-src-block-backend 'minted)
-   ;; (add-to-list 'org-latex-packages-alist '("" "minted"))
-   ;(add-to-list 'org-latex-packages-alist '("" "tabularx"))
-   ;(plist-put org-format-latex-options :scale 1.75        )
-   ;(add-to-list 'org-latex-packages-alist '("" "unicode-math")))
-    (add-to-list 'org-latex-classes
-          '("beamerposter"
-            "\\documentclass[final]{beamer}
-            \\usepackage[T1]{fontenc}
-            \\usepackage{lmodern}
-            \\usepackage[size=custom,width=84.1,height=118.9,scale=1.0]{beamerposter}  
-            \\usepackage{graphicx}
-            \\usepackage{booktabs}
-            \\usepackage{tikz}
-            \\usepackage{pgfplots}
-            \\pgfplotsset{compat=1.18}
-            \\usepackage{anyfontsize}
-            [NO-DEFAULT-PACKAGES]"))
-  (add-to-list 'org-latex-classes
-          '("extarticle"
-                  "\\documentclass{extarticle}"
-                  ("\\section{%s}" . "\\section*{%s}")
-                  ("\\subsection{%s}" . "\\subsection*{%s}")
-                  ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
-  (add-to-list 'org-latex-classes
-          '("article-minimal"
-                  "\\documentclass{article}
-                   [NO-DEFAULT-PACKAGES]"
-                  ("\\section{%s}" . "\\subsection*{%s}")
-                  ("\\subsection{%s}" . "\\subsubsection*{%s}")
-                  ("\\subsubsection{%s}" . "\\subsubsubsection*{%s}")))
-#+end_src
-
-
-Set XeLaTex as our compiler
-#+begin_src emacs-lisp :tangle yes
-(setq org-latex-compiler "xelatex")
-#+end_src
-
- Open new windows (such as exported PDF's in a new winddow)
-#+begin_src emacs-lisp 
-;; Custom latex->PDF conversion
-  ;; (setq org-latex-pdf-process
-  ;;       '("latexmk -pdflatex='pdflatex -interaction nonstopmode' -shell-escape -pdf -bibtex --synctex=1 -f %f"))
-  ;; (setq org-latex-pdf-process
-  ;;       '("latexmk -pdflatex='lualatex -interaction nonstopmode' -shell-escape -pdf -bibtex --synctex=1 -f %f"))
-  (setq latex-run-command "xelatex")
-  (setq org-latex-pdf-process
-        '("latexmk -pdflatex='xelatex -shell-escape -interaction nonstopmode ' -shell-escape -pdf -f %f "
-          ;; "makeglossaries %
-          ;; "biber %b"
-          ;; "makeindex %b"
-          "latexmk -pdflatex='xelatex -interaction -shell-escape nonstopmode ' -shell-escape -pdf -f %f "
-          "latexmk -pdflatex='xelatex -shell-escape -interaction nonstopmode ' -shell-escape -pdf -f %f "))
-
-#+end_src
-
-*** COMMENT Org export backup
-#+begin_src emacs-lisp
-  (defun org-export-backup (BACKEND FILE &rest _args);;(BACKEND FILE &optional ASYNC SUBTREEP VISIBLE-ONLY BODY-ONLY EXT-PLIST POST-PROCESSBACKEND FILE &optional ASYNC SUBTREEP VISIBLE-ONLY BODY-ONLY EXT-PLIST POST-PROCESS)
-    "Create timestamped backup of target file before export."
-      (when (and (file-exists-p FILE)
-  	       (string-suffix-p "tex" FILE))
-        (message "Backing up %s" FILE)
-        (let* (
-  	     (sans-extension (file-name-sans-extension FILE))
-  	    (backup-name (format "%s.%s.bak.pdf"
-  				 sans-extension
-                                  (format-time-string "%Y%m%dT%H%M%S")))
-  	    )
-  	(copy-file (format "%s.pdf" sans-extension) backup-name))))
-  (defun org-export-backup-after (BACKEND FILE &rest _args);;(BACKEND FILE &optional ASYNC SUBTREEP VISIBLE-ONLY BODY-ONLY EXT-PLIST POST-PROCESSBACKEND FILE &optional ASYNC SUBTREEP VISIBLE-ONLY BODY-ONLY EXT-PLIST POST-PROCESS)
-    "Create timestamped backup of target file after export. TODO combine into one function"
-      (when (and (file-exists-p FILE)
-  	       (string-suffix-p "tex" FILE))
-        (message "Backing up %s" FILE)
-        (let* (
-  	     (sans-extension (file-name-sans-extension FILE))
-  	    (backup-name (format "%s_latest.pdf"
-  				 sans-extension))
-  	    )
-  	(copy-file (format "%s.pdf" sans-extension) backup-name))))
-
-  (advice-add 'org-export-to-file :before 'org-export-backup)
-  (advice-add 'org-export-to-file :after 'org-export-backup-after)
-#+end_src
-
-#+RESULTS:
 
 ** Coding
 *** Compile buffers
