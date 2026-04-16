@@ -3007,13 +3007,14 @@ mu4e ships with the =mu= binary but needs to be cloned from GitHub for Emacs. Th
     ;; Use completing-read (works with vertico)
     (setq mu4e-completing-read-function 'completing-read)
 
-    ;; Disable meow normal mode in mu4e buffers so single-key bindings work
-    (dolist (hook '(mu4e-main-mode-hook
-                    mu4e-headers-mode-hook
-                    mu4e-view-mode-hook
-                    mu4e-compose-mode-hook
-                    gnus-article-mode-hook))
-      (add-hook hook #'meow-insert-mode)))
+    ;; Tell meow to use insert state for mu4e buffers so single-key bindings work
+    (with-eval-after-load 'meow
+      (dolist (entry '((mu4e-main-mode . insert)
+                       (mu4e-headers-mode . insert)
+                       (mu4e-view-mode . insert)
+                       (mu4e-compose-mode . insert)
+                       (gnus-article-mode . insert)))
+        (add-to-list 'meow-mode-state-list entry))))
 #+end_src
 
 ** COMMENT Media
