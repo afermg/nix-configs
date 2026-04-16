@@ -12,4 +12,13 @@
   # ".emacs.d/config.org" = {
   #   text = builtins.readFile ../shared/config/emacs/config.org;
   # };
+
+  # Email configuration (mbsync + msmtp)
+  ".mbsyncrc" = {
+    text = builtins.readFile ../shared/config/email/mbsyncrc;
+  };
+  ".msmtprc" = {
+    text = builtins.readFile ../shared/config/email/msmtprc;
+    onChange = "chmod 600 $HOME/.msmtprc";
+  };
 }

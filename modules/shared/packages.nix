@@ -87,6 +87,13 @@ with pkgs;
   # containers
   podman # for container needs
 
+  # email
+  mu # Maildir indexer (ships mu4e for Emacs)
+  isync # IMAP sync (mbsync)
+  msmtp # SMTP client for sending mail
+  rbw # Unofficial Bitwarden CLI with background agent
+  pinentry-curses # PIN/password entry for terminal (needed by rbw over SSH)
+
   # writing
   pandoc # Convert between formats
   hugo # blogging

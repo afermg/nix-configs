@@ -1,0 +1,50 @@
+# === Account: quasimorphic ===
+IMAPAccount quasimorphic
+Host witcher.mxrouting.net
+Port 993
+User alan@quasimorphic.com
+PassCmd "rbw get 'Quasimorphic Email'"
+TLSType IMAPS
+CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+IMAPStore quasimorphic-remote
+Account quasimorphic
+
+MaildirStore quasimorphic-local
+SubFolders Verbatim
+Path ~/.mail/quasimorphic/
+Inbox ~/.mail/quasimorphic/Inbox
+
+Channel quasimorphic
+Far :quasimorphic-remote:
+Near :quasimorphic-local:
+Patterns *
+Create Both
+Expunge Both
+SyncState *
+
+# === Account: broad ===
+IMAPAccount broad
+Host imap.gmail.com
+Port 993
+User amunozgo@broadinstitute.org
+PassCmd "rbw get 'Broad Email App Password'"
+TLSType IMAPS
+CertificateFile /etc/ssl/certs/ca-certificates.crt
+AuthMechs LOGIN
+
+IMAPStore broad-remote
+Account broad
+
+MaildirStore broad-local
+SubFolders Verbatim
+Path ~/.mail/broad/
+Inbox ~/.mail/broad/Inbox
+
+Channel broad
+Far :broad-remote:
+Near :broad-local:
+Patterns * !"[Gmail]/All Mail"
+Create Both
+Expunge Both
+SyncState *

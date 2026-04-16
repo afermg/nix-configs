@@ -2907,21 +2907,113 @@ Deploy a web server to read feed from my phone.
   (use-package elfeed-web)
 #+end_src
 
-** COMMENT Email
+** Email (mu4e)
+Mail client using mu (maildir-utils) as the backend, mbsync (isync) for IMAP sync, and msmtp for sending.
+
+System dependencies (in packages.nix): =mu=, =isync=, =msmtp=.
+
+Run =mbsync -a= to do the initial sync, then =mu init --maildir=~/.mail --my-address=alan@quasimorphic.com --my-address=amunozgo@broadinstitute.org= and =mu index= to build the database.
+
+mu4e ships with the =mu= binary but needs to be cloned from GitHub for Emacs. The =mu4e-config.el= file is normally generated at build time so we create it from the installed =mu= version.
+
 #+begin_src emacs-lisp
-            (use-package notmuch
-              :ensure t
-              :config
-      	(setq sendmail-program "gmi")
-            (setq message-sendmail-extra-arguments '("send" "--quiet" "-t" "-C" "~/.mail/broad.email"))
-    ;; Optional: Don't save outgoing mail locally.
-    (setq notmuch-fcc-dirs nil))
-            ;; (setq message-sendmail-extra-arguments '("send" "--quiet" "-t" "-C" "~/.mail/broad.email"))
-  ;; (add-hook 'message-send-hook (lambda ()
-  ;; 				 (let (from (message-fetch-field "from"))
-  ;; 				   (if (string= from "\"Alán F. Muñoz\" <afer.mg@gmail.com>")
-  ;; 				       (setq message-sendmail-extra-arguments '("send" "--quiet" "-t" "-C" "~/.mail/afer.mail"))
-  ;; 				     (setq message-sendmail-extra-arguments '("send" "--quiet" "-t" "-C" "~/.mail/broad.email"))))))
+  ;; mu4e-config.el is normally generated at build time by meson.
+  ;; We generate it from the installed mu binary and copy it to the build dir.
+  (use-package mu4e
+    :straight (:host github :repo "djcb/mu"
+               :branch "release/1.12"
+               :files ("mu4e/*.el")
+               :pre-build ())
+    :init
+    (let* ((build-dir (straight--build-dir "mu4e"))
+           (config-file (expand-file-name "mu4e-config.el" build-dir)))
+      (unless (file-exists-p config-file)
+        (let ((mu-ver (string-trim (shell-command-to-string "mu --version | grep -oP '\\d+\\.\\d+\\.\\d+'")))
+              (mu-bin (string-trim (shell-command-to-string "which mu"))))
+          (with-temp-file config-file
+            (insert ";;; mu4e-config.el --- auto-generated -*- lexical-binding: t -*-\n"
+                    (format "(defconst mu4e-mu-version \"%s\")\n" mu-ver)
+                    (format "(defconst mu4e-doc-dir \"%s\")\n"
+                            (expand-file-name "../share/doc/mu" (file-name-directory mu-bin)))
+                    "(provide 'mu4e-config)\n")))))
+    :defer 5
+    :bind ("C-c m" . mu4e)
+    :config
+    (setq mu4e-maildir (expand-file-name "~/.mail"))
+    (setq mu4e-get-mail-command "mbsync -a")
+    (setq mu4e-update-interval 300)
+    (setq mu4e-change-filenames-when-moving t)
+    (setq mu4e-confirm-quit nil)
+    (setq mu4e-compose-format-flowed t)
+    (setq mu4e-index-update-in-background t)
+
+    ;; Use msmtp for sending
+    (setq sendmail-program "msmtp")
+    (setq send-mail-function 'sendmail-send-it)
+    (setq message-sendmail-f-is-evil t)
+    (setq message-sendmail-extra-arguments '("--read-envelope-from"))
+    (setq message-send-mail-function 'message-send-mail-with-sendmail)
+
+    ;; Save sent messages to the Sent folder
+    (setq mu4e-sent-messages-behavior 'sent)
+
+    ;; Multiple account contexts
+    (setq mu4e-contexts
+          (list
+           (make-mu4e-context
+            :name "quasimorphic"
+            :match-func (lambda (msg)
+                          (when msg
+                            (string-prefix-p "/quasimorphic" (mu4e-message-field msg :maildir))))
+            :vars '((user-mail-address  . "alan@quasimorphic.com")
+                    (user-full-name     . "Alán F. Muñoz")
+                    (mu4e-sent-folder   . "/quasimorphic/Sent")
+                    (mu4e-drafts-folder . "/quasimorphic/Drafts")
+                    (mu4e-trash-folder  . "/quasimorphic/Trash")
+                    (mu4e-refile-folder . "/quasimorphic/Inbox")))
+           (make-mu4e-context
+            :name "broad"
+            :match-func (lambda (msg)
+                          (when msg
+                            (string-prefix-p "/broad" (mu4e-message-field msg :maildir))))
+            :vars '((user-mail-address  . "amunozgo@broadinstitute.org")
+                    (user-full-name     . "Alán F. Muñoz")
+                    (mu4e-sent-folder   . "/broad/[Gmail]/Sent Mail")
+                    (mu4e-drafts-folder . "/broad/[Gmail]/Drafts")
+                    (mu4e-trash-folder  . "/broad/[Gmail]/Trash")
+                    (mu4e-refile-folder . "/broad/Inbox")))))
+    (setq mu4e-context-policy 'pick-first)
+    (setq mu4e-compose-context-policy 'ask-if-none)
+
+    ;; Maildir shortcuts across both accounts
+    (setq mu4e-maildir-shortcuts
+          '((:maildir "/quasimorphic/Inbox"  :key ?i)
+            (:maildir "/quasimorphic/Sent"   :key ?s)
+            (:maildir "/broad/Inbox"         :key ?b)
+            (:maildir "/broad/[Gmail]/Sent Mail" :key ?B)))
+
+    ;; Bookmarks
+    (setq mu4e-bookmarks
+          '((:name "Unread" :query "flag:unread AND NOT flag:trashed" :key ?u)
+            (:name "Today"  :query "date:today..now" :key ?t)
+            (:name "Week"   :query "date:7d..now" :key ?w)))
+
+    ;; Show images inline
+    (setq mu4e-view-show-images t)
+
+    ;; Prefer plain text over HTML
+    (setq mu4e-view-prefer-html nil)
+
+    ;; Use completing-read (works with vertico)
+    (setq mu4e-completing-read-function 'completing-read)
+
+    ;; Disable meow normal mode in mu4e buffers so single-key bindings work
+    (dolist (hook '(mu4e-main-mode-hook
+                    mu4e-headers-mode-hook
+                    mu4e-view-mode-hook
+                    mu4e-compose-mode-hook
+                    gnus-article-mode-hook))
+      (add-hook hook #'meow-insert-mode)))
 #+end_src
 
 ** COMMENT Media
