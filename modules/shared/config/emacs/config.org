@@ -1154,18 +1154,12 @@ Initialize org-agenda file and set some key bindings to create tasks.
       (interactive)
       (my-org-insert-subheading "TODO"))
 
-    (defun my-org-insert-project ()
-      "Inserts a new PROJECT heading with unique ID and creation date."
-      (interactive)
-      (my-org-insert-subheading "PROJECT"))
-
     (define-prefix-command 'my-org-todo-prefix)
 
     (global-set-key (kbd "C-c c") 'org-capture)
     (global-set-key (kbd "C-c t") 'my-org-todo-prefix)
 
     (define-key 'my-org-todo-prefix (kbd "t") 'my-org-insert-todo)
-    (define-key 'my-org-todo-prefix (kbd "p") 'my-org-insert-project)
 
     (define-key org-mode-map (kbd "C-c l") 'embark-org-copy-link-target)
 #+END_SRC
@@ -1187,6 +1181,7 @@ Set various types and colors for ~org-mode~.
                "|" "DONE(d@)" "CANCELED(x@)")
      (sequence "PROJECT(p)" "|" "DONE(d@)" "CANCELED(x@)")
      (sequence "APPT(a)" "|" "DONE(d@)" "CANCELED(x@)")))
+  ;; (setq org-use-fast-todo-selection t)
 #+end_src
 
 *** Fixed pitch in code blocks
