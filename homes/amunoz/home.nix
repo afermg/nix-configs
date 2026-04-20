@@ -115,6 +115,7 @@ in
 
   imports = [
     ../../modules/shared/config/opencode/opencode.nix
+    ../../modules/shared/config/email/rbw.nix
     inputs.agenix.homeManagerModules.default
   ];
 
