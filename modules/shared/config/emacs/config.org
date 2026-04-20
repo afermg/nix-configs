@@ -2937,6 +2937,46 @@ mu4e ships with the =mu= binary but needs to be cloned from GitHub for Emacs. Th
     (setq mu4e-maildir (expand-file-name "~/.mail"))
     (setq mu4e-get-mail-command "mbsync -a")
     (setq mu4e-update-interval 300)
+
+    ;; Ensure rbw vault is unlocked before syncing mail.
+    ;; When locked, pop up a term buffer for the user to type the master
+    ;; password via pinentry-tty.  The buffer auto-kills on success and
+    ;; triggers a fresh mail sync via the process sentinel.
+    (defun mu4e--rbw-unlock-popup ()
+      "Pop up a terminal running `rbw unlock' and sync mail when done."
+      (let ((buf (get-buffer-create "*rbw-unlock*")))
+        (with-current-buffer buf
+          (let ((inhibit-read-only t)) (erase-buffer))
+          (term-mode)
+          (term-exec buf "rbw-unlock" "rbw" nil '("unlock"))
+          (term-char-mode)
+          (set-process-sentinel
+           (get-buffer-process buf)
+           (lambda (proc _event)
+             (when (memq (process-status proc) '(exit signal))
+               (let ((success (zerop (process-exit-status proc))))
+                 (when-let ((b (process-buffer proc)))
+                   (when (buffer-live-p b)
+                     (when-let ((w (get-buffer-window b t)))
+                       (delete-window w))
+                     (kill-buffer b)))
+                 (if success
+                     (progn
+                       (message "rbw unlocked — syncing mail...")
+                       (mu4e-update-mail-and-index t))
+                   (message "rbw unlock failed — mail sync skipped")))))))
+        (display-buffer buf
+                        '((display-buffer-at-bottom)
+                          (window-height . 10)))
+        (select-window (get-buffer-window buf t))
+        (when (bound-and-true-p meow-mode) (meow-insert-mode))))
+
+    (defun mu4e--check-rbw-before-update (orig-fn &rest args)
+      "If rbw is locked, show unlock popup instead of syncing."
+      (if (zerop (call-process "rbw" nil nil nil "unlocked"))
+          (apply orig-fn args)
+        (mu4e--rbw-unlock-popup)))
+    (advice-add 'mu4e-update-mail-and-index :around #'mu4e--check-rbw-before-update)
     (setq mu4e-change-filenames-when-moving t)
     (setq mu4e-confirm-quit nil)
     (setq mu4e-compose-format-flowed t)
