@@ -2991,8 +2991,8 @@ mu4e ships with the =mu= binary but needs to be cloned from GitHub for Emacs. Th
     ;; Bookmarks
     (setq mu4e-bookmarks
           '((:name "Unread" :query "flag:unread AND (maildir:/quasimorphic/Inbox OR maildir:/broad/Inbox)" :key ?u)
-            (:name "Today"  :query "date:today..now" :key ?t)
-            (:name "Week"   :query "date:7d..now" :key ?w)))
+            (:name "Today"  :query "date:today..now  AND (maildir:/quasimorphic/Inbox OR maildir:/broad/Inbox)" :key ?t)
+            (:name "Week"   :query "date:7d..now  AND (maildir:/quasimorphic/Inbox OR maildir:/broad/Inbox)" :key ?w)))
 
     ;; Show images inline
     (setq mu4e-view-show-images t)
