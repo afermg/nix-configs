@@ -2938,45 +2938,6 @@ mu4e ships with the =mu= binary but needs to be cloned from GitHub for Emacs. Th
     (setq mu4e-get-mail-command "mbsync -a")
     (setq mu4e-update-interval 300)
 
-    ;; Ensure rbw vault is unlocked before syncing mail.
-    ;; When locked, pop up a term buffer for the user to type the master
-    ;; password via pinentry-tty.  The buffer auto-kills on success and
-    ;; triggers a fresh mail sync via the process sentinel.
-    (defun mu4e--rbw-unlock-popup ()
-      "Pop up a terminal running `rbw unlock' and sync mail when done."
-      (let ((buf (get-buffer-create "*rbw-unlock*")))
-        (with-current-buffer buf
-          (let ((inhibit-read-only t)) (erase-buffer))
-          (term-mode)
-          (term-exec buf "rbw-unlock" "rbw" nil '("unlock"))
-          (term-char-mode)
-          (set-process-sentinel
-           (get-buffer-process buf)
-           (lambda (proc _event)
-             (when (memq (process-status proc) '(exit signal))
-               (let ((success (zerop (process-exit-status proc))))
-                 (when-let ((b (process-buffer proc)))
-                   (when (buffer-live-p b)
-                     (when-let ((w (get-buffer-window b t)))
-                       (delete-window w))
-                     (kill-buffer b)))
-                 (if success
-                     (progn
-                       (message "rbw unlocked — syncing mail...")
-                       (mu4e-update-mail-and-index t))
-                   (message "rbw unlock failed — mail sync skipped")))))))
-        (display-buffer buf
-                        '((display-buffer-at-bottom)
-                          (window-height . 10)))
-        (select-window (get-buffer-window buf t))
-        (when (bound-and-true-p meow-mode) (meow-insert-mode))))
-
-    (defun mu4e--check-rbw-before-update (orig-fn &rest args)
-      "If rbw is locked, show unlock popup instead of syncing."
-      (if (zerop (call-process "rbw" nil nil nil "unlocked"))
-          (apply orig-fn args)
-        (mu4e--rbw-unlock-popup)))
-    (advice-add 'mu4e-update-mail-and-index :around #'mu4e--check-rbw-before-update)
     (setq mu4e-change-filenames-when-moving t)
     (setq mu4e-confirm-quit nil)
     (setq mu4e-compose-format-flowed t)
@@ -3029,7 +2990,7 @@ mu4e ships with the =mu= binary but needs to be cloned from GitHub for Emacs. Th
 
     ;; Bookmarks
     (setq mu4e-bookmarks
-          '((:name "Unread" :query "flag:unread AND NOT flag:trashed" :key ?u)
+          '((:name "Unread" :query "flag:unread AND (maildir:/quasimorphic/Inbox OR maildir:/broad/Inbox)" :key ?u)
             (:name "Today"  :query "date:today..now" :key ?t)
             (:name "Week"   :query "date:7d..now" :key ?w)))
 
@@ -3041,6 +3002,62 @@ mu4e ships with the =mu= binary but needs to be cloned from GitHub for Emacs. Th
 
     ;; Use completing-read (works with vertico)
     (setq mu4e-completing-read-function 'completing-read)
+
+    ;; rbw session management — Emacs enforces an 8-hour hard timeout
+    ;; because rbw's own lock_timeout resets on every `rbw get` call.
+    (defvar mu4e--rbw-unlock-time nil)
+
+    (defun mu4e--rbw-locked-p ()
+      "Return t if rbw is locked or the 8-hour session has expired."
+      (when (and mu4e--rbw-unlock-time
+                 (> (float-time (time-subtract nil mu4e--rbw-unlock-time))
+                    (* 8 60 60)))
+        (call-process "rbw" nil nil nil "lock")
+        (setq mu4e--rbw-unlock-time nil))
+      (not (zerop (call-process "rbw" nil nil nil "unlocked"))))
+
+    (defun mu4e-rbw-unlock ()
+      "Pop up a terminal to unlock rbw, then open mu4e."
+      (interactive)
+      (let ((buf (get-buffer-create "*rbw-unlock*")))
+        (with-current-buffer buf
+          (let ((inhibit-read-only t)) (erase-buffer))
+          (term-mode)
+          (term-exec buf "rbw-unlock" "rbw" nil '("unlock"))
+          (term-char-mode)
+          (set-process-sentinel
+           (get-buffer-process buf)
+           (lambda (proc _event)
+             (when (memq (process-status proc) '(exit signal))
+               (when-let ((b (process-buffer proc)))
+                 (when (buffer-live-p b)
+                   (when-let ((w (get-buffer-window b t)))
+                     (delete-window w))
+                   (kill-buffer b)))
+               (if (zerop (call-process "rbw" nil nil nil "unlocked"))
+                   (progn
+                     (setq mu4e--rbw-unlock-time (current-time))
+                     (mu4e))
+                 (message "rbw unlock failed"))))))
+        (display-buffer buf '((display-buffer-at-bottom) (window-height . 3)))
+        (select-window (get-buffer-window buf t))
+        (when (bound-and-true-p meow-mode) (meow-insert-mode))))
+
+    ;; Background syncs silently skip when locked
+    (advice-add 'mu4e-update-mail-and-index :around
+      (lambda (orig-fn &rest args)
+        (if (mu4e--rbw-locked-p)
+            (message "rbw is locked — M-x mu4e-rbw-unlock to resume")
+          (unless mu4e--rbw-unlock-time
+            (setq mu4e--rbw-unlock-time (current-time)))
+          (apply orig-fn args))))
+
+    ;; Opening mu4e when locked → unlock first
+    (advice-add 'mu4e :around
+      (lambda (orig-fn &rest args)
+        (if (mu4e--rbw-locked-p)
+            (mu4e-rbw-unlock)
+          (apply orig-fn args))))
 
     ;; Tell meow to use insert state for mu4e buffers so single-key bindings work
     (with-eval-after-load 'meow
