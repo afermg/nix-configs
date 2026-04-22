@@ -2964,8 +2964,8 @@ mu4e ships with the =mu= binary but needs to be cloned from GitHub for Emacs. Th
             :vars '((user-mail-address  . "alan@quasimorphic.com")
                     (user-full-name     . "Alán F. Muñoz")
                     (mu4e-sent-folder   . "/quasimorphic/Sent")
-                    (mu4e-drafts-folder . "/quasimorphic/Drafts")
-                    (mu4e-trash-folder  . "/quasimorphic/Trash")
+                    ;; (mu4e-drafts-folder . "/quasimorphic/Drafts") ;; TODO Fix, this doesn't work as of <2026-04-22 Wed>
+                    (mu4e-trash-folder  . "/quasimorphic/Trash") ;
                     (mu4e-refile-folder . "/quasimorphic/Inbox")))
            (make-mu4e-context
             :name "broad"
@@ -2975,7 +2975,7 @@ mu4e ships with the =mu= binary but needs to be cloned from GitHub for Emacs. Th
             :vars '((user-mail-address  . "amunozgo@broadinstitute.org")
                     (user-full-name     . "Alán F. Muñoz")
                     (mu4e-sent-folder   . "/broad/[Gmail]/Sent Mail")
-                    (mu4e-drafts-folder . "/broad/[Gmail]/Drafts")
+                    ;; (mu4e-drafts-folder . "/broad/[Gmail]/Drafts") ;; TODO Fix, this doesn't work as of <2026-04-22 Wed>
                     (mu4e-trash-folder  . "/broad/[Gmail]/Trash")
                     (mu4e-refile-folder . "/broad/Inbox")))))
     (setq mu4e-context-policy 'pick-first)
@@ -2985,14 +2985,17 @@ mu4e ships with the =mu= binary but needs to be cloned from GitHub for Emacs. Th
     (setq mu4e-maildir-shortcuts
           '((:maildir "/quasimorphic/Inbox"  :key ?i)
             (:maildir "/quasimorphic/Sent"   :key ?s)
+            (:maildir "/quasimorphic/Drafts" :key ?d)
             (:maildir "/broad/Inbox"         :key ?b)
-            (:maildir "/broad/[Gmail]/Sent Mail" :key ?B)))
+            (:maildir "/broad/[Gmail]/Sent Mail" :key ?B)
+            (:maildir "/broad/[Gmail]/Drafts" :key ?D)))
 
     ;; Bookmarks
     (setq mu4e-bookmarks
           '((:name "Unread" :query "flag:unread AND (maildir:/quasimorphic/Inbox OR maildir:/broad/Inbox)" :key ?u)
             (:name "Today"  :query "date:today..now  AND (maildir:/quasimorphic/Inbox OR maildir:/broad/Inbox)" :key ?t)
-            (:name "Week"   :query "date:7d..now  AND (maildir:/quasimorphic/Inbox OR maildir:/broad/Inbox)" :key ?w)))
+            (:name "Week"   :query "date:7d..now  AND (maildir:/quasimorphic/Inbox OR maildir:/broad/Inbox)" :key ?w)
+            (:name "Drafts" :query "maildir:/quasimorphic/Drafts OR maildir:/broad/[Gmail]/Drafts" :key ?d)))
 
     ;; Show images inline
     (setq mu4e-view-show-images t)
