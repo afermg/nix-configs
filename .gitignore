@@ -1,0 +1,29 @@
+/.agent-shell/
+/.claude/
+
+# Nix build outputs
+result
+**/result
+
+# Tangled from config.org; regenerated on each build
+modules/shared/config/emacs/config.el
+
+# LaTeX artifacts from org-mode / beamer export
+modules/shared/config/emacs/*.aux
+modules/shared/config/emacs/*.fdb_latexmk
+modules/shared/config/emacs/*.fls
+modules/shared/config/emacs/*.log
+modules/shared/config/emacs/*.out
+modules/shared/config/emacs/*.tex
+modules/shared/config/emacs/*.vrb
+modules/shared/config/emacs/*.rej
+modules/shared/config/emacs/xelatex*.fls
+
+# Local nixpkgs checkout used for eval convenience
+/nixpkgs
+
+# VM / firmware test artefacts
+*-efi-vars.fd
+
+# Scratch
+tmp*.txt
