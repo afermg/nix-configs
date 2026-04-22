@@ -16,6 +16,7 @@ in
     overlays = [
       outputs.overlays.emacs
       outputs.overlays.stable
+      outputs.overlays.claude-code
     ];
   };
 
