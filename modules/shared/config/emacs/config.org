@@ -3649,6 +3649,7 @@ nethack, asdf).
 #+begin_src emacs-lisp
   (use-package breadcrumb
     :ensure t
+    :hook (after-init . breadcrumb-mode))
 #+end_src
 
 **** ace-window
