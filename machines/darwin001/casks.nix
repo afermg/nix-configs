@@ -7,7 +7,7 @@ _: [
   # "zoom" # this is managed by the admin :(
 
   # Utility Tools
-  "syncthing-app"
+  # "syncthing-app"
   "inkscape"
 
   # Entertainment Tools
