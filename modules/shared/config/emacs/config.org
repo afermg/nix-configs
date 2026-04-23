@@ -154,20 +154,7 @@ I needed this for it to work on Linux-Linux connections. [[https://www.rahuljuli
 #+end_src
 
 *** Navigation and editing
-**** COMMENT Undo-tree
-# Deactivated because it slows down org-mode saving quite a lot
-Undo tree for better undo visualisation.
-#+BEGIN_SRC emacs-lisp
-  (use-package undo-tree
-    :ensure t
-    :init
-    (global-undo-tree-mode)
-    :config
-    ;; Save undo history to a dedicated directory to avoid cluttering working directories
-    (setq undo-tree-history-directory-alist '(("." . "~/.local/state/emacs/undo"))))
-#+END_SRC
-
-**** Meow modal editing 
+**** Meow modal editing
 
 #+begin_src emacs-lisp
   (use-package meow
@@ -524,19 +511,6 @@ Repeatedly pressing =SPC >= is tedious. A Hydra allows you to enter a "mode" for
   :bind-keymap ("M-'" . surround-keymap))
 #+end_src
 
-**** COMMENT RE builder
-#+begin_src emacs-lisp
-  (use-package re-builder
-    :defer t)
-
-  (use-package casual-re-builder
-    :straight (:host github :repo "kickingvegas/casual-re-builder")
-    :bind (:map
-           reb-mode-map ("C-o" . casual-re-builder-tmenu)
-           :map
-           reb-lisp-mode-map ("C-o" . casual-re-builder-tmenu))
-    :after (re-builder))
-#+end_src
 **** Avy
 To snipe things on the screen
 #+begin_src emacs-lisp
@@ -3627,7 +3601,9 @@ nethack, asdf).
   (use-package diff-hl
     :hook ((prog-mode . diff-hl-mode)
            (magit-pre-refresh . diff-hl-magit-pre-refresh)
-           (magit-post-refresh . diff-hl-magit-post-refresh)))
+           (magit-post-refresh . diff-hl-magit-post-refresh))
+    :config
+    (global-diff-hl-mode 1))
 #+end_src
 
 
@@ -3742,3 +3718,7 @@ OS-native input method switching.
   override-mode added more surface area than I used; when something broke it
   was always at the dirvish layer. Kept the navigation bindings (ijkl) and
   listing switches on dired itself.
+- undo-tree: Slowed org-mode saves and I stopped reaching for the tree
+  visualiser; Emacs's built-in undo has been enough.
+- re-builder (and casual-re-builder): Haven't opened the regex sandbox in
+  a while
