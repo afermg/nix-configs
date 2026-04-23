@@ -2820,6 +2820,21 @@ Makes my lisp parens pretty, and easy to spot.
     :hook (prog-mode . rainbow-delimiters-mode))
 #+END_SRC
 
+**** Lisp environments
+***** geiser
+Scheme interaction.
+#+begin_src emacs-lisp
+  (use-package geiser
+    :defer t)
+#+end_src
+
+***** slime
+Common Lisp environment.
+#+begin_src emacs-lisp
+  (use-package slime
+    :defer t)
+#+end_src
+
 *** Indent parent
 Indentation
 #+begin_src emacs-lisp
@@ -3817,21 +3832,6 @@ Handle very large files via chunked loading.
 OS-native input method switching.
 #+begin_src emacs-lisp
   (use-package sis
-    :defer t)
-#+end_src
-
-*** Lisp environments
-**** geiser
-Scheme interaction.
-#+begin_src emacs-lisp
-  (use-package geiser
-    :defer t)
-#+end_src
-
-**** slime
-Common Lisp environment.
-#+begin_src emacs-lisp
-  (use-package slime
     :defer t)
 #+end_src
 
