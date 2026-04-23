@@ -1066,74 +1066,97 @@ Completion
 #+end_src
 
 ** Aesthetics
-*** Show time on fullscreen
-I usually use Emacs on fullscreen, which prevents me from using the host's computer clock.
-#+begin_src emacs-lisp
-  (defun bram85-show-time-for-fullscreen (frame)
-    "Show the time in the modeline when the FRAME becomes full screen."
-    (let ((fullscreen (frame-parameter frame 'fullscreen)))
-      (if (memq fullscreen '(fullscreen fullboth))
-          (display-time-mode 1)
-        (display-time-mode -1))))
-
-  (add-hook 'window-size-change-functions #'bram85-show-time-for-fullscreen)
-#+end_src
-
 *** Modeline
 Using [[https://github.com/eki3z/mini-echo.el][mini-echo]] — renders the modeline inside the echo area instead of per-window, freeing a line per window.
 #+begin_src emacs-lisp
   (use-package mini-echo
     :straight (mini-echo :type git :host github :repo "eki3z/mini-echo.el")
     :config
-    ;; `remote-host' only fires for TRAMP buffers; define a local-hostname
-    ;; segment so the machine name is always surfaced.
+    ;; Custom segments.
+    ;; `remote-host' only fires for TRAMP buffers, so add a local one.
     (mini-echo-define-segment "hostname"
-      "Return the short hostname of the local machine."
+      "Short hostname of the local machine."
       :fetch
       (mini-echo-segment--print
        (car (split-string (system-name) "\\."))
        'mini-echo-remote-host))
+    ;; Stock vcs uses dynamic vc-*-state faces; pin to one face instead.
+    (mini-echo-define-segment "vcs"
+      "vcs info in a dedicated face."
+      :fetch
+      (when (bound-and-true-p vc-mode)
+        (mini-echo-segment--print
+         (mini-echo-segment--extract vc-mode)
+         'font-lock-keyword-face
+         mini-echo-vcs-max-length)))
+    ;; One-char meow state indicator, a distinct face per state.
+    (mini-echo-define-segment "meow"
+      "Single-character meow state indicator."
+      :fetch
+      (when (bound-and-true-p meow-mode)
+        (pcase (and (boundp 'meow--current-state) meow--current-state)
+          ('normal (mini-echo-segment--print "N" 'font-lock-builtin-face))
+          ('insert (mini-echo-segment--print "I" 'success))
+          ('motion (mini-echo-segment--print "M" 'font-lock-comment-face))
+          ('keypad (mini-echo-segment--print "K" 'mode-line-emphasis))
+          ('beacon (mini-echo-segment--print "B" 'error))
+          (_       (mini-echo-segment--print "?" 'shadow)))))
 
-    ;; Always surface hostname and git branch regardless of echo-area width.
+    ;; Rule is reversed at render time — first element shows rightmost.
+    ;; Shrink-path omitted: breadcrumb already shows the full path up top.
+    ;; `flymake' is listed unconditionally — its :fetch returns nil when
+    ;; `flymake-mode' is off, so it only renders in buffers that have it
+    ;; on (typically prog-mode buffers, auto-enabled by eglot).
+    ;; `:both' is a mini-echo shorthand: use the same list regardless of
+    ;; `mini-echo-short-style-predicate' so we only write it once.
     (setq mini-echo-persistent-rule
-          '(:long  ("major-mode" "shrink-path" "vcs" "buffer-position"
-                    "buffer-size" "hostname" "flymake")
-            :short ("buffer-name" "buffer-position" "flymake"
-                    "vcs" "hostname")))
+          '(:both ("flymake" "project" "hostname" "buffer-size"
+                   "buffer-name" "vcs" "major-mode" "buffer-position" "meow")))
 
-    ;; Some major modes (magit, dired, ibuffer, …) get their own hard-coded
-    ;; rule from `mini-echo-persistent-detect', which bypasses the rule
-    ;; above. Append hostname and vcs to whatever it returns so they're
-    ;; never dropped.
+    ;; Right-aligned, capped at one line. A small right-padding keeps the
+    ;; trailing segment off the fringe — flush-right (padding 0) caused
+    ;; the final character to be clipped on some frames.
+    (setq resize-mini-windows 'grow-only
+          max-mini-window-height 1
+          mini-echo-right-padding 2)
+
+    ;; Magit/dired/ibuffer/etc. get a hard-coded rule from
+    ;; `mini-echo-persistent-detect' that would otherwise drop hostname
+    ;; and vcs. Prepend them so they stay visible on the right.
     (define-advice mini-echo-persistent-detect
         (:filter-return (rule) afm/always-hostname+vcs)
       (when rule
         (let ((extra '("hostname" "vcs")))
           (cl-loop for (key val) on rule by #'cddr
                    append (list key
-                                (append val
-                                        (seq-difference extra val)))))))
+                                (append (seq-difference extra val) val))))))
 
-    ;; Make mini-echo's own faces follow the active theme instead of its
-    ;; hard-coded palette.
-    (dolist (spec '((mini-echo-buffer-size     . shadow)
-                    (mini-echo-buffer-position . mode-line-emphasis)
-                    (mini-echo-project         . font-lock-type-face)
-                    (mini-echo-major-mode      . font-lock-keyword-face)
-                    (mini-echo-remote-host     . font-lock-constant-face)
-                    (mini-echo-selection-info  . font-lock-string-face)
-                    (mini-echo-macro           . font-lock-warning-face)
-                    (mini-echo-narrow          . font-lock-warning-face)
-                    (mini-echo-repeat          . font-lock-warning-face)
-                    (mini-echo-blame           . shadow)
-                    (mini-echo-time            . shadow)
-                    (mini-echo-word-count      . shadow)))
+    ;; Theme-follow palette for the non-custom segments.
+    (dolist (spec '((mini-echo-buffer-position . font-lock-variable-name-face)
+                    (mini-echo-major-mode      . font-lock-type-face)
+                    (mini-echo-buffer-size     . shadow)
+                    (mini-echo-remote-host     . font-lock-constant-face)))
       (let ((face (car spec)) (inherit (cdr spec)))
         (when (facep face)
           (set-face-attribute face nil
                               :foreground 'unspecified
                               :background 'unspecified
                               :inherit inherit))))
+
+    ;; Subtle background tint for the minibuffer, but keep the text at
+    ;; the theme's main foreground (white on dark, dark on light) so
+    ;; mini-echo content stays high-contrast. Inheriting wholesale from
+    ;; `mode-line-inactive' makes the text dim grey; inherit only the
+    ;; background by resolving the two faces' attributes at theme load.
+    (defun afm/mini-echo-refresh-minibuf-face ()
+      (set-face-attribute 'mini-echo-minibuffer-window nil
+                          :foreground (face-attribute 'default :foreground)
+                          :background (face-attribute 'mode-line-inactive
+                                                      :background)
+                          :inherit 'unspecified))
+    (afm/mini-echo-refresh-minibuf-face)
+    (add-hook 'enable-theme-functions
+              (lambda (_) (afm/mini-echo-refresh-minibuf-face)))
 
     (mini-echo-mode 1))
 #+end_src
@@ -1206,7 +1229,7 @@ Previous approach: hand-rolled =mode-line-format= instead of doom-modeline. Orde
 *** Modus theme
 These come with emacs since v28, and I really like them.
 #+begin_src emacs-lisp
-  (load-theme 'modus-vivendi-tritanopia)
+  (load-theme 'modus-vivendi)
 #+end_src
 
 ** Org mode
@@ -3727,9 +3750,9 @@ Handle very large files via chunked loading.
   pandoc. Stopped reaching for it; running pandoc from the shell covers
   the rare case.
 - ef-themes: Color theme collection offering variations beyond modus/doom.
-  Tried from the lobste.rs list; stuck with modus-vivendi-tritanopia.
+  Tried from the lobste.rs list; stuck with modus-vivendi.
 - doric-themes: Minimal theme collection with a reduced palette. Tried
-  from the lobste.rs list; stuck with modus-vivendi-tritanopia.
+  from the lobste.rs list; stuck with modus-vivendi.
 - ready-player: Dired enhancement that previews media files (audio/video)
   inline from the dired buffer. Tried from the lobste.rs list; never
   reached for it.
