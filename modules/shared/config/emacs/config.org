@@ -2537,6 +2537,16 @@ Very useful for interactive parsing
     ;;       (", g g" . 'magit-status))
     
     :config
+    ;; Reinstate `p m` / "m Magit" in `project-switch-project'. Magit's own
+    ;; wiring lives in magit-extras and is NOT autoloaded, so it never runs
+    ;; unless something explicitly loads magit-extras. It also silently skips
+    ;; injection if `project-switch-commands' has been modified at all. Do it
+    ;; ourselves so it's robust to both.
+    (with-eval-after-load 'project
+      (keymap-set project-prefix-map "m" #'magit-project-status)
+      (add-to-list 'project-switch-commands
+                   '(magit-project-status "Magit") t))
+
     (dir-locals-set-class-variables
      'huge-git-repository
      '((nil
@@ -3750,7 +3760,7 @@ nethack, asdf).
                 ("<backtab>" . dired-subtree-cycle)))
 #+end_src
 
-**** ready-player
+**** COMMENT ready-player
 #+begin_src emacs-lisp
   (use-package ready-player
     :config
