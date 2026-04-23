@@ -3233,6 +3233,16 @@ Simple but working gptel+magit integration. Replaced gptcommit-mode
     )
 #+end_src
 
+*** COMMENT Efrit
+Efrit is Steve Yegge's self-hosting Elisp-native AI coding agent. It requires API token, not claude Max plan, so it's deactivated.
+#+begin_src emacs-lisp
+  (use-package efrit
+    :straight (:host github :repo "steveyegge/efrit"
+               :files ("lisp/efrit.el" "lisp/core/*.el" "lisp/interfaces/*.el" "lisp/support/*.el" "lisp/tools/*.el"))
+    :config
+    (setq efrit-api-key (lambda () (get-string-from-file "~/.claude_token"))))
+#+end_src
+
 *** COMMENT Speech-to-text (whisper-cpp)
 I use whisper to record notes to text. Its use-case is limited but worth a test. It is also an example on how I can integrate AI models into my workflow.
 #+begin_src emacs-lisp 
