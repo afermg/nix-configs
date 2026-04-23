@@ -405,7 +405,7 @@ Undo tree for better undo visualisation.
         '(";hp" . dl/load-buffer-with-emacs-config)
         '(";ot" . toggle-vterm-window)
         '(";oT" . +vterm/here)
-        '(";ox" . afermg/toggle-scratch-buffer)
+        '(";ox" . afm/toggle-scratch-buffer)
         '(";lf" . dl/xref-find-references-other-window)
         '(";lc" . dl/xref-find-implementation-other-window)
         '(";ls" . consult-imenu) ;; Eglot uses standard imenu
@@ -674,14 +674,14 @@ Various helpers and packages I find useful for window management.
 *** Buffers
 #+NAME: next-buffer
 #+BEGIN_SRC emacs-lisp
-  (defun afermg/kill-this-buffer ()
+  (defun afm/kill-this-buffer ()
     (interactive)
     ;; kill-buffer does not always work
     (kill-buffer (current-buffer))
     )
   
   (global-set-key (kbd "<C-tab>") 'next-buffer)
-  (global-set-key (kbd "C-x k") 'afermg/kill-this-buffer)
+  (global-set-key (kbd "C-x k") 'afm/kill-this-buffer)
   (global-set-key (kbd "C-x K") 'kill-buffer)
 #+END_SRC
 
@@ -1298,7 +1298,7 @@ My life in plain text.
         (insert " ")
         (org-time-stamp nil)))
 
-  (defun afermg/toggle-window-bottom (buffer-name fn-create-buffer)
+  (defun afm/toggle-window-bottom (buffer-name fn-create-buffer)
     (let ((buffer-window (get-buffer-window buffer-name)))
       (if buffer-window
           (delete-window buffer-window)
@@ -1307,7 +1307,7 @@ My life in plain text.
                        '((display-buffer-at-bottom)
   		       (window-height . 0.4))))))
 
-    (defun afermg/toggle-scratch-buffer ()
+    (defun afm/toggle-scratch-buffer ()
       (interactive)
       (toggle-window-bottom "*scratch*" 'get-scratch-buffer-create))
 
