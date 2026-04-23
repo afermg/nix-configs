@@ -563,28 +563,6 @@ To snipe things on the screen
   (setq avy-timeout-seconds 0.3))
 #+end_src
 
-***** Rotate windows
-Various helpers and packages I find useful for window management.
-
-#+BEGIN_SRC emacs-lisp
-  ;; Rotates windows and layouts
-  (use-package rotate)
-#+END_SRC
-
-***** Buffers
-#+NAME: next-buffer
-#+BEGIN_SRC emacs-lisp
-  (defun kill-current-buffer ()
-    (interactive)
-    ;; kill-buffer does not always work
-    (kill-buffer (current-buffer))
-    )
-  
-  (global-set-key (kbd "<C-tab>") 'next-buffer)
-  (global-set-key (kbd "C-x k") 'kill-current-buffer)
-  (global-set-key (kbd "C-x K") 'kill-buffer)
-#+END_SRC
-
 ** Conveniences
 #+begin_src emacs-lisp
   (defun copy-and-comment-region (beg end &optional arg)
@@ -662,6 +640,50 @@ Useful to read credentials risk of committing to repo.
       (insert-file-contents filePath)
       (buffer-string)))
 #+end_src
+
+*** Directories/popping
+#+begin_src emacs-lisp
+  (defadvice pop-to-mark-command (around ensure-new-position activate)
+    "When popping the mark, continue popping until the cursor actually does move.
+   Also, if the last command was a copy - skip past all the expand-region cruft."
+    (let ((p (point)))
+      (when (eq last-command 'save-region-or-current-line)
+        ad-do-it
+        ad-do-it
+        ad-do-it)
+      (dotimes (i 10)
+        (when (= p (point)) ad-do-it))))
+  ;; http://iqbalansari.github.io/blog/2014/12/07/automatically-create-parent-directories-on-visiting-a-new-file-in-emacs/
+  (defun my-create-non-existent-directory ()
+    "Offer to create parent directories if they do not exist."
+    (let ((parent-directory (file-name-directory buffer-file-name)))
+      (when (and (not (file-exists-p parent-directory))
+                 (y-or-n-p (format "Directory `%s' does not exist! Create it? " parent-directory)))
+        (make-directory parent-directory t))))
+
+  (add-to-list 'find-file-not-found-functions 'my-create-non-existent-directory)
+#+end_src
+*** Rotate windows
+Various helpers and packages I find useful for window management.
+
+#+BEGIN_SRC emacs-lisp
+  ;; Rotates windows and layouts
+  (use-package rotate)
+#+END_SRC
+
+*** Buffers
+#+NAME: next-buffer
+#+BEGIN_SRC emacs-lisp
+  (defun afermg/kill-this-buffer ()
+    (interactive)
+    ;; kill-buffer does not always work
+    (kill-buffer (current-buffer))
+    )
+  
+  (global-set-key (kbd "<C-tab>") 'next-buffer)
+  (global-set-key (kbd "C-x k") 'afermg/kill-this-buffer)
+  (global-set-key (kbd "C-x K") 'kill-buffer)
+#+END_SRC
 
 ** Completion
 *** Vertico
