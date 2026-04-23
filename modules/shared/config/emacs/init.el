@@ -98,22 +98,101 @@
 ;; Straight.el Setup
 ;; -------------------------
 (setq straight-repository-branch "develop")
+;; Offline resilience: only scan for recipe/source changes on save, not at
+;; startup. Keeps startup fast and avoids any code paths that might touch
+;; the network when packages are already built.
+(setq straight-check-for-modifications '(check-on-save find-when-checking))
+(setq straight-vc-git-default-clone-depth 1)
+
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
       (bootstrap-version 6))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (if (load bootstrap-file nil 'nomessage)
-      (message "Straight.el loaded successfully.")
-    (error "Error: Failed to load Straight.el.")))
+  (if (file-exists-p bootstrap-file)
+      (if (load bootstrap-file nil 'nomessage)
+          (message "Straight.el loaded successfully.")
+        (message "Warning: Failed to load Straight.el bootstrap."))
+    ;; First run: try to fetch straight.el. If offline this fails, but the
+    ;; rest of the config still loads (and package.el handles :ensure t).
+    (condition-case err
+        (progn
+          (with-current-buffer
+              (url-retrieve-synchronously
+               "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+               'silent 'inhibit-cookies)
+            (goto-char (point-max))
+            (eval-print-last-sexp))
+          (load bootstrap-file nil 'nomessage))
+      (error
+       (message "straight.el bootstrap failed (%s). Continuing without it."
+                (error-message-string err))))))
 
-(setq straight-use-package-by-default t)
+(setq straight-use-package-by-default (featurep 'straight))
+
+;; Offline tolerance: a missing package should not abort the rest of the
+;; config. Wrap both package managers' install entry points so failures
+;; (no network, unknown recipe, removed upstream) degrade to a log line.
+(when (fboundp 'straight-use-package)
+  (define-advice straight-use-package
+      (:around (orig-fun &rest args) afm/tolerate-offline)
+    (condition-case err
+        (apply orig-fun args)
+      (error
+       (message "straight-use-package skipped %S: %s"
+                (car args) (error-message-string err))
+       nil))))
+
+(define-advice package-install
+    (:around (orig-fun &rest args) afm/tolerate-offline)
+  (condition-case err
+      (apply orig-fun args)
+    (error
+     (message "package-install skipped %S: %s"
+              (car args) (error-message-string err))
+     nil)))
+
+;; -------------------------
+;; Straight lockfile -> repo
+;; -------------------------
+;; `straight-freeze-versions' writes to ~/.emacs.d/straight/versions/default.el,
+;; which is outside this nix-managed repo. `afm/straight-freeze-to-repo' runs
+;; the freeze non-interactively and copies the lockfile into the repo so the
+;; diff can be reviewed and committed by hand.
+(defvar afm/straight-lockfile-repo-path
+  (expand-file-name
+   "modules/shared/config/emacs/straight-versions.el"
+   "~/.local/share/src/nixos-config")
+  "Destination for the straight.el lockfile inside the nixos-config repo.")
+
+(defun afm/straight-freeze-to-repo ()
+  "Freeze current straight.el package versions and copy the lockfile into the repo.
+Skips the interactive confirmation. Does not stage or commit — review the
+diff with `magit-status' or `git diff' and commit manually."
+  (interactive)
+  (unless (fboundp 'straight-freeze-versions)
+    (user-error "straight.el is not loaded"))
+  ;; `force' skips the "are you sure?" prompt about uncommitted changes in
+  ;; package repos; we still want to know about them, so keep straight's own
+  ;; messages visible.
+  (straight-freeze-versions 'force)
+  (let ((src (expand-file-name "straight/versions/default.el"
+                               user-emacs-directory))
+        (dst afm/straight-lockfile-repo-path))
+    (unless (file-exists-p src)
+      (user-error "Expected lockfile not found at %s" src))
+    (make-directory (file-name-directory dst) t)
+    (copy-file src dst t)
+    (message "Wrote straight lockfile to %s — review and commit." dst)))
+
+;; Refresh the in-repo lockfile automatically after any straight.el upgrade.
+;; Per-package pulls will rewrite the file each call; that's expected.
+(with-eval-after-load 'straight
+  (define-advice straight-pull-all
+      (:after (&rest _) afm/auto-freeze-to-repo)
+    (afm/straight-freeze-to-repo))
+  (define-advice straight-pull-package
+      (:after (&rest _) afm/auto-freeze-to-repo)
+    (afm/straight-freeze-to-repo)))
 
 ;; -------------------------
 ;; Window and UI Setup
