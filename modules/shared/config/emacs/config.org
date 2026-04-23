@@ -423,8 +423,8 @@ I needed this for it to work on Linux-Linux connections. [[https://www.rahuljuli
         
         
   					; Rotation
-        '(";rw" . rotate-window)
-        '(";rl" . rotate-layout)
+        ;; '(";rw" . rotate-window)
+        ;; '(";rl" . rotate-layout)
 
         ;; Version control
         '(";tg" . git-timemachine-toggle)
@@ -640,7 +640,9 @@ Useful to read credentials risk of committing to repo.
 
   (add-to-list 'find-file-not-found-functions 'my-create-non-existent-directory)
 #+end_src
-*** Rotate windows
+*** COMMENT Rotate windows
+TODO fix: It fails to install in macos for some reason.
+
 Various helpers and packages I find useful for window management.
 
 #+BEGIN_SRC emacs-lisp
@@ -1108,6 +1110,15 @@ Some conveniences
   (setq org-catch-invisible-edits 'show-and-error)
   (setq org-cycle-separator-lines 0)
 #+end_src
+*** COMMENT org-sticky-header
+Always show the current heading's full path in the top line. 
+#+begin_src emacs-lisp
+  (use-package org-sticky-header
+   :after org
+    :config
+    (setq org-sticky-header-full-path 'full)
+    :hook (org-mode . org-sticky-header-mode))
+  #+end_src
 
 *** Org-appear
 Toggle markers when cursor is on the word.
@@ -1290,34 +1301,6 @@ These are templates used to create new notes.
       :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n\n")
       :unnarrowed t)))
 #+END_SRC
-
-*** Conveniences
-**** org-sticky-header
-Always show the current heading's full path in the top line. 
-#+begin_src emacs-lisp
-  (use-package org-sticky-header
-    :after org
-    :config
-    (setq org-sticky-header-full-path 'full)
-    :hook (org-mode . org-sticky-header-mode))
-#+end_src
-
-**** topsy
-Show the function definition line at the top
-#+begin_src emacs-lisp
-  (use-package topsy
-    :hook
-    (prog-mode . topsy-mode)
-    (magit-section-mode . topsy-mode))
-#+end_src
-
-**** org-pandoc-import
-#+begin_src emacs-lisp
-  (use-package org-pandoc-import
-    :straight (:host github
-  		   :repo "tecosaur/org-pandoc-import"
-  		   :files ("*.el" "filters" "preprocessors")))
-#+end_src
 
 *** Exports
 :PROPERTIES:
@@ -3540,7 +3523,9 @@ nethack, asdf).
 **** breadcrumb
 #+begin_src emacs-lisp
   (use-package breadcrumb
-    :defer t)
+    :defer t
+    :config
+    (breadcrumb-mode 1))
 #+end_src
 
 **** ace-window
@@ -3549,7 +3534,7 @@ nethack, asdf).
     :bind ("M-o" . ace-window))
 #+end_src
 
-**** idle-highlight-mode
+**** COMMENT idle-highlight-mode
 #+begin_src emacs-lisp
   (use-package idle-highlight-mode
     :hook (prog-mode . idle-highlight-mode))
