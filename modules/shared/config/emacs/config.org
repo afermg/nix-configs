@@ -420,11 +420,10 @@ I needed this for it to work on Linux-Linux connections. [[https://www.rahuljuli
         '(";b" . bufler-switch-buffer)
         '(";B" . bufler-list)
         '(";k" . yank-from-kill-ring)
-        
-        
-  					; Rotation
-        ;; '(";rw" . rotate-window)
-        ;; '(";rl" . rotate-layout)
+
+        ;; Rotation
+        '(";rw" . rotate-window)
+        '(";rl" . rotate-layout)
 
         ;; Version control
         '(";tg" . git-timemachine-toggle)
@@ -640,16 +639,12 @@ Useful to read credentials risk of committing to repo.
 
   (add-to-list 'find-file-not-found-functions 'my-create-non-existent-directory)
 #+end_src
-*** COMMENT Rotate windows
-TODO fix: It fails to install in macos for some reason.
-
-Various helpers and packages I find useful for window management.
-
-#+BEGIN_SRC emacs-lisp
-  ;; Rotates windows and layouts
-  (use-package rotate)
-#+END_SRC
-
+*** Rotate windows
+Window/layout rotation helpers from [[https://github.com/daichirata/emacs-rotate][daichirata/emacs-rotate]].
+#+begin_src emacs-lisp
+  (use-package rotate
+    :straight (rotate :type git :host github :repo "daichirata/emacs-rotate"))
+#+end_src
 *** Buffers
 #+NAME: next-buffer
 #+BEGIN_SRC emacs-lisp
@@ -1085,9 +1080,18 @@ I usually use Emacs on fullscreen, which prevents me from using the host's compu
 #+end_src
 
 *** Modeline
-Hand-rolled =mode-line-format= instead of doom-modeline. Order: meow state, file, date, time, line/col, buffer %, spacer, EOL style, encoding, major mode, git branch, hostname.
+Using [[https://github.com/eki3z/mini-echo.el][mini-echo]] — renders the modeline inside the echo area instead of per-window, freeing a line per window.
+#+begin_src emacs-lisp
+  (use-package mini-echo
+    :straight (mini-echo :type git :host github :repo "eki3z/mini-echo.el")
+    :config
+    (mini-echo-mode 1))
+#+end_src
 
-=display-time-mode= is enabled purely as a cheap way to force a modeline refresh every minute so the clock ticks; its own string is suppressed.
+**** COMMENT Hand-rolled mode-line
+Previous approach: hand-rolled =mode-line-format= instead of doom-modeline. Order: meow state, file, date, time, line/col, buffer %, spacer, EOL style, encoding, major mode, git branch, hostname.
+
+=display-time-mode= was enabled purely as a cheap way to force a modeline refresh every minute so the clock ticks; its own string is suppressed.
 #+begin_src emacs-lisp
   (defun afm/ml-hostname ()
     (car (split-string (system-name) "\\.")))
@@ -1174,16 +1178,6 @@ Some conveniences
   (setq org-catch-invisible-edits 'show-and-error)
   (setq org-cycle-separator-lines 0)
 #+end_src
-*** COMMENT org-sticky-header
-Always show the current heading's full path in the top line. 
-#+begin_src emacs-lisp
-  (use-package org-sticky-header
-   :after org
-    :config
-    (setq org-sticky-header-full-path 'full)
-    :hook (org-mode . org-sticky-header-mode))
-  #+end_src
-
 *** Org-appear
 Toggle markers when cursor is on the word.
 #+begin_src elisp
@@ -3576,7 +3570,7 @@ nethack, asdf).
 **** breadcrumb
 #+begin_src emacs-lisp
   (use-package breadcrumb
-    :defer t
+    :ensure t
     :config
     (breadcrumb-mode 1))
 #+end_src
@@ -3585,12 +3579,6 @@ nethack, asdf).
 #+begin_src emacs-lisp
   (use-package ace-window
     :bind ("M-o" . ace-window))
-#+end_src
-
-**** COMMENT idle-highlight-mode
-#+begin_src emacs-lisp
-  (use-package idle-highlight-mode
-    :hook (prog-mode . idle-highlight-mode))
 #+end_src
 
 **** ultra-scroll
@@ -3676,6 +3664,18 @@ Handle very large files via chunked loading.
   visualiser; Emacs's built-in undo has been enough.
 - re-builder (and casual-re-builder): Haven't opened the regex sandbox in
   a while
+- doom-modeline: Replaced by a hand-rolled =mode-line-format= for more
+  control over content and order (meow state, EOL, encoding, git branch,
+  hostname, etc.). nerd-icons and shrink-path went with it as transitive
+  deps.
+- topsy: Pinned the enclosing function's first line at the top of
+  prog-mode and magit-section buffers. breadcrumb-mode covers the same
+  "where am I" affordance.
+- org-sticky-header: Kept the current org heading's full path at the top
+  of the buffer. breadcrumb-mode covers this too.
+- org-pandoc-import: Transparent org import of non-org formats via
+  pandoc. Stopped reaching for it; running pandoc from the shell covers
+  the rare case.
 - ef-themes: Color theme collection offering variations beyond modus/doom.
   Tried from the lobste.rs list; stuck with modus-vivendi-tritanopia.
 - doric-themes: Minimal theme collection with a reduced palette. Tried
@@ -3699,3 +3699,6 @@ Handle very large files via chunked loading.
 - sis: OS-native input method switching (auto-toggles IME on major-mode
   or state changes). Tried from the lobste.rs list; don't need it with a
   single keyboard layout.
+- idle-highlight-mode: Highlights every occurrence of the symbol at
+  point after a short idle delay. Tried from the lobste.rs list; didn't
+  stick.
