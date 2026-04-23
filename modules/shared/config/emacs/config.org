@@ -85,7 +85,7 @@ This is used primarily to center org mode text.
     :hook (org-mode . dl/org-mode-visual-fill))
 #+END_SRC
 
-*** Focus the window when running emacsclient 
+*** Focus the window when running emacsclient
 #+begin_src emacs-lisp
   (add-hook 'server-switch-hook #'raise-frame)
 #+end_src
@@ -3649,8 +3649,6 @@ nethack, asdf).
 #+begin_src emacs-lisp
   (use-package breadcrumb
     :ensure t
-    :config
-    (breadcrumb-mode 1))
 #+end_src
 
 **** ace-window
