@@ -3673,6 +3673,33 @@ nethack, asdf).
     :defer t)
 #+end_src
 
+**** kitty-graphics
+Inline images in terminal Emacs (=emacs -nw=) via the Kitty graphics protocol or
+Sixel — works in kitty, WezTerm, Ghostty, foot, and other supporting terminals.
+
+Test plan (autoload only — no global hooks installed until you call the mode):
+1. From a kitty/wezterm/ghostty terminal, =TERM=xterm-256color emacsclient -nw -c=.
+2. =M-x kitty-graphics-mode RET=, then =C-x C-f /path/to/image.png= or open an
+   org buffer with =[[file:foo.png]]= and =C-c C-x C-v=.
+3. Other integrations: =P= in dired previews under point, doc-view renders PDFs.
+
+If running over SSH (daemon launched outside a terminal), auto-detect fails
+because =getenv "KITTY_PID"= / =TERM_PROGRAM= return nil. Force the backend:
+=(setq kitty-gfx-preferred-protocol 'kitty)= (or ='sixel) and, for kitty mode,
+=(setenv "KITTY_PID" "ssh")=. Switching backends mid-session also requires
+=(clrhash kitty-gfx--image-cache)= — the file→id cache is backend-agnostic and
+will skip the per-backend prepare step on the second run.
+
+#+begin_src emacs-lisp
+  (use-package kitty-graphics
+    :straight (:host github :repo "cashmeredev/kitty-graphics.el")
+    :commands (kitty-graphics-mode)
+    :config
+    (setq kitty-gfx-preferred-protocol 'kitty)
+    (setenv "KITTY_PID" "ssh")
+    )
+#+end_src
+
 *** Windows and buffers
 **** shackle
 #+begin_src emacs-lisp
