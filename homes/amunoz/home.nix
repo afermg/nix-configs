@@ -3,10 +3,11 @@
   outputs,
   config,
   inputs,
+  username ? null,
   ...
 }:
 let
-  user = if pkgs.stdenv.isLinux then "amunoz" else "amunozgo";
+  user = if pkgs.stdenv.isLinux then "amunoz" else (if username != null then username else "alan");
   home_parent = if pkgs.stdenv.isLinux then "home" else "Users";
   atuin_daemon_p = if pkgs.stdenv.isLinux then true else false;
 in

@@ -162,13 +162,18 @@
 
       # Darwin configuration entrypoint
       # Available through 'darwin-rebuild --flake .#your-hostname'
-      darwinConfigurations = {
-        darwin001 = inputs.darwin.lib.darwinSystem {
-          system = "aarch64-darwin";
-          modules = [ ./machines/darwin001 ];
-          specialArgs = { inherit inputs outputs; };
+      darwinConfigurations =
+        let
+          mkDarwin = user: inputs.darwin.lib.darwinSystem {
+            system = "aarch64-darwin";
+            modules = [ ./machines/darwin ];
+            specialArgs = { inherit inputs outputs user; };
+          };
+        in
+        {
+          darwin001 = mkDarwin "alan";
+          darwin002 = mkDarwin "amunozgo";
         };
-      };
 
       # Standalone home-manager configuration entrypoint
       # Available through 'home-manager switch --flake .#your-username@your-hostname'

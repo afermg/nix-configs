@@ -4,10 +4,10 @@
   inputs,
   outputs,
   lib,
+  user ? "alan",
   ...
 }:
 let
-  user = "alan";
   myEmacsLauncher = pkgs.writeScript "emacs-launcher.command" ''
     #!/bin/sh
     emacsclient -c -n &
@@ -49,6 +49,13 @@ in
       experimental-features = nix-command flakes
     '';
   };
+
+  # Determinate Nix manages /etc/nix/nix.conf and ignores nix.settings above
+  # (since nix.enable = false). Write trusted-users into the companion file
+  # that /etc/nix/nix.conf loads via `!include nix.custom.conf`.
+  environment.etc."nix/nix.custom.conf".text = ''
+    trusted-users = root @admin ${user}
+  '';
 
   # Turn off NIX_PATH warnings now that we're using flakes
   system.checks.verifyNixPath = false;
@@ -169,7 +176,10 @@ in
   home-manager = {
     # useGlobalPkgs = true;
     # useUserPackages = true;
-    extraSpecialArgs = { inherit inputs outputs; };
+    extraSpecialArgs = {
+      inherit inputs outputs;
+      username = user;
+    };
     users.${user} = {
       imports = [
         ../../homes/amunoz/home.nix
