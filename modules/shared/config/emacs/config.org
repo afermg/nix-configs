@@ -1286,7 +1286,7 @@ My life in plain text.
 
     (defun afm/toggle-scratch-buffer ()
       (interactive)
-      (toggle-window-bottom "*scratch*" 'get-scratch-buffer-create))
+      (afm/toggle-window-bottom "*scratch*" 'get-scratch-buffer-create))
 
 #+end_src
   
