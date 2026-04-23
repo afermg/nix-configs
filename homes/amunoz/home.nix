@@ -224,4 +224,9 @@ in
     enable = true;
     nix-direnv.enable = true;
   };
+
+  programs.wezterm = {
+    enable = true;
+    extraConfig = builtins.readFile ../../modules/shared/config/wezterm/wezterm.lua;
+  };
 }

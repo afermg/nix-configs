@@ -16,7 +16,7 @@ with pkgs;
   lsof # Files and their processes
 
   # terminals and shells
-  wezterm
+  # wezterm installed via programs.wezterm in home.nix
   # kitty
   fish
 
