@@ -451,6 +451,11 @@ I needed this for it to work on Linux-Linux connections. [[https://www.rahuljuli
         ;; Agent-shell
         '(";as" . agent-shell)
         ))
+
+    ;; Share the `;' leader with motion state so magit / dired / dashboard
+    ;; (which meow puts in motion state) get the same global commands.
+    (define-key meow-motion-state-keymap (kbd ";")
+                (lookup-key meow-normal-state-keymap ";"))
     ;; End of keybindings
     
     (setq meow-use-cursor-position-hack t
