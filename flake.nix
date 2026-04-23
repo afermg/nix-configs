@@ -41,7 +41,7 @@
     };
 
     # system and flake util
-    systems.url = "github:nix-systems/default-linux";
+    systems.url = "github:nix-systems/default";
 
     # disko (partitioning)
     disko.url = "github:nix-community/disko";
@@ -177,25 +177,35 @@
 
       # Standalone home-manager configuration entrypoint
       # Available through 'home-manager switch --flake .#your-username@your-hostname'
-      homeConfigurations = {
-        "amunoz@moby" = lib.homeManagerConfiguration {
-          pkgs = pkgsFor.x86_64-linux;
-          extraSpecialArgs = { inherit inputs outputs; };
-          modules = [
-            agenix.homeManagerModules.default
-            # > Our main home-manager configuration file <
-            ./homes/amunoz/moby.nix
-          ];
-        };
-      };
+      homeConfigurations =
+        let
+          mkDarwinHome = user: lib.homeManagerConfiguration {
+            pkgs = pkgsFor.aarch64-darwin;
+            extraSpecialArgs = { inherit inputs outputs; username = user; };
+            modules = [
+              agenix.homeManagerModules.default
+              ./homes/amunoz/darwin.nix
+            ];
+          };
+        in
+        {
+          "amunoz@moby" = lib.homeManagerConfiguration {
+            pkgs = pkgsFor.x86_64-linux;
+            extraSpecialArgs = { inherit inputs outputs; };
+            modules = [
+              agenix.homeManagerModules.default
+              ./homes/amunoz/moby.nix
+            ];
+          };
 
-      homeConfigurations = {
-        "zchen@moby" = lib.homeManagerConfiguration {
-          pkgs = pkgsFor.x86_64-linux;
-          extraSpecialArgs = { inherit inputs outputs; };
-          # > Our main home-manager configuration file <
-          modules = [ ./homes/zchen/moby.nix ];
+          "zchen@moby" = lib.homeManagerConfiguration {
+            pkgs = pkgsFor.x86_64-linux;
+            extraSpecialArgs = { inherit inputs outputs; };
+            modules = [ ./homes/zchen/moby.nix ];
+          };
+
+          "alan@darwin001" = mkDarwinHome "alan";
+          "amunozgo@darwin002" = mkDarwinHome "amunozgo";
         };
-      };
     };
 }
