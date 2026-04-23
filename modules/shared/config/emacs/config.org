@@ -526,10 +526,26 @@ To snipe things on the screen
 #+end_src
 
 **** comment-dwim-2
-Toggle: # comment on left of line -> on right of line #
+Toggle: # comment on left of line -> on right of line # -> None
 #+begin_src emacs-lisp
   (use-package comment-dwim-2
     :bind ("M-;" . comment-dwim-2))
+#+end_src
+
+**** dwim-shell-command
+#+begin_src emacs-lisp
+  (use-package dwim-shell-command
+    :bind (([remap shell-command] . dwim-shell-command)
+           :map dired-mode-map
+           ([remap dired-do-async-shell-command] . dwim-shell-command)
+           ([remap dired-do-shell-command] . dwim-shell-command)
+           ([remap dired-smart-shell-command] . dwim-shell-command)))
+#+end_src
+
+**** rg
+#+begin_src emacs-lisp
+  (use-package rg
+    :defer t)
 #+end_src
 
 ** Conveniences
@@ -645,6 +661,13 @@ Various helpers and packages I find useful for window management.
   (global-set-key (kbd "C-x k") 'afm/kill-this-buffer)
   (global-set-key (kbd "C-x K") 'kill-buffer)
 #+END_SRC
+
+*** super-save
+#+begin_src emacs-lisp
+  (use-package super-save
+    :config
+    (super-save-mode +1))
+#+end_src
 
 ** Completion
 *** Vertico
@@ -2179,7 +2202,13 @@ test
              (default-directory
               (if arg default-directory project-root)))
         (setenv "PROOT" project-root)
-        (funcall display-fn))))
+        (funcall display-fn)))
+
+    ;; Start meow in insert state inside eat buffers so the terminal gets the
+    ;; raw keys. `meow-mode-state-list' is the reliable path — a hook can be
+    ;; overridden by `meow-global-mode' re-entering normal state afterwards.
+    (with-eval-after-load 'meow
+      (add-to-list 'meow-mode-state-list '(eat-mode . insert))))
 #+end_src
 
 ** Writing
@@ -2473,7 +2502,8 @@ Very useful for interactive parsing
 #+end_src
 
 
-*** Git
+*** Version control
+**** Magit
 #+NAME: magit-git
 #+BEGIN_SRC emacs-lisp
   (use-package magit
@@ -2742,6 +2772,25 @@ Indentation
 (use-package envrc
   :hook (after-init . envrc-global-mode))
 #+end_src
+
+*** dumb-jump
+Fallback to go to function definition if eglot fails
+#+begin_src emacs-lisp
+  (use-package dumb-jump
+    :config
+    (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
+#+end_src
+
+*** diff-hl
+#+begin_src emacs-lisp
+  (use-package diff-hl
+    :hook ((prog-mode . diff-hl-mode)
+           (magit-pre-refresh . diff-hl-magit-pre-refresh)
+           (magit-post-refresh . diff-hl-magit-post-refresh))
+    :config
+    (global-diff-hl-mode 1))
+#+end_src
+
 
 ** RSS
 *** Elfeed
@@ -3487,12 +3536,6 @@ nethack, asdf).
     (load-theme 'modus-vivendi-tritanopia :no-confirm))
 #+end_src
 
-**** doric-themes
-#+begin_src emacs-lisp
-  (use-package doric-themes
-    :defer t)
-#+end_src
-
 *** UI and navigation
 **** breadcrumb
 #+begin_src emacs-lisp
@@ -3556,57 +3599,12 @@ nethack, asdf).
   (use-package visual-regexp-steroids
     :defer t)
 #+end_src
-
-**** dwim-shell-command
-#+begin_src emacs-lisp
-  (use-package dwim-shell-command
-    :bind (([remap shell-command] . dwim-shell-command)
-           :map dired-mode-map
-           ([remap dired-do-async-shell-command] . dwim-shell-command)
-           ([remap dired-do-shell-command] . dwim-shell-command)
-           ([remap dired-smart-shell-command] . dwim-shell-command)))
-#+end_src
-
-**** super-save
-#+begin_src emacs-lisp
-  (use-package super-save
-    :config
-    (super-save-mode +1))
-#+end_src
-
 **** persistent-scratch
 #+begin_src emacs-lisp
   (use-package persistent-scratch
     :config
     (persistent-scratch-setup-default))
 #+end_src
-
-*** Search and jump
-**** rg
-#+begin_src emacs-lisp
-  (use-package rg
-    :defer t)
-#+end_src
-
-**** dumb-jump
-Fallback to go to function definition if eglot fails
-#+begin_src emacs-lisp
-  (use-package dumb-jump
-    :config
-    (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
-#+end_src
-
-*** Version control
-**** diff-hl
-#+begin_src emacs-lisp
-  (use-package diff-hl
-    :hook ((prog-mode . diff-hl-mode)
-           (magit-pre-refresh . diff-hl-magit-pre-refresh)
-           (magit-post-refresh . diff-hl-magit-post-refresh))
-    :config
-    (global-diff-hl-mode 1))
-#+end_src
-
 
 *** System
 **** gcmh
@@ -3642,6 +3640,8 @@ Handle very large files via chunked loading.
   a while
 - ef-themes: Color theme collection offering variations beyond modus/doom.
   Tried from the lobste.rs list; stuck with modus-vivendi-tritanopia.
+- doric-themes: Minimal theme collection with a reduced palette. Tried
+  from the lobste.rs list; stuck with modus-vivendi-tritanopia.
 - ready-player: Dired enhancement that previews media files (audio/video)
   inline from the dired buffer. Tried from the lobste.rs list; never
   reached for it.
