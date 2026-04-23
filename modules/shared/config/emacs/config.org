@@ -543,14 +543,6 @@ To snipe things on the screen
   (use-package goto-chg)
 #+end_src
 
-*** COMMENT Beacon mode
-Highlights the line temporarily when the cursor moves windows.
-#+begin_src emacs-lisp
-  (use-package beacon
-    :init 
-    (beacon-mode 1))
-#+end_src
-
 *** Web browsing
 **** Redirect to Kagi
 Browse from anywhere
@@ -1074,6 +1066,12 @@ I usually use Emacs on fullscreen, which prevents me from using the host's compu
   (make-directory org-roam-directory-manual t)
 #+end_src 
 
+*** org-modern
+#+begin_src emacs-lisp
+  (use-package org-modern
+    :hook ((org-mode . org-modern-mode)
+           (org-agenda-finalize . org-modern-agenda)))
+#+end_src
 *** Basics
 Some conveniences
 #+begin_src emacs-lisp
@@ -1178,30 +1176,6 @@ Ensure code blocks have a fixed pitch.
 #+end_src
 
 Add specific font face for org-babel result blocks
-***** COMMENT Custom fonts
-# TODO: Evaluate if this is useful.
-#+NAME::org-mode-faces
-#+BEGIN_SRC emacs-lisp
-  ;; Fast access to tag common contexts I use
-  (defface my-org-agenda-face-1-2
-    '((t (:inherit default :height 1.2)))
-    "Face for org-agenda mode.")
-
-  (defun my-set-org-agenda-font ()
-    "Set the font for `org-agenda-mode'."
-    (buffer-face-set 'my-org-agenda-face-1-2))
-
-  (add-hook 'org-agenda-mode-hook 'my-set-org-agenda-font)
-
-  (setq display-buffer-alist
-      `((".*Org Agenda.*"
-         (display-buffer-below-selected)
-         (inhibit-same-window . t)
-         (window-height . 0.5))))
-
-
-#+END_SRC
-
 *** Basic configuration
 My life in plain text.
 **** Leader key shortcuts
@@ -1979,7 +1953,6 @@ Configuration related to filesystem, either basic IO and interaction from emacs 
 Plain dired with a few quality-of-life tweaks. Icons via all-the-icons-dired,
 ijkl navigation carried over from the old dirvish config, trash-on-delete,
 and auto-revert so the buffer refreshes when the directory changes on disk.
-TAB-to-toggle-subtree lives with =dired-subtree= in the Trial section.
 #+BEGIN_SRC emacs-lisp
   (use-package all-the-icons-dired
     :hook (dired-mode . all-the-icons-dired-mode))
@@ -1999,6 +1972,25 @@ TAB-to-toggle-subtree lives with =dired-subtree= in the Trial section.
                 ("i" . dired-previous-line)
                 ("k" . dired-next-line))
     :hook (dired-mode . auto-revert-mode))
+
+  (use-package dired-subtree
+    :after dired
+    :bind (:map dired-mode-map
+                ("<tab>" . dired-subtree-toggle)
+                ("<backtab>" . dired-subtree-cycle)))
+
+  ;; Fully disable meow in dired buffers — neither normal nor insert state
+  ;; plays well with dired-subtree's TAB/S-TAB cycling. Advising the
+  ;; globalized turn-on function is the reliable path: `meow-global-mode'
+  ;; re-enables `meow-mode' on every major-mode change, so a simple
+  ;; `dired-mode-hook' + `(meow-mode -1)' gets undone.
+  (with-eval-after-load 'meow
+    (setq meow-mode-state-list
+          (assq-delete-all 'dired-mode meow-mode-state-list))
+    (define-advice meow-global-mode-enable-in-buffer
+        (:around (orig-fn &rest args) afm/skip-dired)
+      (unless (derived-mode-p 'dired-mode)
+        (apply orig-fn args))))
 #+end_src
 
 **** Wdired
@@ -2299,6 +2291,49 @@ Everything related to M-x compile.
 #+END_SRC
 
 *** Languages
+**** Lisp
+****** Rainbow delimiters
+Makes my lisp parens pretty, and easy to spot.
+
+#+NAME: rainbow-delmiters
+#+BEGIN_SRC emacs-lisp
+  (use-package rainbow-delimiters
+    :hook (prog-mode . rainbow-delimiters-mode))
+#+END_SRC
+
+****** Lisp environments
+******* geiser
+Scheme interaction.
+#+begin_src emacs-lisp
+  (use-package geiser
+    :defer t)
+#+end_src
+
+******* slime
+Common Lisp environment.
+#+begin_src emacs-lisp
+  (use-package slime
+    :defer t)
+#+end_src
+
+
+***** Racket
+#+NAME: racket-mode
+#+BEGIN_SRC emacs-lisp
+  (use-package racket-mode
+    :ensure t
+    :mode "\\.rkt\\'"
+    :hook 
+    (racket-mode . racket-xp-mode) ; Enable IDE-like features (xref, docs, errors)
+    (racket-mode . rainbow-delimiters-mode)
+    :config
+    ;; Define custom keybindings if needed, though racket-mode defaults are standard
+    ;; C-c C-c : Run buffer
+    ;; C-c C-k : Stop
+    ;; M-.     : Jump to definition (via racket-xp)
+    )
+#+END_SRC
+
 **** Python
 #+NAME: python
 #+BEGIN_SRC emacs-lisp
@@ -2356,6 +2391,18 @@ Everything related to M-x compile.
   (add-hook 'eglot-managed-mode-hook #'select-python-interpreter)
 #+end_src
 
+***** python-pytest
+#+begin_src emacs-lisp
+  (use-package python-pytest
+    :defer t)
+#+end_src
+
+***** python-coverage
+#+begin_src emacs-lisp
+  (use-package python-coverage
+    :defer t)
+#+end_src
+
 **** Shell scripts
 #+NAME: shell-scripts
 #+BEGIN_SRC emacs-lisp :results none
@@ -2408,23 +2455,6 @@ Very useful for interactive parsing
     :mode (("\\.Rmd" . poly-quarto-mode))
     )
 #+end_src
-
-**** Racket
-#+NAME: racket-mode
-#+BEGIN_SRC emacs-lisp
-  (use-package racket-mode
-    :ensure t
-    :mode "\\.rkt\\'"
-    :hook 
-    (racket-mode . racket-xp-mode) ; Enable IDE-like features (xref, docs, errors)
-    (racket-mode . rainbow-delimiters-mode)
-    :config
-    ;; Define custom keybindings if needed, though racket-mode defaults are standard
-    ;; C-c C-c : Run buffer
-    ;; C-c C-k : Stop
-    ;; M-.     : Jump to definition (via racket-xp)
-    )
-#+END_SRC
 
 *** Cell-based development
 #+begin_src emacs-lisp
@@ -2633,7 +2663,7 @@ Simple debugger. Does its job just fine most of the time.
     
     (defun dispatch-realgud-python-debugger ()
       (let* ((file (shell-quote-argument (file-relative-name (buffer-file-name))))
-  	   (prefix (if (executable-find "trepan3k") '("trepan3k") (list "python" "-m" "pdb")))
+  	   (prefix (list "python" "-m" "pdb"))
   	   (args (append prefix (list file)))
   	   (minibuffer-history (intern (string-join (list "realgud:" (car (last prefix)) "-minibuffer-history")))))
         (message "%s" (list (buffer-file-name) args minibuffer-history))
@@ -2685,31 +2715,6 @@ Simple debugger. Does its job just fine most of the time.
                 ("a" . #'realgud:attach-cmd-buffer)))
 #+end_src
 
-
-*** Lisp
-**** Rainbow delimiters
-Makes my lisp parens pretty, and easy to spot.
-
-#+NAME: rainbow-delmiters
-#+BEGIN_SRC emacs-lisp
-  (use-package rainbow-delimiters
-    :hook (prog-mode . rainbow-delimiters-mode))
-#+END_SRC
-
-**** Lisp environments
-***** geiser
-Scheme interaction.
-#+begin_src emacs-lisp
-  (use-package geiser
-    :defer t)
-#+end_src
-
-***** slime
-Common Lisp environment.
-#+begin_src emacs-lisp
-  (use-package slime
-    :defer t)
-#+end_src
 
 *** Indent parent
 Indentation
@@ -3465,12 +3470,6 @@ Skipped: built-ins (ERC/eshell/eglot/uniquify/flyspell/winner/ediff/Gnus), packa
 conflict with my current stack (Helm, swiper, better-defaults), and invasive picks (exwm,
 nethack, asdf).
 *** Themes
-**** COMMENT ef-themes
-#+begin_src emacs-lisp
-  (use-package ef-themes
-    :defer t)
-#+end_src
-
 **** modus-themes
 #+begin_src emacs-lisp
   (use-package modus-themes
@@ -3589,6 +3588,7 @@ nethack, asdf).
 #+end_src
 
 **** dumb-jump
+Fallback to go to function definition if eglot fails
 #+begin_src emacs-lisp
   (use-package dumb-jump
     :config
@@ -3607,83 +3607,6 @@ nethack, asdf).
 #+end_src
 
 
-*** Dired
-**** dired-preview
-#+begin_src emacs-lisp
-  (use-package dired-preview
-    :hook (dired-mode . dired-preview-mode))
-#+end_src
-
-**** dired-subtree
-#+begin_src emacs-lisp
-  (use-package dired-subtree
-    :after dired
-    :bind (:map dired-mode-map
-                ("<tab>" . dired-subtree-toggle)
-                ("<backtab>" . dired-subtree-cycle)))
-#+end_src
-
-**** COMMENT ready-player
-#+begin_src emacs-lisp
-  (use-package ready-player
-    :config
-    (ready-player-mode +1))
-#+end_src
-
-*** Python
-**** python-pytest
-#+begin_src emacs-lisp
-  (use-package python-pytest
-    :defer t)
-#+end_src
-
-**** python-coverage
-#+begin_src emacs-lisp
-  (use-package python-coverage
-    :defer t)
-#+end_src
-
-*** Notes
-**** denote
-#+begin_src emacs-lisp
-  (use-package denote
-    :defer t)
-#+end_src
-
-**** howm
-#+begin_src emacs-lisp
-  (use-package howm
-    :defer t)
-#+end_src
-
-**** org-modern
-#+begin_src emacs-lisp
-  (use-package org-modern
-    :hook ((org-mode . org-modern-mode)
-           (org-agenda-finalize . org-modern-agenda)))
-#+end_src
-
-*** Media and misc
-**** emms
-#+begin_src emacs-lisp
-  (use-package emms
-    :defer t)
-#+end_src
-
-**** COMMENT elpher
-Gopher/Gemini browser.
-#+begin_src emacs-lisp
-  (use-package elpher
-    :defer t)
-#+end_src
-
-**** COMMENT scpaste
-Place an HTML copy of a buffer on the web on a server to which the user has SSH access.
-#+begin_src emacs-lisp
-  (use-package scpaste
-    :defer t)
-#+end_src
-
 *** System
 **** gcmh
 Garbage-collector magic hack - adjusts GC thresholds around user activity.
@@ -3701,16 +3624,10 @@ Handle very large files via chunked loading.
     (require 'vlf-setup))
 #+end_src
 
-**** sis
-OS-native input method switching.
-#+begin_src emacs-lisp
-  (use-package sis
-    :defer t)
-#+end_src
-
 ** Graveyard
 - org-transclusion: Conflicted with org-mode async export
-- beacon-mode: A bit annoying, wasn't that nice anyway
+- beacon-mode: The cursor-flash when switching windows ended up distracting
+  rather than helpful.
 - vterm: Replaced by eat. Preferred eat because it is implemented in pure
   Elisp, so no dynamic module / C compilation step and no external toolchain
   dependency. meow-vterm retired along with it.
@@ -3722,3 +3639,24 @@ OS-native input method switching.
   visualiser; Emacs's built-in undo has been enough.
 - re-builder (and casual-re-builder): Haven't opened the regex sandbox in
   a while
+- ef-themes: Color theme collection offering variations beyond modus/doom.
+  Tried from the lobste.rs list; stuck with modus-vivendi-tritanopia.
+- ready-player: Dired enhancement that previews media files (audio/video)
+  inline from the dired buffer. Tried from the lobste.rs list; never
+  reached for it.
+- denote: File-based note management system keyed off a fixed filename
+  scheme. Tried from the lobste.rs list; org-roam is what I actually use.
+- howm: Note-taking system with wiki-style [[links]] and a free-form
+  search. Tried from the lobste.rs list; org-roam covers this.
+- org-modern: Visual polish for Org mode — prettier headings, bullets,
+  tables, TODO styling. Tried from the lobste.rs list; my existing Org
+  setup is fine as-is.
+- emms: Music player with multiple backend support (mpv, mpd, vlc…).
+  Tried from the lobste.rs list; play audio from outside Emacs.
+- elpher: Browser for the Gopher and Gemini protocols. Tried from the
+  lobste.rs list; no use for it.
+- scpaste: Publishes an HTML copy of a buffer to a server over SSH.
+  Tried from the lobste.rs list; gists/share sheets cover this.
+- sis: OS-native input method switching (auto-toggles IME on major-mode
+  or state changes). Tried from the lobste.rs list; don't need it with a
+  single keyboard layout.
