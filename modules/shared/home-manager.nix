@@ -49,18 +49,14 @@ in
     #     "/Users/${user}/.ssh/config_external"
     #   )
     # ];
-    # matchBlocks = {
-    #   "github.com" = {
-    #     identitiesOnly = true;
-    #     identityFile = [
-    #       (lib.mkIf pkgs.stdenv.hostPlatform.isLinux
-    #         "/home/${user}/.ssh/id_ed25519.pub"
-    #       )
-    #       (lib.mkIf pkgs.stdenv.hostPlatform.isDarwin
-    #         "/Users/${user}/.ssh/id_ed25519.pub"
-    #       )
-    #     ];
-    #   };
-    # };
+    matchBlocks = {
+      "github.com" = {
+        identitiesOnly = true;
+        identityFile = [
+          (lib.mkIf pkgs.stdenv.hostPlatform.isLinux "/home/${user}/.ssh/id_ed25519.pub")
+          (lib.mkIf pkgs.stdenv.hostPlatform.isDarwin "/Users/${user}/.ssh/id_ed25519.pub")
+        ];
+      };
+    };
   };
 }
