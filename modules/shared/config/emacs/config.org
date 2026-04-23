@@ -403,8 +403,8 @@ Undo tree for better undo visualisation.
         '(";hr" . dl/reload-emacs)
         '(";hn" . dl/load-buffer-with-nix-config)
         '(";hp" . dl/load-buffer-with-emacs-config)
-        '(";ot" . toggle-vterm-window)
-        '(";oT" . +vterm/here)
+        '(";ot" . toggle-eat-window)
+        '(";oT" . +eat/here)
         '(";ox" . afm/toggle-scratch-buffer)
         '(";lf" . dl/xref-find-references-other-window)
         '(";lc" . dl/xref-find-implementation-other-window)
@@ -454,8 +454,8 @@ Undo tree for better undo visualisation.
         '("<escape>" . ignore)		; ignore escape
         
         ;; version control
-        '(";v" . +vc/browse-at-remote-kill-commit)
-        '(";V" . +vc/browse-at-remote-kill)
+        '(";v" . +vc/link-commit)
+        '(";V" . +vc/link)
 
         ;; gptel
         '(";dr" . gptel-rewrite)
@@ -515,18 +515,6 @@ Repeatedly pressing =SPC >= is tedious. A Hydra allows you to enter a "mode" for
            (lisp-mode . enable-paredit-mode)
            (lisp-interaction-mode . enable-paredit-mode)
            (scheme-mode . enable-paredit-mode)))
-#+end_src
-
-**** Meow+vterm support
-#+begin_src elisp
-  (use-package meow-vterm
-    :after vterm
-    :straight (:host github :repo "accelbread/meow-vterm"
-  		   :branch "master"
-  		   :files (:defaults "meow-vterm.el"))
-    :config
-    (meow-vterm-enable)
-    )
 #+end_src
 
 **** Surround
@@ -2013,64 +2001,43 @@ Configuration related to filesystem, either basic IO and interaction from emacs 
 *** File browser
 ~dired~ provides a more visual interface to browsing files; similar to terminal programs like ~ranger~.
 
-#+BEGIN_SRC emacs-lisp 
-  (use-package all-the-icons-dired)
+**** Dired
+Plain dired with a few quality-of-life tweaks. Icons via all-the-icons-dired,
+ijkl navigation carried over from the old dirvish config, trash-on-delete,
+and auto-revert so the buffer refreshes when the directory changes on disk.
+TAB-to-toggle-subtree lives with =dired-subtree= in the Trial section.
+#+BEGIN_SRC emacs-lisp
+  (use-package all-the-icons-dired
+    :hook (dired-mode . all-the-icons-dired-mode))
 
-  (use-package dirvish
-    :init
-    (dirvish-override-dired-mode 1)
+  (use-package dired
+    :straight nil
     :custom
-    (dirvish-quick-access-entries ; It's a custom option, `setq' won't work
-     '(("h" "~/"                          "Home")
-       ("d" "~/Downloads/"                "Downloads")
-       ("m" "/mnt/"                       "Drives")
-       ("t" "~/.local/share/Trash/files/" "TrashCan")))
-    :config
-    (setq dired-dwim-target t)
-    (dirvish-side-follow-mode) ; similar to `treemacs-follow-mode'
-    (setq dirvish-mode-line-format
-          '(:left (sort symlink) :right (omit yank index)))
-    (setq dirvish-attributes
-          '(nerd-icons file-time file-size collapse subtree-state vc-state git-msg))
-    (setq delete-by-moving-to-trash t)
-    (setq dired-listing-switches
-          "-l --almost-all --human-readable --group-directories-first --no-group")
-
-    (setq dirvish-subtree-state-style 'nerd)
-    '(add-to-list 'dired-compress-file-suffixes
-  		'("\\.zip\\'" ".zip" "unzip"))
-    :bind ; Bind `dirvish|dirvish-side|dirvish-dwim' as you see fit
-    (("C-c f" . dirvish-fd)
-     :map dirvish-mode-map ; Dirvish inherits `dired-mode-map'
-     ("j" . dired-up-directory)
-     ("l" . dired-find-file)
-     ("i" . dired-previous-line)
-     ("k" . dired-next-line)
-     ("a"   . dirvish-quick-access)
-     ("f"   . dirvish-file-info-menu)
-     ("y"   . dirvish-yank-menu)
-     ;; ("N"   . dirvish-narrow)
-     ;; ("j"   . dirvish-history-last)
-     ;; ("h"   . dirvish-history-jump) ; remapped `describe-mode'
-     ("s"   . dirvish-quicksort)    ; remapped `dired-sort-toggle-or-edit'
-     ("v"   . dirvish-vc-menu)      ; remapped `dired-view-file'
-     ("TAB" . dirvish-subtree-toggle)
-     ("M-f" . dirvish-history-go-forward)
-     ("M-b" . dirvish-history-go-backward)
-     ("M-l" . dirvish-ls-switches-menu)
-     ("M-m" . dirvish-mark-menu)
-     ("M-t" . dirvish-layout-toggle)
-     ("q" . dirvish-quit)
-     ;; ; ("M-s" . dirvish-setup-menu)
-     ;; ("M-e" . dirvish-emerge-menu)
-     ;; ("M-j" . dirvish-fd-jump)
-     )
+    (dired-dwim-target t)
+    (delete-by-moving-to-trash t)
+    (dired-recursive-deletes 'always)
+    (dired-recursive-copies 'always)
+    (dired-listing-switches
+     "-l --almost-all --human-readable --group-directories-first --no-group")
+    :bind (:map dired-mode-map
+                ("j" . dired-up-directory)
+                ("l" . dired-find-file)
+                ("i" . dired-previous-line)
+                ("k" . dired-next-line))
     :hook (dired-mode . auto-revert-mode))
-
 #+end_src
 
-#+RESULTS:
-: dirvish-quit
+**** Wdired
+Writable dired. Edit the dired buffer directly to rename/move/chmod files,
+commit with =C-c C-c= (abort with =C-c C-k=). Enter from dired with =C-x C-q=.
+#+BEGIN_SRC emacs-lisp
+  (use-package wdired
+    :straight nil
+    :after dired
+    :custom
+    (wdired-allow-to-change-permissions t)
+    (wdired-create-parent-directories t))
+#+end_src
 
 **** Quick shortcuts for common file tasks
 #+NAME::buffer-and-file-movement
@@ -2186,99 +2153,60 @@ test
 
 
 ** Terminal
-*** Vterm
-#+NAME: vterm
-#+BEGIN_SRC emacs-lisp
-  (use-package vterm
-    :ensure t
+*** EAT
+#+NAME: eat
+#+begin_src emacs-lisp
+  (use-package eat
+    :straight (:type git
+               :host codeberg
+               :repo "akib/emacs-eat"
+               :files ("*.el" ("term" "term/*.el") "*.texi"
+                       "*.ti" ("terminfo/e" "terminfo/e/*")
+                       ("terminfo/65" "terminfo/65/*")
+                       ("integration" "integration/*")
+                       (:exclude ".dir-locals.el" "*-tests.el")))
     :init
-    (defun toggle-vterm-window ()
+    (defun toggle-eat-window ()
+      "Toggle a bottom side-window *eat* terminal."
       (interactive)
-      (let ((buffer (get-buffer-create "*vterm*")))
+      (let ((buffer (or (get-buffer "*eat*")
+                        (save-window-excursion (eat) (get-buffer "*eat*")))))
         (if (get-buffer-window buffer)
             (delete-window (get-buffer-window buffer))
-  	(with-current-buffer buffer
-            (unless (eq major-mode 'vterm-mode)
-  	    (vterm-mode)))
-  	(select-window
-  	 (display-buffer buffer
-  			 '((display-buffer-in-side-window)
+          (select-window
+           (display-buffer buffer
+                           '((display-buffer-in-side-window)
                              (side . bottom)
                              (window-height . 0.4)))))))
     :config
-    (setq term-prompt-regexp "^[^#$%>\n]*[#$%>] *")
-    (setq vterm-shell "fish")
-    (setq vterm-kill-buffer-on-exit t)
-    (setq vterm-max-scrollback 10000))
-      (defun +vterm/here (arg)
-        "Open a terminal buffer in the current window at project root.
+    (setq eat-kill-buffer-on-exit t)
+    (setq eat-term-scrollback-size 10000)
 
-    If prefix ARG is non-nil, cd into `default-directory' instead of project root.
+    (defun +eat/here (arg)
+      "Open an eat terminal buffer in the current window at project root.
 
-    Returns the vterm buffer."
-        (interactive "P")
-        (+vterm--configure-project-root-and-display
-         arg
-         (lambda()
-           (require 'vterm)
-           ;; HACK forces vterm to redraw, fixing strange artefacting in the tty.
-           (save-window-excursion
-    	 (pop-to-buffer "*scratch*"))
-           (let (display-buffer-alist)
-    	 (vterm vterm-buffer-name)))))
+  If prefix ARG is non-nil, cd into `default-directory' instead of project root.
 
-      (defun +vterm--configure-project-root-and-display (arg display-fn)
-        "Sets the environment variable PROOT and displays a terminal using `display-fn`.
+  Returns the eat buffer."
+      (interactive "P")
+      (+eat--configure-project-root-and-display
+       arg
+       (lambda ()
+         (require 'eat)
+         (let (display-buffer-alist)
+           (eat)))))
 
-    If prefix ARG is non-nil, cd into `default-directory' instead of project root.
+    (defun +eat--configure-project-root-and-display (arg display-fn)
+      "Set PROOT and display a terminal using `display-fn`.
 
-    Returns the vterm buffer."
-        (unless (fboundp 'module-load)
-          (user-error "Your build of Emacs lacks dynamic modules support and cannot load vterm"))
-        (let* ((project-root default-directory)
-               (default-directory
-                (if arg
-    		default-directory
-                  project-root)))
-          (setenv "PROOT" project-root)
-          (funcall display-fn)))
+  If prefix ARG is non-nil, cd into `default-directory' instead of project root.
 
-    ;; :bind (:map vterm-mode-map ("C-q") #'vterm-send-next-key)
-    ;; Add different font
-    ;; (add-hook 'vterm-mode-hook
-    ;;           (lambda ()
-    ;;                (set (make-local-variable 'buffer-face-mode-face) '(:family "IosevkaTerm Nerd Font"))
-    ;;                (buffer-face-mode t)))
-
-    ;; (defun project-vterm ()
-    ;;   "Start Eshell in the current project's root directory.
-    ;; If a buffer already exists for running Eshell in the project's root,
-    ;; switch to it.  Otherwise, create a new Eshell buffer.
-    ;; With \\[universal-argument] prefix arg, create a new Eshell buffer even
-    ;; if one already exists."
-    ;;   (interactive)
-    ;;   (defvar eshell-buffer-name)
-    ;;   (let* ((default-directory (project-root (project-current t)))
-    ;;          (eshell-buffer-name (project-prefixed-buffer-name "eshell"))
-    ;;          (eshell-buffer (get-buffer eshell-buffer-name)))
-    ;;     (if (and eshell-buffer (not current-prefix-arg))
-    ;;         (pop-to-buffer eshell-buffer (bound-and-true-p display-comint-buffer-action))
-    ;;       (vterm))))
-    ;; (global-set-key (kbd "C-x C-t") 'vterm)
-#+END_SRC
-
-*** EAT
-#+begin_src emacs-lisp
-  (straight-use-package
-   '(eat :type git
-         :host codeberg
-         :repo "akib/emacs-eat"
-         :files ("*.el" ("term" "term/*.el") "*.texi"
-                 "*.ti" ("terminfo/e" "terminfo/e/*")
-                 ("terminfo/65" "terminfo/65/*")
-                 ("integration" "integration/*")
-                 (:exclude ".dir-locals.el" "*-tests.el"))))
-
+  Returns the eat buffer."
+      (let* ((project-root default-directory)
+             (default-directory
+              (if arg default-directory project-root)))
+        (setenv "PROOT" project-root)
+        (funcall display-fn))))
 #+end_src
 
 ** Writing
@@ -2524,6 +2452,16 @@ Very useful for interactive parsing
     )
 #+END_SRC
 
+*** Cell-based development
+#+begin_src emacs-lisp
+     (use-package code-cells
+       :config
+       (add-hook 'prog-mode-hook 'code-cells-mode-maybe)
+       (add-to-list 'code-cells-eval-region-commands '(python-ts-mode . python-shell-send-region))
+       )
+#+end_src
+
+
 *** Git
 #+NAME: magit-git
 #+BEGIN_SRC emacs-lisp
@@ -2655,73 +2593,37 @@ Track file-moving/copying operations with git when in dired.
   (setq dired-vc-rename-file t)
 #+END_SRC
 
-**** Browse at remote
-(Copied from doom emacs)
-#+begin_src emacs-lisp 
-  (use-package browse-at-remote
+**** git-link
+Copy forge URLs (GitHub/GitLab/Codeberg/…) for the current file/line or the
+current commit. Replaces the old browse-at-remote wrappers — git-link has
+native codeberg support, so the custom URL formatters aren't needed.
+#+begin_src emacs-lisp
+  (use-package git-link
+    :commands (git-link git-link-commit git-link-homepage)
+    :custom
+    ;; Point links at the line the cursor is on, not the file as a whole.
+    (git-link-default-remote "origin")
+    (git-link-open-in-browser nil)
     :config
-  (defun +vc--remote-homepage ()
-    (require 'browse-at-remote)
-    (or (let ((url (browse-at-remote--remote-ref)))
-          (plist-get (browse-at-remote--get-url-from-remote (car url)) :url))
-        (user-error "Can't find homepage for current project")))
+    (defun +vc/link (&optional arg)
+      "Copy a forge URL for the current file/line/region to the clipboard.
+  With prefix ARG, flip `git-link-use-commit' — branch links become commit
+  links, and vice versa."
+      (interactive "P")
+      (let ((git-link-use-commit
+             (if arg (not git-link-use-commit) git-link-use-commit)))
+        (call-interactively #'git-link)))
 
-  (defun browse-at-remote--format-region-url-as-codeberg (repo-url location filename &optional linestart lineend)
-    "URL formatted for codeberg."
-    (cond
-     ((and linestart lineend)
-      (format "%s/src/%s/%s#L%d-L%d" repo-url location filename linestart lineend))
-     (linestart (format "%s/src/%s/%s#L%d" repo-url location filename linestart))
-     (t (format "%s/src/%s/%s" repo-url location filename))))
+    (defun +vc/link-commit ()
+      "Copy a forge URL pinned to the current commit SHA."
+      (interactive)
+      (let ((git-link-use-commit t))
+        (call-interactively #'git-link)))
 
-  (defun browse-at-remote--format-commit-url-as-codeberg (repo-url commithash)
-    "Commit URL formatted for codeberg"
-    (format "%s/src/commit/%s" repo-url commithash))
-
-
-  (defvar browse-at-remote-prefer-symbolic)
-  (defun +vc/browse-at-remote (&optional arg)
-    "Open URL to current file (and line if selection is active) in browser.
-  If prefix ARG, negate the default value of `browse-at-remote-prefer-symbolic'."
-    (interactive "P")
-    (require 'browse-at-remote)
-    (let ((vc-ignore-dir-regexp locate-dominating-stop-dir-regexp)
-          (browse-at-remote-prefer-symbolic
-           (if arg
-               (not browse-at-remote-prefer-symbolic)
-             browse-at-remote-prefer-symbolic)))
-      (browse-at-remote)))
-
-  (defun +vc/browse-at-remote-kill (&optional arg interactive?)
-    "Copy URL to current file (and line if selection is active) to clipboard.
-  If prefix ARG, negate the default value of `browse-at-remote-prefer-symbolic'."
-    (interactive (list current-prefix-arg 'interactive))
-    (require 'browse-at-remote)
-    (let ((vc-ignore-dir-regexp locate-dominating-stop-dir-regexp)
-          (browse-at-remote-prefer-symbolic
-           (if arg
-               (not browse-at-remote-prefer-symbolic)
-             browse-at-remote-prefer-symbolic)))
-      (browse-at-remote-kill)
-      (if interactive? (message "Copied to clipboard"))))
-
-  (defun +vc/browse-at-remote-kill-commit (&optional interactive?)
-    "Copy URL to current file (and line if selection is active) using the commit hash to clipboard."
-    (interactive (list 'interactive))
-    (require 'browse-at-remote)
-    (+vc/browse-at-remote-kill (if browse-at-remote-prefer-symbolic t nil) interactive?))
-
-  (defun +vc/browse-at-remote-homepage ()
-    "Open homepage for current project in browser."
-    (interactive)
-    (browse-url (+vc--remote-homepage)))
-
-  (defun +vc/browse-at-remote-kill-homepage ()
-    "Copy homepage URL of current project to clipboard."
-    (interactive)
-    (let ((url (+vc--remote-homepage)))
-      (kill-new url)
-      (message "Copied to clipboard: %S" url))))
+    (defun +vc/link-homepage ()
+      "Copy the project's homepage URL on the forge."
+      (interactive)
+      (call-interactively #'git-link-homepage)))
 #+end_src
 
 
@@ -2807,16 +2709,6 @@ Simple debugger. Does its job just fine most of the time.
     :bind (:map realgud:shortkey-mode-map
                 ("_" . #'describe-at-cursor)
                 ("a" . #'realgud:attach-cmd-buffer)))
-#+end_src
-
-
-*** Cells
-#+begin_src emacs-lisp
-     (use-package code-cells
-       :config
-       (add-hook 'prog-mode-hook 'code-cells-mode-maybe)
-       (add-to-list 'code-cells-eval-region-commands '(python-ts-mode . python-shell-send-region))
-       )
 #+end_src
 
 
@@ -3738,11 +3630,6 @@ nethack, asdf).
            (magit-post-refresh . diff-hl-magit-post-refresh)))
 #+end_src
 
-**** git-link
-#+begin_src emacs-lisp
-  (use-package git-link
-    :defer t)
-#+end_src
 
 *** Dired
 **** dired-preview
@@ -3848,3 +3735,10 @@ OS-native input method switching.
 ** Graveyard
 - org-transclusion: Conflicted with org-mode async export
 - beacon-mode: A bit annoying, wasn't that nice anyway
+- vterm: Replaced by eat. Preferred eat because it is implemented in pure
+  Elisp, so no dynamic module / C compilation step and no external toolchain
+  dependency. meow-vterm retired along with it.
+- dirvish: Removed in favor of plain dired. The extra panes, headers, and
+  override-mode added more surface area than I used; when something broke it
+  was always at the dirvish layer. Kept the navigation bindings (ijkl) and
+  listing switches on dired itself.
