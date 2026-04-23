@@ -1149,6 +1149,12 @@ Hand-rolled =mode-line-format= instead of doom-modeline. Order: meow state, file
   (display-time-mode 1)
 #+end_src
 
+*** Modus theme
+These come with emacs since v28, and I really like them.
+#+begin_src emacs-lisp
+  (load-theme 'modus-vivendi-tritanopia)
+#+end_src
+
 ** Org mode
 #+begin_src emacs-lisp 
   (setq org-directory "~/Documents/broad/org")
@@ -3566,17 +3572,6 @@ that I don't currently use. Move promoted ones into their proper section; drop t
 Skipped: built-ins (ERC/eshell/eglot/uniquify/flyspell/winner/ediff/Gnus), packages that
 conflict with my current stack (Helm, swiper, better-defaults), and invasive picks (exwm,
 nethack, asdf).
-*** Themes
-**** modus-themes
-#+begin_src emacs-lisp
-  (use-package modus-themes
-    :config
-    ;; Nix stores the config read-only, so `custom-file' can't persist the
-    ;; "trust this theme" answer. Trust themes up front instead of prompting.
-    (setq custom-safe-themes t)
-    (load-theme 'modus-vivendi-tritanopia :no-confirm))
-#+end_src
-
 *** UI and navigation
 **** breadcrumb
 #+begin_src emacs-lisp
