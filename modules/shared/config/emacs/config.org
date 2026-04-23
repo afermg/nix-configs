@@ -1085,6 +1085,56 @@ Using [[https://github.com/eki3z/mini-echo.el][mini-echo]] — renders the model
   (use-package mini-echo
     :straight (mini-echo :type git :host github :repo "eki3z/mini-echo.el")
     :config
+    ;; `remote-host' only fires for TRAMP buffers; define a local-hostname
+    ;; segment so the machine name is always surfaced.
+    (mini-echo-define-segment "hostname"
+      "Return the short hostname of the local machine."
+      :fetch
+      (mini-echo-segment--print
+       (car (split-string (system-name) "\\."))
+       'mini-echo-remote-host))
+
+    ;; Always surface hostname and git branch regardless of echo-area width.
+    (setq mini-echo-persistent-rule
+          '(:long  ("major-mode" "shrink-path" "vcs" "buffer-position"
+                    "buffer-size" "hostname" "flymake")
+            :short ("buffer-name" "buffer-position" "flymake"
+                    "vcs" "hostname")))
+
+    ;; Some major modes (magit, dired, ibuffer, …) get their own hard-coded
+    ;; rule from `mini-echo-persistent-detect', which bypasses the rule
+    ;; above. Append hostname and vcs to whatever it returns so they're
+    ;; never dropped.
+    (define-advice mini-echo-persistent-detect
+        (:filter-return (rule) afm/always-hostname+vcs)
+      (when rule
+        (let ((extra '("hostname" "vcs")))
+          (cl-loop for (key val) on rule by #'cddr
+                   append (list key
+                                (append val
+                                        (seq-difference extra val)))))))
+
+    ;; Make mini-echo's own faces follow the active theme instead of its
+    ;; hard-coded palette.
+    (dolist (spec '((mini-echo-buffer-size     . shadow)
+                    (mini-echo-buffer-position . mode-line-emphasis)
+                    (mini-echo-project         . font-lock-type-face)
+                    (mini-echo-major-mode      . font-lock-keyword-face)
+                    (mini-echo-remote-host     . font-lock-constant-face)
+                    (mini-echo-selection-info  . font-lock-string-face)
+                    (mini-echo-macro           . font-lock-warning-face)
+                    (mini-echo-narrow          . font-lock-warning-face)
+                    (mini-echo-repeat          . font-lock-warning-face)
+                    (mini-echo-blame           . shadow)
+                    (mini-echo-time            . shadow)
+                    (mini-echo-word-count      . shadow)))
+      (let ((face (car spec)) (inherit (cdr spec)))
+        (when (facep face)
+          (set-face-attribute face nil
+                              :foreground 'unspecified
+                              :background 'unspecified
+                              :inherit inherit))))
+
     (mini-echo-mode 1))
 #+end_src
 
