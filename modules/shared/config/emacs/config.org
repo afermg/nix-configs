@@ -525,6 +525,13 @@ To snipe things on the screen
   (setq avy-timeout-seconds 0.3))
 #+end_src
 
+**** comment-dwim-2
+Toggle: # comment on left of line -> on right of line #
+#+begin_src emacs-lisp
+  (use-package comment-dwim-2
+    :bind ("M-;" . comment-dwim-2))
+#+end_src
+
 ** Conveniences
 #+begin_src emacs-lisp
   (defun copy-and-comment-region (beg end &optional arg)
@@ -3544,12 +3551,6 @@ nethack, asdf).
 #+end_src
 
 *** Editing
-**** comment-dwim-2
-#+begin_src emacs-lisp
-  (use-package comment-dwim-2
-    :bind ("M-;" . comment-dwim-2))
-#+end_src
-
 **** visual-regexp-steroids
 #+begin_src emacs-lisp
   (use-package visual-regexp-steroids
