@@ -1085,19 +1085,6 @@ Completion
 #+end_src
 
 ** Aesthetics
-*** Themes
-#+NAME: themes-autothemer
-#+BEGIN_SRC emacs-lisp
-  (use-package doom-themes
-    :ensure t
-    :config
-     (setq doom-themes-enable-bold t
-           doom-themes-enable-italic t)
-      (load-theme 'modus-vivendi)
-      (doom-themes-visual-bell-config)
-      (doom-themes-org-config))
-#+END_SRC
-
 *** Show time on fullscreen
 I usually use Emacs on fullscreen, which prevents me from using the host's computer clock.
 #+begin_src emacs-lisp
@@ -3579,6 +3566,274 @@ It's surprisingly hard to get a decent screenshot program cross-system
 
 # #+RESULTS:
 # : org-download-screenshot
+
+** Trial
+Packages sourced from https://lobste.rs/s/sz3gab/what_are_your_favorite_emacs_packages
+that I don't currently use. Move promoted ones into their proper section; drop the rest.
+Skipped: built-ins (ERC/eshell/eglot/uniquify/flyspell/winner/ediff/Gnus), packages that
+conflict with my current stack (Helm, swiper, better-defaults), and invasive picks (exwm,
+nethack, asdf).
+*** Themes
+**** COMMENT ef-themes
+#+begin_src emacs-lisp
+  (use-package ef-themes
+    :defer t)
+#+end_src
+
+**** modus-themes
+#+begin_src emacs-lisp
+  (use-package modus-themes
+    :config
+    ;; Nix stores the config read-only, so `custom-file' can't persist the
+    ;; "trust this theme" answer. Trust themes up front instead of prompting.
+    (setq custom-safe-themes t)
+    (load-theme 'modus-vivendi-tritanopia :no-confirm))
+#+end_src
+
+**** doric-themes
+#+begin_src emacs-lisp
+  (use-package doric-themes
+    :defer t)
+#+end_src
+
+*** UI and navigation
+**** breadcrumb
+#+begin_src emacs-lisp
+  (use-package breadcrumb
+    :defer t)
+#+end_src
+
+**** ace-window
+#+begin_src emacs-lisp
+  (use-package ace-window
+    :bind ("M-o" . ace-window))
+#+end_src
+
+**** idle-highlight-mode
+#+begin_src emacs-lisp
+  (use-package idle-highlight-mode
+    :hook (prog-mode . idle-highlight-mode))
+#+end_src
+
+**** ultra-scroll
+#+begin_src emacs-lisp
+  (use-package ultra-scroll
+    :straight (ultra-scroll :type git :host github :repo "jdtsmith/ultra-scroll")
+    :config
+    (ultra-scroll-mode 1))
+#+end_src
+
+**** uniline
+#+begin_src emacs-lisp
+  (use-package uniline
+    :defer t)
+#+end_src
+
+*** Windows and buffers
+**** shackle
+#+begin_src emacs-lisp
+  (use-package shackle
+    :defer t)
+#+end_src
+
+**** popper
+#+begin_src emacs-lisp
+  (use-package popper
+    :bind (("C-`"   . popper-toggle)
+           ("M-`"   . popper-cycle)
+           ("C-M-`" . popper-toggle-type))
+    :init
+    (setq popper-reference-buffers
+          '("\\*Messages\\*"
+            "Output\\*$"
+            "\\*Async Shell Command\\*"
+            help-mode
+            compilation-mode))
+    (popper-mode +1)
+    (popper-echo-mode +1))
+#+end_src
+
+*** Editing
+**** comment-dwim-2
+#+begin_src emacs-lisp
+  (use-package comment-dwim-2
+    :bind ("M-;" . comment-dwim-2))
+#+end_src
+
+**** visual-regexp-steroids
+#+begin_src emacs-lisp
+  (use-package visual-regexp-steroids
+    :defer t)
+#+end_src
+
+**** dwim-shell-command
+#+begin_src emacs-lisp
+  (use-package dwim-shell-command
+    :bind (([remap shell-command] . dwim-shell-command)
+           :map dired-mode-map
+           ([remap dired-do-async-shell-command] . dwim-shell-command)
+           ([remap dired-do-shell-command] . dwim-shell-command)
+           ([remap dired-smart-shell-command] . dwim-shell-command)))
+#+end_src
+
+**** super-save
+#+begin_src emacs-lisp
+  (use-package super-save
+    :config
+    (super-save-mode +1))
+#+end_src
+
+**** persistent-scratch
+#+begin_src emacs-lisp
+  (use-package persistent-scratch
+    :config
+    (persistent-scratch-setup-default))
+#+end_src
+
+*** Search and jump
+**** rg
+#+begin_src emacs-lisp
+  (use-package rg
+    :defer t)
+#+end_src
+
+**** dumb-jump
+#+begin_src emacs-lisp
+  (use-package dumb-jump
+    :config
+    (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
+#+end_src
+
+*** Version control
+**** diff-hl
+#+begin_src emacs-lisp
+  (use-package diff-hl
+    :hook ((prog-mode . diff-hl-mode)
+           (magit-pre-refresh . diff-hl-magit-pre-refresh)
+           (magit-post-refresh . diff-hl-magit-post-refresh)))
+#+end_src
+
+**** git-link
+#+begin_src emacs-lisp
+  (use-package git-link
+    :defer t)
+#+end_src
+
+*** Dired
+**** dired-preview
+#+begin_src emacs-lisp
+  (use-package dired-preview
+    :hook (dired-mode . dired-preview-mode))
+#+end_src
+
+**** dired-subtree
+#+begin_src emacs-lisp
+  (use-package dired-subtree
+    :after dired
+    :bind (:map dired-mode-map
+                ("<tab>" . dired-subtree-toggle)
+                ("<backtab>" . dired-subtree-cycle)))
+#+end_src
+
+**** ready-player
+#+begin_src emacs-lisp
+  (use-package ready-player
+    :config
+    (ready-player-mode +1))
+#+end_src
+
+*** Python
+**** python-pytest
+#+begin_src emacs-lisp
+  (use-package python-pytest
+    :defer t)
+#+end_src
+
+**** python-coverage
+#+begin_src emacs-lisp
+  (use-package python-coverage
+    :defer t)
+#+end_src
+
+*** Notes
+**** denote
+#+begin_src emacs-lisp
+  (use-package denote
+    :defer t)
+#+end_src
+
+**** howm
+#+begin_src emacs-lisp
+  (use-package howm
+    :defer t)
+#+end_src
+
+**** org-modern
+#+begin_src emacs-lisp
+  (use-package org-modern
+    :hook ((org-mode . org-modern-mode)
+           (org-agenda-finalize . org-modern-agenda)))
+#+end_src
+
+*** Media and misc
+**** emms
+#+begin_src emacs-lisp
+  (use-package emms
+    :defer t)
+#+end_src
+
+**** COMMENT elpher
+Gopher/Gemini browser.
+#+begin_src emacs-lisp
+  (use-package elpher
+    :defer t)
+#+end_src
+
+**** COMMENT scpaste
+Place an HTML copy of a buffer on the web on a server to which the user has SSH access.
+#+begin_src emacs-lisp
+  (use-package scpaste
+    :defer t)
+#+end_src
+
+*** System
+**** gcmh
+Garbage-collector magic hack - adjusts GC thresholds around user activity.
+#+begin_src emacs-lisp
+  (use-package gcmh
+    :config
+    (gcmh-mode 1))
+#+end_src
+
+**** vlf
+Handle very large files via chunked loading.
+#+begin_src emacs-lisp
+  (use-package vlf
+    :config
+    (require 'vlf-setup))
+#+end_src
+
+**** sis
+OS-native input method switching.
+#+begin_src emacs-lisp
+  (use-package sis
+    :defer t)
+#+end_src
+
+*** Lisp environments
+**** geiser
+Scheme interaction.
+#+begin_src emacs-lisp
+  (use-package geiser
+    :defer t)
+#+end_src
+
+**** slime
+Common Lisp environment.
+#+begin_src emacs-lisp
+  (use-package slime
+    :defer t)
+#+end_src
 
 ** Graveyard
 - org-transclusion: Conflicted with org-mode async export
