@@ -34,6 +34,21 @@ Otherwise
   sudo ./result/sw/bin/darwin-rebuild switch --flake .#darwin001
 #+end_src
 
+The flake exposes two Darwin configurations that share =machines/darwin= and only differ in =user=:
+- =darwin001= → user =alan=
+- =darwin002= → user =amunozgo=
+
+On the second Mac, swap =darwin001= for =darwin002= in the command above.
+
+*** Update home only (no sudo)
+Home-Manager is wired in as a =nix-darwin= module, so there is no standalone =home-manager switch= here. To re-activate just the user-level bits (dotfiles, user packages, fish/git/atuin config, user launchd agents) without touching system defaults, Homebrew, or =/etc/nix/nix.custom.conf=:
+#+begin_src bash
+  nix --extra-experimental-features 'nix-command flakes' \
+    build .#darwinConfigurations.darwin001.config.home-manager.users.alan.home.activationPackage \
+    && ./result/activate
+#+end_src
+Swap =darwin001=/=alan= for =darwin002=/=amunozgo= on the other Mac.
+
 
 
 * Where should I add packages?
