@@ -6,6 +6,7 @@
       "marimo-pair@marimo-pair" = true;
       "skill-creator@claude-plugins-official" = true;
       "compose-notebook@scientific-skills" = true;
+      "emacs-pair@afermg-emacs-pair" = true;
     };
     extraKnownMarketplaces = {
       marimo-pair = {
@@ -20,6 +21,13 @@
           source = "github";
           repo = "afermg/scientific-skills";
         };
+      };
+      afermg-emacs-pair = {
+        source = {
+          source = "github";
+          repo = "afermg/emacs-pair";
+        };
+        autoUpdate = true;
       };
     };
     skipDangerousModePermissionPrompt = true;

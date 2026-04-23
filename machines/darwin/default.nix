@@ -51,10 +51,11 @@ in
   };
 
   # Determinate Nix manages /etc/nix/nix.conf and ignores nix.settings above
-  # (since nix.enable = false). Write trusted-users into the companion file
-  # that /etc/nix/nix.conf loads via `!include nix.custom.conf`.
+  # (since nix.enable = false). Write Determinate-specific settings into the
+  # companion file that /etc/nix/nix.conf loads via `!include nix.custom.conf`.
   environment.etc."nix/nix.custom.conf".text = ''
     trusted-users = root @admin ${user}
+    lazy-trees = true
   '';
 
   # Turn off NIX_PATH warnings now that we're using flakes

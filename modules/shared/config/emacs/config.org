@@ -1085,10 +1085,68 @@ I usually use Emacs on fullscreen, which prevents me from using the host's compu
 #+end_src
 
 *** Modeline
+Hand-rolled =mode-line-format= instead of doom-modeline. Order: meow state, file, date, time, line/col, buffer %, spacer, EOL style, encoding, major mode, git branch, hostname.
+
+=display-time-mode= is enabled purely as a cheap way to force a modeline refresh every minute so the clock ticks; its own string is suppressed.
 #+begin_src emacs-lisp
-  (use-package doom-modeline
-    :ensure t
-    :init (doom-modeline-mode 1))
+  (defun afm/ml-hostname ()
+    (car (split-string (system-name) "\\.")))
+
+  (defun afm/ml-vc ()
+    "Just the branch, no backend prefix."
+    (when (and vc-mode buffer-file-name)
+      (let ((s (string-trim vc-mode)))
+        (if (string-match "\\`[A-Za-z]+[:-]\\(.+\\)\\'" s)
+            (match-string 1 s)
+          s))))
+
+  (defun afm/ml-eol ()
+    (pcase (coding-system-eol-type buffer-file-coding-system)
+      (0 "LF") (1 "CRLF") (2 "CR") (_ "")))
+
+  (defun afm/ml-encoding ()
+    (let ((mime (coding-system-get buffer-file-coding-system 'mime-charset)))
+      (if mime (upcase (symbol-name mime))
+        (symbol-name buffer-file-coding-system))))
+
+  (defvar afm/ml-left
+    '((:eval (when (bound-and-true-p meow-mode) (meow-indicator)))
+      " %* " ; modified flag
+      (:propertize "%b" face mode-line-buffer-id)
+      "  "
+      (:eval (format-time-string "%Y-%m-%d"))
+      " "
+      (:eval (format-time-string "%H:%M"))
+      "  "
+      "L%l:C%c"
+      "  "
+      "%p%%"))
+
+  (defvar afm/ml-right
+    '((:eval (afm/ml-eol))
+      "  "
+      (:eval (afm/ml-encoding))
+      "  "
+      mode-name
+      "  "
+      (:eval (or (afm/ml-vc) ""))
+      "  "
+      (:eval (afm/ml-hostname))
+      " "))
+
+  (defun afm/ml-render ()
+    (let* ((left  (format-mode-line afm/ml-left))
+           (right (format-mode-line afm/ml-right))
+           (fill  (max 1 (- (window-total-width)
+                            (string-width left)
+                            (string-width right)))))
+      (concat left (make-string fill ?\s) right)))
+
+  (setq-default mode-line-format '("%e" (:eval (afm/ml-render))))
+
+  ;; Force a modeline refresh every minute so the clock advances.
+  (setq display-time-format "" display-time-default-load-average nil)
+  (display-time-mode 1)
 #+end_src
 
 ** Org mode
