@@ -2971,6 +2971,51 @@ Fallback to go to function definition if eglot fails
     (interactive)
     (eww-browse-url (concat "https://" (car (elfeed-entry-id elfeed-show-entry)) "/about")))
 
+  (defvar my/elfeed-search-filter-history nil
+    "Stack of previous `elfeed-search-filter' values for `my/elfeed-search-back'.")
+
+  (defun my/elfeed-search--push-history (new-filter)
+    "Push the current `elfeed-search-filter' onto the history before changing."
+    (when (and (stringp elfeed-search-filter)
+               (not (equal elfeed-search-filter new-filter)))
+      (push elfeed-search-filter my/elfeed-search-filter-history)))
+  (advice-add 'elfeed-search-set-filter :before #'my/elfeed-search--push-history)
+
+  (defun my/elfeed-search-back ()
+    "Pop and restore the previous `elfeed-search-filter'."
+    (interactive)
+    (if (null my/elfeed-search-filter-history)
+        (user-error "No previous elfeed search filter")
+      (let ((prev (pop my/elfeed-search-filter-history))
+            ;; Don't let `elfeed-search-set-filter' re-push current filter.
+            (advice-state (advice-member-p #'my/elfeed-search--push-history
+                                           'elfeed-search-set-filter)))
+        (unwind-protect
+            (progn
+              (advice-remove 'elfeed-search-set-filter
+                             #'my/elfeed-search--push-history)
+              (elfeed-search-set-filter prev))
+          (when advice-state
+            (advice-add 'elfeed-search-set-filter :before
+                        #'my/elfeed-search--push-history))))))
+
+  (defun elfeed-search-by-current-source ()
+    "Show all elfeed entries from the source shown in the middle column.
+  Uses the same value `elfeed-search-mode' prints (e.g. \"stargrave\"):
+  `:title' meta first, falling back to the feed's own title.
+  Works in both `elfeed-show-mode' and `elfeed-search-mode'."
+    (interactive)
+    (let* ((entry (cond
+                   ((derived-mode-p 'elfeed-show-mode) elfeed-show-entry)
+                   ((derived-mode-p 'elfeed-search-mode) (elfeed-search-selected :single))
+                   (t (user-error "Not in an elfeed buffer"))))
+           (feed (elfeed-entry-feed entry))
+           (title (or (elfeed-meta feed :title)
+                      (elfeed-feed-title feed)
+                      (user-error "No feed title found for this entry"))))
+      (elfeed)
+      (elfeed-search-set-filter (format "=\\`%s\\'" (regexp-quote title)))))
+
   (setq elfeed-goodies/entry-pane-size 0.6)
   (setq elfeed-goodies/log-window-size 0.4)
 
