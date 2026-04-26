@@ -1870,6 +1870,44 @@ Replace/delete pair of parens ([[https://emacs.stackexchange.com/a/37648][source
     (backward-char 1))
 #+end_src
 
+Open the org link at point in eww in another window, keeping point in the
+source buffer.
+
+#+begin_src emacs-lisp
+  (defun my/org-copy-link-at-point ()
+    "Copy the raw URL of the org-mode link at point to the kill ring."
+    (interactive)
+    (let ((ctx (org-element-context)))
+      (if (eq (org-element-type ctx) 'link)
+          (let ((url (org-element-property :raw-link ctx)))
+            (kill-new url)
+            (message "Copied: %s" url))
+        (user-error "No link at point"))))
+
+  (defun my/org-open-link-in-eww-other-window ()
+    "Open the org-mode link at point in eww in another window.
+  Point stays in the source buffer."
+    (interactive)
+    (let* ((ctx (org-element-context))
+           (type (org-element-type ctx))
+           (url (cond
+                 ((eq type 'link)
+                  (let ((ltype (org-element-property :type ctx))
+                        (path  (org-element-property :path ctx)))
+                    (cond
+                     ((member ltype '("http" "https" "ftp"))
+                      (concat ltype ":" path))
+                     ((equal ltype "file") path)
+                     (t (user-error "Unsupported link type: %s" ltype)))))
+                 ((thing-at-point 'url))
+                 (t (user-error "No link at point")))))
+      (save-selected-window
+        (let ((buf (save-window-excursion
+                     (eww url)
+                     (current-buffer))))
+          (display-buffer buf '(display-buffer-pop-up-window))))))
+#+end_src
+
 
 *** Visualisation
 DWIM, taken from Doom Emacs.
@@ -2647,6 +2685,12 @@ Very useful for interactive parsing
       (add-to-list 'project-switch-commands
                    '(magit-project-status "Magit") t))
 
+    (defun afm/project-auto-remember ()
+      "Remember the current buffer's project so it shows up in `project-switch-project'."
+      (when-let* ((proj (project-current nil)))
+        (project-remember-project proj)))
+    (add-hook 'find-file-hook #'afm/project-auto-remember)
+
     (dir-locals-set-class-variables
      'huge-git-repository
      '((nil
@@ -2746,6 +2790,24 @@ When in a file, go back in commit history.
     :config
     (add-hook 'git-timemachine-mode-hook 'meow-insert-mode)
     )
+#+END_SRC
+
+**** Claude Dashboard
+Magit-style dashboard for managing Claude Code instances launched from
+Emacs.  See [[https://github.com/afermg/emacs-claude-dashboard][afermg/emacs-claude-dashboard]].
+#+NAME: claude-dashboard
+#+BEGIN_SRC emacs-lisp
+  (use-package eat
+    :defer t)
+
+  (use-package claude-dashboard
+    :straight (:host github :repo "afermg/emacs-claude-dashboard"
+               :files ("claude-dashboard.el"))
+    :commands (claude-dashboard
+               claude-dashboard-new
+               claude-dashboard-continue
+               claude-dashboard-resume)
+    :bind ("C-c L" . claude-dashboard))
 #+END_SRC
 
 **** Dired-git
