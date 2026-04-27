@@ -3034,32 +3034,54 @@ Fallback to go to function definition if eglot fails
     (eww-browse-url (concat "https://" (car (elfeed-entry-id elfeed-show-entry)) "/about")))
 
   (defvar my/elfeed-search-filter-history nil
-    "Stack of previous `elfeed-search-filter' values for `my/elfeed-search-back'.")
+    "Most-recent-first, deduplicated list of past filter values.")
+  (defvar my/elfeed-search-filter-history-max 50
+    "Maximum number of entries kept in the history.")
+
+  (defun my/elfeed-search--record-filter (filter)
+    "Move FILTER to the head of `my/elfeed-search-filter-history'.
+  Drops any prior duplicate and caps the list at
+  `my/elfeed-search-filter-history-max'."
+    (when (and (stringp filter) (not (string-empty-p filter)))
+      (setq my/elfeed-search-filter-history
+            (cons filter (delete filter my/elfeed-search-filter-history)))
+      (when (> (length my/elfeed-search-filter-history)
+               my/elfeed-search-filter-history-max)
+        (setcdr (nthcdr (1- my/elfeed-search-filter-history-max)
+                        my/elfeed-search-filter-history)
+                nil))))
 
   (defun my/elfeed-search--push-history (new-filter)
-    "Push the current `elfeed-search-filter' onto the history before changing."
-    (when (and (stringp elfeed-search-filter)
-               (not (equal elfeed-search-filter new-filter)))
-      (push elfeed-search-filter my/elfeed-search-filter-history)))
+    "Before-advice on `elfeed-search-set-filter': record the outgoing filter."
+    (unless (equal elfeed-search-filter new-filter)
+      (my/elfeed-search--record-filter elfeed-search-filter)))
   (advice-add 'elfeed-search-set-filter :before #'my/elfeed-search--push-history)
 
+  ;; `elfeed-search-live-filter' (bound to `s' in elfeed-search-mode) sets
+  ;; `elfeed-search-filter' via `setq', bypassing `elfeed-search-set-filter'.
+  ;; Capture those manual edits with :around advice.
+  (defun my/elfeed-search--around-live-filter (orig-fn &rest args)
+    "Around-advice on `elfeed-search-live-filter': record the outgoing filter."
+    (let ((before elfeed-search-filter))
+      (unwind-protect (apply orig-fn args)
+        (unless (equal before elfeed-search-filter)
+          (my/elfeed-search--record-filter before)))))
+  (advice-add 'elfeed-search-live-filter :around #'my/elfeed-search--around-live-filter)
+
   (defun my/elfeed-search-back ()
-    "Pop and restore the previous `elfeed-search-filter'."
+    "Pick a recent `elfeed-search-filter' via `consult' and apply it.
+  Candidates come from `my/elfeed-search-filter-history', deduplicated and
+  ordered most-recent-first."
     (interactive)
-    (if (null my/elfeed-search-filter-history)
-        (user-error "No previous elfeed search filter")
-      (let ((prev (pop my/elfeed-search-filter-history))
-            ;; Don't let `elfeed-search-set-filter' re-push current filter.
-            (advice-state (advice-member-p #'my/elfeed-search--push-history
-                                           'elfeed-search-set-filter)))
-        (unwind-protect
-            (progn
-              (advice-remove 'elfeed-search-set-filter
-                             #'my/elfeed-search--push-history)
-              (elfeed-search-set-filter prev))
-          (when advice-state
-            (advice-add 'elfeed-search-set-filter :before
-                        #'my/elfeed-search--push-history))))))
+    (unless my/elfeed-search-filter-history
+      (user-error "No previous elfeed search filter"))
+    (let ((chosen (consult--read
+                   my/elfeed-search-filter-history
+                   :prompt "Elfeed filter: "
+                   :category 'elfeed-search-filter
+                   :sort nil
+                   :require-match t)))
+      (elfeed-search-set-filter chosen)))
 
   (defun elfeed-search-by-current-source ()
     "Show all elfeed entries from the source shown in the middle column.
