@@ -17,12 +17,10 @@
   # config.org is intentionally not linked here — init.el already reads it
   # directly from the repo path, so it stays editable with zero setup.
 
-  # Email configuration (mbsync + msmtp)
+  # Email configuration (mbsync stays as a raw file; msmtp is now generated
+  # by home-manager via accounts.email in home.nix, since msmtp requires the
+  # rc file to be mode 0600 — impossible on a read-only /nix/store symlink.)
   ".mbsyncrc" = {
     text = builtins.readFile ../shared/config/email/mbsyncrc;
-  };
-  ".msmtprc" = {
-    text = builtins.readFile ../shared/config/email/msmtprc;
-    onChange = "chmod 600 $HOME/.msmtprc";
   };
 }

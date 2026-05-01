@@ -206,6 +206,40 @@ in
     '';
   };
 
+  # SMTP: port 587 is blackholed on this network (TCP accepts but no banner
+  # arrives, hangs on recvfrom), so both accounts use 465 / implicit TLS.
+  programs.msmtp.enable = true;
+  accounts.email = {
+    maildirBasePath = ".mail";
+    accounts = {
+      quasimorphic = {
+        primary = true;
+        realName = "Alán F. Muñoz";
+        address = "alan@quasimorphic.com";
+        userName = "alan@quasimorphic.com";
+        passwordCommand = [ "rbw" "get" "'Quasimorphic Email'" ];
+        smtp = {
+          host = "witcher.mxrouting.net";
+          port = 465;
+          tls.useStartTls = false;
+        };
+        msmtp.enable = true;
+      };
+      broad = {
+        realName = "Alán F. Muñoz";
+        address = "amunozgo@broadinstitute.org";
+        userName = "amunozgo@broadinstitute.org";
+        passwordCommand = [ "rbw" "get" "'Broad Email App Password'" ];
+        smtp = {
+          host = "smtp.gmail.com";
+          port = 465;
+          tls.useStartTls = false;
+        };
+        msmtp.enable = true;
+      };
+    };
+  };
+
   programs.git = {
     enable = true;
     lfs.enable = true;
