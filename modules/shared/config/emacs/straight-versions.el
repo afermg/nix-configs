@@ -34,7 +34,7 @@
  ("elfeed-org" . "34c0b4d758942822e01a5dbe66b236e49a960583")
  ("elisp-refs" . "541a064c3ce27867872cf708354a65d83baf2a6d")
  ("emacs-async" . "31cb2fea8f4bc7a593acd76187a89075d8075500")
- ("emacs-claude-dashboard" . "d4d0b96ff8e0a6ea7c6c97da5c16556fa8b95383")
+ ("emacs-claude-dashboard" . "33174873539382fd75f3aeee0f85392964da9982")
  ("emacs-eat" . "c8d54d649872bfe7b2b9f49ae5c2addbf12d3b99")
  ("emacs-hide-mode-line" . "ddd154f1e04d666cd004bf8212ead8684429350d")
  ("emacs-load-relative" . "b7987c265a64435299d6b02f960ed2c894c4a145")
