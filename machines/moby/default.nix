@@ -80,7 +80,6 @@
 
     # Apache tika: Processs documents for LLM ingestion of PDFs
     # tika.enable = true;
-    # overleaf.enable = true;
 
     # Emacs: The one and only True Editor.
     emacs = {

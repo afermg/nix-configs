@@ -53,8 +53,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    overleaf.url = "github:adega318/nix-overleaf";
-
     # Home manager
     home-manager = {
       url = "github:nix-community/home-manager/master";
@@ -106,7 +104,6 @@
       nixpkgs,
       home-manager,
       agenix,
-      overleaf,
       systems,
       flake-utils,
       ...
@@ -144,7 +141,6 @@
           modules = [
             ./machines/moby
             agenix.nixosModules.default
-            # overleaf.nixosModules.default
 
             {
               age.secrets = {
