@@ -2313,13 +2313,13 @@ test
 #+begin_src emacs-lisp
   (use-package eat
     :straight (:type git
-               :host codeberg
-               :repo "akib/emacs-eat"
-               :files ("*.el" ("term" "term/*.el") "*.texi"
-                       "*.ti" ("terminfo/e" "terminfo/e/*")
-                       ("terminfo/65" "terminfo/65/*")
-                       ("integration" "integration/*")
-                       (:exclude ".dir-locals.el" "*-tests.el")))
+  		   :host codeberg
+  		   :repo "akib/emacs-eat"
+  		   :files ("*.el" ("term" "term/*.el") "*.texi"
+  			   "*.ti" ("terminfo/e" "terminfo/e/*")
+  			   ("terminfo/65" "terminfo/65/*")
+  			   ("integration" "integration/*")
+  			   (:exclude ".dir-locals.el" "*-tests.el")))
     :init
     (defun toggle-eat-window ()
       "Toggle a bottom side-window *eat* terminal."
@@ -2336,13 +2336,14 @@ test
     :config
     (setq eat-kill-buffer-on-exit t)
     (setq eat-term-scrollback-size 10000)
-
+    (setq process-adaptive-read-buffering nil)
+    (setq read-process-output-max (* 4 1024 1024))
     (defun +eat/here (arg)
       "Open an eat terminal buffer in the current window at project root.
 
-  If prefix ARG is non-nil, cd into `default-directory' instead of project root.
+    If prefix ARG is non-nil, cd into `default-directory' instead of project root.
 
-  Returns the eat buffer."
+    Returns the eat buffer."
       (interactive "P")
       (+eat--configure-project-root-and-display
        arg
@@ -2354,9 +2355,9 @@ test
     (defun +eat--configure-project-root-and-display (arg display-fn)
       "Set PROOT and display a terminal using `display-fn`.
 
-  If prefix ARG is non-nil, cd into `default-directory' instead of project root.
+    If prefix ARG is non-nil, cd into `default-directory' instead of project root.
 
-  Returns the eat buffer."
+    Returns the eat buffer."
       (let* ((project-root default-directory)
              (default-directory
               (if arg default-directory project-root)))
