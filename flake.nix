@@ -55,9 +55,6 @@
 
     overleaf.url = "github:adega318/nix-overleaf";
 
-    # VS Code
-    vscode-server.url = "github:nix-community/nixos-vscode-server";
-
     # Home manager
     home-manager = {
       url = "github:nix-community/home-manager/master";
@@ -164,11 +161,13 @@
       # Available through 'darwin-rebuild --flake .#your-hostname'
       darwinConfigurations =
         let
-          mkDarwin = user: inputs.darwin.lib.darwinSystem {
-            system = "aarch64-darwin";
-            modules = [ ./machines/darwin ];
-            specialArgs = { inherit inputs outputs user; };
-          };
+          mkDarwin =
+            user:
+            inputs.darwin.lib.darwinSystem {
+              system = "aarch64-darwin";
+              modules = [ ./machines/darwin ];
+              specialArgs = { inherit inputs outputs user; };
+            };
         in
         {
           darwin001 = mkDarwin "alan";
@@ -179,14 +178,19 @@
       # Available through 'home-manager switch --flake .#your-username@your-hostname'
       homeConfigurations =
         let
-          mkDarwinHome = user: lib.homeManagerConfiguration {
-            pkgs = pkgsFor.aarch64-darwin;
-            extraSpecialArgs = { inherit inputs outputs; username = user; };
-            modules = [
-              agenix.homeManagerModules.default
-              ./homes/amunoz/darwin.nix
-            ];
-          };
+          mkDarwinHome =
+            user:
+            lib.homeManagerConfiguration {
+              pkgs = pkgsFor.aarch64-darwin;
+              extraSpecialArgs = {
+                inherit inputs outputs;
+                username = user;
+              };
+              modules = [
+                agenix.homeManagerModules.default
+                ./homes/amunoz/darwin.nix
+              ];
+            };
         in
         {
           "amunoz@moby" = lib.homeManagerConfiguration {
