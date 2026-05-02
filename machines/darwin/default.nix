@@ -193,6 +193,15 @@ in
         # This is needed even if you enable zsh in home manager
         zsh.enable = true;
         fish.enable = true;
+        wezterm = {
+          enable = true;
+          extraConfig = ''
+            local config = wezterm.config_builder()
+            config.send_composed_key_when_left_alt_is_pressed = false
+            config.send_composed_key_when_right_alt_is_pressed = true
+            return config
+          '';
+        };
       }
       // import ../../modules/shared/home-manager.nix { inherit config pkgs lib; };
     };
