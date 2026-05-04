@@ -1,5 +1,10 @@
 /.agent-shell/
-/.claude/
+# Ignore everything under .claude/ (runtime state, settings.local.json,
+# worktrees, history) EXCEPT project-scoped skills authored for this repo.
+# The /* excludes only direct children rather than the directory itself, so
+# the negation below can re-include /skills/.
+/.claude/*
+!/.claude/skills/
 
 # Nix build outputs
 result
