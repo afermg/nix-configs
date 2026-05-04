@@ -11,8 +11,7 @@
   # home-manager rebuild. Same treatment applied across Linux and Darwin
   # (both import this file via homes/amunoz/home.nix).
   ".emacs.d/init.el" = {
-    source = config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/.local/share/src/nixos-config/modules/shared/config/emacs/init.el";
+    source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.local/share/src/nixos-config/modules/shared/config/emacs/init.el";
   };
   # config.org is intentionally not linked here — init.el already reads it
   # directly from the repo path, so it stays editable with zero setup.

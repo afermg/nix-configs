@@ -201,7 +201,7 @@ in
           --preview-window='border-rounded' --prompt='  ' --marker=' ' --pointer=' ' 
           --separator='─' --scrollbar='┃' --layout='reverse' 
         "
-      set -x ATUIN_NOBIND = true
+      set -x ATUIN_NOBIND true
       bind \cR fzf_history
     '';
   };
@@ -217,7 +217,11 @@ in
         realName = "Alán F. Muñoz";
         address = "alan@quasimorphic.com";
         userName = "alan@quasimorphic.com";
-        passwordCommand = [ "rbw" "get" "'Quasimorphic Email'" ];
+        passwordCommand = [
+          "rbw"
+          "get"
+          "'Quasimorphic Email'"
+        ];
         smtp = {
           host = "witcher.mxrouting.net";
           port = 465;
@@ -229,7 +233,11 @@ in
         realName = "Alán F. Muñoz";
         address = "amunozgo@broadinstitute.org";
         userName = "amunozgo@broadinstitute.org";
-        passwordCommand = [ "rbw" "get" "'Broad Email App Password'" ];
+        passwordCommand = [
+          "rbw"
+          "get"
+          "'Broad Email App Password'"
+        ];
         smtp = {
           host = "smtp.gmail.com";
           port = 465;

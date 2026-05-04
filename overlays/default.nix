@@ -34,8 +34,7 @@
 
   emacs = inputs.emacs-overlay.overlay;
 
-  claude-code =
-    final: _: {
-      claude-code = inputs.claude-code.packages.${final.stdenv.hostPlatform.system}.default;
-    };
+  claude-code = final: _: {
+    claude-code = inputs.claude-code.packages.${final.stdenv.hostPlatform.system}.default;
+  };
 }

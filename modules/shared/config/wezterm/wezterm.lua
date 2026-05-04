@@ -4,8 +4,9 @@ local config = wezterm.config_builder()
 
 config.font_size = 15
 
+local USER = os.getenv("USER") or "unknown"
 config.set_environment_variables = {
-  PATH = string.format("/run/current-system/sw/bin:%s/.nix-profile/bin:%s/.nix-profile/bin:/nix/var/nix/profiles/default/bin:/sbin:/bin:/usr/sbin:/usr/bin", HOME, HOME)
+  PATH = string.format("/etc/profiles/per-user/%s/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin", USER)
 }
 
 wezterm.on('gui-startup', function(cmd)
@@ -26,5 +27,9 @@ config.window_padding = {
   top = 0,
   bottom = 0,
 }
+
+-- macOS: let left alt send raw keys (for Emacs meta), right alt for diacritics
+config.send_composed_key_when_left_alt_is_pressed = false
+config.send_composed_key_when_right_alt_is_pressed = true
 
 return config

@@ -65,10 +65,7 @@ This associates our package manager with the right source (MELPA).
     "Return true if system is GNU/Linux-based"
     (string-equal system-type "gnu/linux"))
 
-  ;; Set path for darwin
-  (when (system-is-mac)
-    (setenv "PATH" (concat (getenv "PATH") ":~/.nix-profile/bin:/usr/bin"))
-    (setq exec-path (append '("~/bin" "~/.nix-profile/bin" "/nix/var/nix/profiles/default/bin" "/usr/local/bin" "/usr/bin") exec-path)))
+  ;; PATH and exec-path are set by exec-path-from-shell in init.el.
 #+END_SRC
 
 *** Modes
@@ -621,10 +618,11 @@ Browse from anywhere
 Useful to read credentials risk of committing to repo.
 #+begin_src emacs-lisp
   (defun get-string-from-file (filePath)
-    "Return file content as string."
-    (with-temp-buffer
-      (insert-file-contents filePath)
-      (buffer-string)))
+    "Return file content as string, or nil if file does not exist."
+    (when (file-exists-p filePath)
+      (with-temp-buffer
+        (insert-file-contents filePath)
+        (string-trim (buffer-string)))))
 #+end_src
 
 *** Directories/popping
@@ -3372,12 +3370,13 @@ Simple but working gptel+magit integration. Replaced gptcommit-mode
     :ensure t
     ;; :ensure-system-package
     :config
-    ;; With string
-    (setq agent-shell-anthropic-authentication
-      (agent-shell-anthropic-make-authentication :oauth (get-string-from-file claude-key-file)))
+    (when-let ((claude-key (get-string-from-file claude-key-file)))
+      (setq agent-shell-anthropic-authentication
+        (agent-shell-anthropic-make-authentication :oauth claude-key)))
     (setq agent-shell-anthropic-default-session-mode-id "bypassPermissions")
-    (setq agent-shell-google-authentication
-  	(agent-shell-google-make-authentication :api-key (get-string-from-file gptel-key-file)))
+    (when-let ((gemini-key (get-string-from-file gptel-key-file)))
+      (setq agent-shell-google-authentication
+  	(agent-shell-google-make-authentication :api-key gemini-key)))
     (setq agent-shell-prefer-viewport-interaction t)
     (setq agent-shell-google-gemini-acp-command (list "gemini" "--experimental-acp" "--approval-mode=yolo"))
     (setq agent-shell-session-strategy 'prompt)

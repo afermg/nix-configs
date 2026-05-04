@@ -101,7 +101,6 @@ with pkgs;
 
   # media
   inkscape # Graphics editing
-  mpv # video player
   ffmpeg # video processing needs
   imagemagick # image processing
   graphicsmagick # imagemagick (+speed, -features) alternative

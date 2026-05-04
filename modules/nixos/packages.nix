@@ -30,6 +30,7 @@ shared-packages
   kitty # darwin fails
   ghostty # Only needed to be able to share clipboard, since wezterm is not working https://github.com/wezterm/wezterm/pull/6239
 
+  mpv # video player # failing to compile in macos
   # xclip # For the org-download package in Emacs
   # xdotool
 ]
