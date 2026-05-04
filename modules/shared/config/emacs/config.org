@@ -2803,12 +2803,31 @@ Emacs.  See [[https://github.com/afermg/emacs-claude-dashboard][afermg/emacs-cla
 
   (use-package claude-dashboard
     :straight (:host github :repo "afermg/emacs-claude-dashboard"
-               :files ("claude-dashboard.el"))
+               :files ("claude-dashboard.el"
+                       "claude-dashboard-schedule.el"
+                       "claude-dashboard-recurring.el"))
     :commands (claude-dashboard
                claude-dashboard-new
                claude-dashboard-continue
-               claude-dashboard-resume)
-    :bind ("C-c L" . claude-dashboard))
+               claude-dashboard-resume
+               claude-dashboard-schedule-send
+               claude-dashboard-schedule-launch
+               claude-dashboard-schedule-resume
+               claude-dashboard-schedule-launch-worktree
+               claude-dashboard-schedule-recurring-send
+               claude-dashboard-schedule-recurring-launch
+               claude-dashboard-schedule-recurring-launch-worktree
+               claude-dashboard-list-pending-sends
+               claude-dashboard-list-recurring
+               claude-dashboard-resume-pending-sends)
+    :bind ("C-c L" . claude-dashboard)
+    :config
+    ;; Schedulers — one-shot (S/J/L bindings) and recurring (r binding).
+    (require 'claude-dashboard-schedule)
+    (require 'claude-dashboard-recurring)
+    ;; Re-arm any sends, launches, and recurring schedules from disk.
+    ;; The :after advice on resume-pending-sends restores recurring too.
+    (claude-dashboard-resume-pending-sends))
 #+END_SRC
 
 **** Dired-git
