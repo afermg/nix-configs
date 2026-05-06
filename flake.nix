@@ -27,14 +27,6 @@
       url = "github:homebrew/homebrew-cask";
       flake = false;
     };
-    # vancluever-tap = {
-    #   url = "github:vancluever/homebrew-input-leap";
-    #   flake = false;
-    # };
-    # fuse-t-cask = {
-    #   url = "github:macos-fuse-t/homebrew-cask";
-    #   flake = false;
-    # };
     nikitabobko-cask = {
       url = "github:nikitabobko/homebrew-tap";
       flake = false;
@@ -61,37 +53,10 @@
 
     hardware.url = "github:nixos/nixos-hardware";
 
-    #nix-colors.url = "github:misterio77/nix-colors";
-
-    #nh = {
-    #  url = "github:viperml/nh";
-    #  inputs.nixpkgs.follows = "nixpkgs";
-    #};
-
-    #hyprland = {
-    #  url = "github:hyprwm/hyprland";
-    #  inputs.nixpkgs.follows = "nixpkgs";
-    #};
-
-    #hyprwm-contrib = {
-    #  url = "github:hyprwm/contrib";
-    #  inputs.nixpkgs.follows = "nixpkgs";
-    #};
-
-    #hyprland-plugins = {
-    #  url = "github:hyprwm/hyprland-plugins";
-    #  inputs.hyprland.follows = "hyprland";
-    #};
-
-    firefox-addons = {
-      url = "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    #superfile = {
-    #  url = "github:yorukot/superfile";
-    #  inputs.nixpkgs.follows = "nixpkgs-stable";
-    #};
+    # firefox-addons = {
+    #   url = "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
 
     emacs-overlay.url = "github:nix-community/emacs-overlay";
 
