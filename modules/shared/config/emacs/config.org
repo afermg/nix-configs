@@ -2861,7 +2861,8 @@ Emacs.  See [[https://github.com/afermg/emacs-claude-dashboard][afermg/emacs-cla
     :straight (:host github :repo "afermg/emacs-claude-dashboard"
                :files ("claude-dashboard.el"
                        "claude-dashboard-schedule.el"
-                       "claude-dashboard-recurring.el"))
+                       "claude-dashboard-recurring.el"
+                       "claude-dashboard-usage.el"))
     :commands (claude-dashboard
                claude-dashboard-new
                claude-dashboard-continue
@@ -2875,12 +2876,20 @@ Emacs.  See [[https://github.com/afermg/emacs-claude-dashboard][afermg/emacs-cla
                claude-dashboard-schedule-recurring-launch-worktree
                claude-dashboard-list-pending-sends
                claude-dashboard-list-recurring
-               claude-dashboard-resume-pending-sends)
+               claude-dashboard-resume-pending-sends
+               claude-dashboard-usage-list
+               claude-dashboard-usage-now)
     :bind ("C-c L" . claude-dashboard)
     :config
     ;; Schedulers — one-shot (S/J/L bindings) and recurring (r binding).
     (require 'claude-dashboard-schedule)
     (require 'claude-dashboard-recurring)
+    ;; Usage monitor — scans buffer tails for `Approaching ... · resets ...'
+    ;; and `usage limit reached' patterns.  Adds U binding for the list
+    ;; buffer.  Default mode is :monitor (passive); flip to :auto-resume
+    ;; via `M-x customize-variable RET claude-dashboard-usage-mode' once
+    ;; the patterns are validated against a real limit hit.
+    (require 'claude-dashboard-usage)
     ;; Re-arm any sends, launches, and recurring schedules from disk.
     ;; The :after advice on resume-pending-sends restores recurring too.
     (claude-dashboard-resume-pending-sends))
