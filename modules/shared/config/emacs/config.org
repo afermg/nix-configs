@@ -2585,6 +2585,64 @@ Common Lisp environment.
   (add-hook 'eglot-managed-mode-hook #'select-python-interpreter)
 #+end_src
 
+***** Project-aware REPL buffer naming
+Default ~run-python~ creates a single global ~*Python*~ buffer, so a
+second project's ~C-c C-z~ (and our ~;sr~ / ~;sb~ / ~;sd~ send commands)
+just dump back into the first project's REPL. Advise
+~python-shell-get-process-name~ so the buffer name tracks the current
+project: ~*<project>*~ when in a project, ~*Python*~ (the original)
+otherwise. On a real collision with a live REPL of the same project
+basename rooted at a *different* project, fall back to a path-suffixed
+name (~*<project><<root>>*~) so both can coexist.
+
+The collision check compares *project roots*, not buffer
+~default-directory~ — a REPL launched from a project subdir has
+~default-directory~ pointing at that subdir, not the project root, so
+comparing dirs would incorrectly flag every same-project second REPL as
+a collision and spawn a path-suffixed sibling no one wanted.
+
+#+begin_src emacs-lisp
+  (defun afm/python-buffer-name-by-project (orig &rest args)
+    "Replace the `Python' prefix returned by ORIG with the project name.
+  On collision with a live REPL of the same basename rooted at a
+  different project, fall back to a path-suffixed name so both can
+  coexist."
+    (let ((name (apply orig args)))
+      (if-let* ((proj (project-current nil))
+                (root (project-root proj))
+                (proj-name (file-name-nondirectory
+                            (directory-file-name root))))
+          (let* ((with-name (replace-regexp-in-string
+                             "\\`Python" proj-name name t t))
+                 (target-buf (format "*%s*" with-name)))
+            (if (let ((existing (get-buffer target-buf)))
+                  (and existing
+                       (process-live-p (get-buffer-process existing))
+                       (with-current-buffer existing
+                         ;; Compare PROJECT ROOTS, not default-directory.
+                         ;; A REPL's default-directory is wherever it was
+                         ;; launched (often a project subdir), not the
+                         ;; project root.  If the existing buffer has no
+                         ;; project at all, treat it as a different
+                         ;; project (conservative — fall back to
+                         ;; path-suffixed name).
+                         (let ((other-proj (project-current nil)))
+                           (or (null other-proj)
+                               (not (file-equal-p
+                                     (project-root other-proj)
+                                     root)))))))
+                ;; Real collision — append the path so both coexist.
+                (replace-regexp-in-string
+                 "\\`Python"
+                 (format "%s<%s>" proj-name (abbreviate-file-name root))
+                 name t t)
+              with-name))
+        name)))
+
+  (advice-add 'python-shell-get-process-name
+              :around #'afm/python-buffer-name-by-project)
+#+end_src
+
 ***** python-pytest
 #+begin_src emacs-lisp
   (use-package python-pytest
