@@ -11,4 +11,5 @@ in
   "sshkey_personal.age".publicKeys = keys;
   "tailscale.age".publicKeys = keys;
   "atuin.age".publicKeys = keys;
+  "cloudflared-overleaf.age".publicKeys = keys;
 }
