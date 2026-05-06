@@ -337,6 +337,26 @@
         "type": "github"
       }
     },
+    "nix-overleaf": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1778088509,
+        "narHash": "sha256-R/abFaIKruSNt053bS8R8moYxUkT8FDszyPp5hQmXPE=",
+        "owner": "afermg",
+        "repo": "nix-overleaf",
+        "rev": "7fc9348ef54c466345078a6527a0a57f4ae6c836",
+        "type": "github"
+      },
+      "original": {
+        "owner": "afermg",
+        "repo": "nix-overleaf",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1777425547,
@@ -449,6 +469,7 @@
         "homebrew-core": "homebrew-core",
         "nikitabobko-cask": "nikitabobko-cask",
         "nix-homebrew": "nix-homebrew",
+        "nix-overleaf": "nix-overleaf",
         "nixpkgs": "nixpkgs_3",
         "nixpkgs-master": "nixpkgs-master",
         "nixpkgs-stable": "nixpkgs-stable_2",

@@ -96,6 +96,11 @@
     emacs-overlay.url = "github:nix-community/emacs-overlay";
 
     claude-code.url = "github:sadjow/claude-code-nix";
+
+    nix-overleaf = {
+      url = "github:afermg/nix-overleaf";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =

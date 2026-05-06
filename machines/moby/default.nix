@@ -25,6 +25,7 @@
 
     # You can also split up your configuration and import pieces of it here:
     ./boot.nix
+    ./overleaf.nix
     ../common/networking.nix
     ../common/printing.nix
     ../common/gpu/nvidia.nix
