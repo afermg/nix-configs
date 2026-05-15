@@ -259,12 +259,14 @@ in
       gpg.format = "ssh";
       gpg.ssh.allowedSignersFile = "~/.ssh/allowed_signers";
       user.signingkey = "~/.ssh/id_ed25519.pub";
-      # HTTPS auth for the self-hosted Overleaf git-bridge. The token
-      # lives in ~/.netrc, materialized by agenix from
-      # secrets/netrc-overleaf.age at activation. Scoped per-URL so
-      # GitHub HTTPS / other remotes are untouched, and SSH-based git
-      # is unaffected (different code path entirely).
+      # HTTPS auth for the self-hosted Overleaf git-bridge and the
+      # hosted overleaf.com git-bridge. Tokens live in ~/.netrc,
+      # materialized by agenix from secrets/netrc-overleaf.age at
+      # activation. Scoped per-URL so GitHub HTTPS / other remotes are
+      # untouched, and SSH-based git is unaffected (different code path
+      # entirely).
       credential."https://overleaf.quasimorphic.com".helper = "netrc";
+      credential."https://git.overleaf.com".helper = "netrc";
     };
   };
 
