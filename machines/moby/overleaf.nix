@@ -13,6 +13,19 @@
     mode = "0400";
   };
 
+  # Decrypted ~/.netrc containing the overleaf git-bridge personal access
+  # token. Materialized at /home/amunoz/.netrc so git/libcurl's default
+  # auth path picks it up; home-manager's git config then scopes the
+  # `netrc` credential helper to overleaf.quasimorphic.com only.
+  age.secrets.netrc-overleaf = {
+    file = ../../secrets/netrc-overleaf.age;
+    path = "/home/amunoz/.netrc";
+    owner = "amunoz";
+    group = "users";
+    mode = "0600";
+    symlink = false;
+  };
+
   services.overleaf = {
     enable = true;
     # Loopback only — Cloudflare Tunnel reaches us via outbound conn.
@@ -22,6 +35,14 @@
     # Cloudflare proxies, otherwise cookies/WebSocket origin checks break.
     siteUrl = "https://overleaf.quasimorphic.com";
     appName = "Quasimorphic Overleaf";
+
+    # git-bridge — clone projects via `git clone https://overleaf.../git/<id>`.
+    # Listens on 127.0.0.1:8000; the public-facing nginx vhost adds a
+    # `/git/` proxy automatically when this is enabled.
+    gitBridge = {
+      enable = true;
+      apiBaseUrl = "http://127.0.0.1:18080/api/v0";
+    };
   };
 
   # Cloudflare Tunnel exposes 127.0.0.1:18080 to the public internet

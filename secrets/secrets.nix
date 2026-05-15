@@ -12,4 +12,5 @@ in
   "tailscale.age".publicKeys = keys;
   "atuin.age".publicKeys = keys;
   "cloudflared-overleaf.age".publicKeys = keys;
+  "netrc-overleaf.age".publicKeys = keys;
 }

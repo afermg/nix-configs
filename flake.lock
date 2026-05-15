@@ -322,11 +322,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1778093016,
-        "narHash": "sha256-AI9+Sh/d2JxFr2+w51nJwe8TbBQvOd8DDnwBbRwyKss=",
+        "lastModified": 1778270063,
+        "narHash": "sha256-6FVI3qEOktl5z+jq/DzNiQEewEPCdF6WnRqWcGDuGI8=",
         "owner": "afermg",
         "repo": "nix-overleaf",
-        "rev": "34926b6ced71bc91887f30663f5fb820346817b9",
+        "rev": "740bdf25b38cdb8987da1ffe5a7d251d61d04748",
         "type": "github"
       },
       "original": {
