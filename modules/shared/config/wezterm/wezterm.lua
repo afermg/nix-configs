@@ -5,8 +5,12 @@ local config = wezterm.config_builder()
 config.font_size = 15
 
 local USER = os.getenv("USER") or "unknown"
+-- /run/wrappers/bin must precede /run/current-system/sw/bin so that bare `sudo`
+-- resolves to the setuid wrapper instead of the (non-setuid) store binary,
+-- which otherwise fails with: "sudo: ... must be owned by uid 0 and have the
+-- setuid bit set".
 config.set_environment_variables = {
-  PATH = string.format("/etc/profiles/per-user/%s/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin", USER)
+  PATH = string.format("/run/wrappers/bin:/etc/profiles/per-user/%s/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin", USER)
 }
 
 wezterm.on('gui-startup', function(cmd)
