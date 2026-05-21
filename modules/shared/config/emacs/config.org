@@ -3239,6 +3239,10 @@ mu4e ships with the =mu= binary but needs to be cloned from GitHub for Emacs. Th
     (setq mu4e-compose-format-flowed t)
     (setq mu4e-index-update-in-background t)
 
+    ;; ISO 8601 dates everywhere
+    (setq mu4e-headers-date-format "%Y-%m-%d")
+    (setq mu4e-view-date-format "%Y-%m-%d %H:%M:%S")
+
     (setq mu4e-user-mail-address-list
           '("alan@quasimorphic.com"
             "amunozgo@broadinstitute.org"))
@@ -3402,8 +3406,10 @@ Cutting edge LLM models.
      ;; OpenRouter offers an OpenAI compatible API
      gptel-default-mode #'org-mode
      ;; gptel-model 'gemini-pro-latest
-     gptel-model 'gemini-flash-latest
-     
+     ;; Pin to a stable point release — the *-latest aliases get throttled
+     ;; (503 UNAVAILABLE) under high demand without notice.
+     gptel-model 'gemini-2.5-flash
+
      ;; gptel-backend (gptel-make-ollama "Ollama"	;Any name of your choosing
      ;;   :host "localhost:11434"	;Where it's running
      ;;   :stream t			;Stream responses
