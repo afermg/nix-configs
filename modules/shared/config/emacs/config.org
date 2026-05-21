@@ -661,7 +661,7 @@ Window/layout rotation helpers from [[https://github.com/daichirata/emacs-rotate
     ;; kill-buffer does not always work
     (kill-buffer (current-buffer))
     )
-  
+
   (global-set-key (kbd "<C-tab>") 'next-buffer)
   (global-set-key (kbd "C-x k") 'afm/kill-this-buffer)
   (global-set-key (kbd "C-x K") 'kill-buffer)
@@ -1275,7 +1275,12 @@ It pastes a URL from the clipboard and automatically fetches the page title to f
 
 #+begin_src elisp
 (use-package org-cliplink
-  :bind ("C-c l" . org-cliplink))
+  ;; `C-c l' is reserved for `org-store-link' (the standard org-mode binding,
+  ;; used heavily by mu4e-org to capture message links). `C-c L' belongs to
+  ;; `claude-dashboard'.
+  :bind ("C-c y l" . org-cliplink))
+
+(global-set-key (kbd "C-c l") #'org-store-link)
 #+end_src
 
 *** Notes/Capture/Agenda
@@ -2333,7 +2338,7 @@ test
                              (window-height . 0.4)))))))
     :config
     (setq eat-kill-buffer-on-exit t)
-    (setq eat-term-scrollback-size 10000)
+    (setq eat-term-scrollback-size 30000)
     (setq process-adaptive-read-buffering nil)
     (setq read-process-output-max (* 4 1024 1024))
     (defun +eat/here (arg)
@@ -3375,6 +3380,11 @@ mu4e ships with the =mu= binary but needs to be cloned from GitHub for Emacs. Th
                        (gnus-article-mode . insert)))
         (add-to-list 'meow-mode-state-list entry))))
 #+end_src
+
+*** Headers view reference
+"List" column = friendly form of =List-Id= (e.g. =emacs-devel=); blank when not on a list.
+
+Row colors (modus-vivendi-tritanopia): replied =#6ae4b9= (mint), flagged =#b6a0ff= (purple), trashed =#ff5f59= (red), draft =#fec43f= (amber), unread bold. Default value text uses =mu4e-header-value-face= (=#caa6df=, lavender); the row-state face overrides it for the whole row.
 
 ** COMMENT Media
 These I may replace with EAF
