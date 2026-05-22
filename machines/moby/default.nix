@@ -267,8 +267,7 @@
   home-manager.users.amunoz = {
     imports = [
       # ../../modules/nixos/home-manager.nix;
-      inputs.agenix.homeManagerModules.default
-      ../../homes/amunoz/moby.nix
+      outputs.homeModules.amunoz
     ];
   };
 

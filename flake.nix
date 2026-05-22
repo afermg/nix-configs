@@ -99,6 +99,27 @@
 
       overlays = import ./overlays { inherit inputs outputs; };
 
+      # Single source of truth for amunoz's Linux home-manager profile.
+      # Used by this flake's own moby system and `homeConfigurations."amunoz@moby"`,
+      # and intended for external consumption by other flakes that want to
+      # apply the same profile to a user named `amunoz`. Bakes in overlays +
+      # agenix so consumers don't re-plumb them, and so external
+      # `extraSpecialArgs` can't shadow this flake's `outputs`.
+      homeModules.amunoz = {
+        imports = [
+          agenix.homeManagerModules.default
+          ./homes/amunoz/home.nix
+        ];
+        nixpkgs = {
+          config.allowUnfree = true;
+          overlays = [
+            outputs.overlays.emacs
+            outputs.overlays.stable
+            outputs.overlays.claude-code
+          ];
+        };
+      };
+
       # packages = forEachSystem (pkgs: import ./pkgs {inherit pkgs;});
       devShells = forEachSystem (pkgs: import ./shell.nix { inherit pkgs inputs; });
       # formatter = forEachSystem (pkgs: pkgs.nixfmt-rfc-style);
@@ -162,10 +183,7 @@
           "amunoz@moby" = lib.homeManagerConfiguration {
             pkgs = pkgsFor.x86_64-linux;
             extraSpecialArgs = { inherit inputs outputs; };
-            modules = [
-              agenix.homeManagerModules.default
-              ./homes/amunoz/moby.nix
-            ];
+            modules = [ outputs.homeModules.amunoz ];
           };
 
           "zchen@moby" = lib.homeManagerConfiguration {

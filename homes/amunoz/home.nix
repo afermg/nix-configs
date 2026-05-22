@@ -1,8 +1,6 @@
 {
   pkgs,
-  outputs,
   config,
-  inputs,
   username ? null,
   ...
 }:
@@ -12,15 +10,11 @@ let
   atuin_daemon_p = if pkgs.stdenv.isLinux then true else false;
 in
 {
-  nixpkgs = {
-    config.allowUnfree = true;
-    overlays = [
-      outputs.overlays.emacs
-      outputs.overlays.stable
-      outputs.overlays.claude-code
-    ];
-  };
-
+  # nixpkgs.{config,overlays} and the agenix home-manager module are injected
+  # by `homeModules.amunoz` in flake.nix. Keeping them out of here means this
+  # file can be imported across flake boundaries without depending on
+  # module-arg `outputs`, which a consuming flake's extraSpecialArgs would
+  # silently shadow.
   home = {
     username = "${user}";
     homeDirectory = "/${home_parent}/${user}";
@@ -119,7 +113,6 @@ in
     ../../modules/shared/config/opencode/opencode.nix
     ../../modules/shared/config/claude/claude.nix
     ../../modules/shared/config/email/rbw.nix
-    inputs.agenix.homeManagerModules.default
   ];
 
   programs.atuin = {
