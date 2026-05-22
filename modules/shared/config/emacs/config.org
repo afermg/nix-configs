@@ -1287,7 +1287,8 @@ It pastes a URL from the clipboard and automatically fetches the page title to f
 Initialize org-agenda file and set some key bindings to create tasks.
 #+NAME::org-mode-agenda
 #+BEGIN_SRC emacs-lisp
-  (setq org-agenda-files (list (concat org-directory "/notes.org")))
+  (setq org-agenda-files (list (concat org-directory "/notes.org")
+                                (concat org-directory "/gcal.org")))
   (setq org-agenda-span 14)
 
     (defun my-org-insert-subheading (heading-type)
@@ -1738,7 +1739,56 @@ Provide an org-roam web interface
 org-roam-ui-follow t
 org-roam-ui-update-on-save t
 org-roam-ui-open-on-start t))
-#+end_src 
+#+end_src
+
+*** Org-gcal
+Two-way sync between Google Calendar and =~/Documents/broad/org/gcal.org=. The OAuth client_id is committed inline below (Google treats it as public); the client_secret lives in the agenix secret =org-gcal.age=, decrypted by NixOS to =~/.org-gcal-client-secret= (mode 0600, owner amunoz, raw single-line string).
+
+First-run bootstrap: =M-x org-gcal-sync= → browser opens an OAuth consent flow → grant access → token caches under =~/.config/org-gcal/=. Subsequent syncs happen silently on the 15-minute timer below.
+
+#+begin_src emacs-lisp
+  (use-package org-gcal
+    :straight (:host github :repo "kidd/org-gcal.el" :branch "master")
+    :defer 5
+    :config
+    ;; oauth2-auto persists tokens via `plstore', which encrypts the secret
+    ;; section with GPG. Pin the recipient so encryption is non-interactive
+    ;; (the key was generated with `gpg --batch ... --passphrase ""'), and
+    ;; force loopback pinentry so plstore-save never blocks waiting for a
+    ;; pinentry dialog that won't appear inside the daemon.
+    (setq epa-pinentry-mode 'loopback)
+    (with-eval-after-load 'plstore
+      (setq plstore-encrypt-to "amunozgo@broadinstitute.org"))
+    (setq org-gcal-client-id "617484897136-vnptn5c92rlqmiosghnv4tv2j3phqlug.apps.googleusercontent.com")
+    ;; Read the client_secret from the agenix-decrypted file. Guarded so the
+    ;; daemon still loads before the secret exists; org-gcal-sync will then
+    ;; fail with a clear "client_secret missing" error.
+    (let ((secret-file "~/.org-gcal-client-secret"))
+      (when (file-readable-p secret-file)
+        (setq org-gcal-client-secret
+              (with-temp-buffer
+                (insert-file-contents secret-file)
+                (string-trim (buffer-string))))))
+    ;; org-gcal only registers itself with oauth2-auto at load time if the
+    ;; client-id/secret are already set. We set them above, so trigger the
+    ;; registration explicitly — otherwise sync fails with
+    ;; `oauth2-auto: Unknown provider: org-gcal`.
+    (when (and org-gcal-client-id org-gcal-client-secret
+               (fboundp 'org-gcal-reload-client-id-secret))
+      (org-gcal-reload-client-id-secret))
+    ;; "primary" is the canonical Google alias for the user's main calendar.
+    (setq org-gcal-fetch-file-alist
+          `(("primary" . ,(concat org-directory "/gcal.org"))))
+    ;; Background sync every 15 minutes. First fire 60s after load so it
+    ;; doesn't race with emacs daemon startup / OAuth init.
+    (run-at-time 60 (* 15 60)
+                 (lambda ()
+                   (when (and (fboundp 'org-gcal-sync)
+                              (boundp 'org-gcal-client-secret)
+                              org-gcal-client-secret
+                              (not (string-empty-p org-gcal-client-secret)))
+                     (org-gcal-sync)))))
+#+end_src
 
 *** Babel
 **** Async

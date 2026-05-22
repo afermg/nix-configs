@@ -93,6 +93,7 @@ with pkgs;
   msmtp # SMTP client for sending mail
   rbw # Unofficial Bitwarden CLI with background agent
   pinentry-curses # PIN/password entry for terminal (needed by rbw over SSH)
+  gnupg # Required by Emacs's plstore for encrypted token storage (org-gcal OAuth tokens)
 
   # writing
   pandoc # Convert between formats

@@ -13,4 +13,5 @@ in
   "atuin.age".publicKeys = keys;
   "cloudflared-overleaf.age".publicKeys = keys;
   "netrc-overleaf.age".publicKeys = keys;
+  "org-gcal.age".publicKeys = keys;
 }
