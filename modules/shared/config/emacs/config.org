@@ -1291,6 +1291,12 @@ Initialize org-agenda file and set some key bindings to create tasks.
                                 (concat org-directory "/gcal.org")))
   (setq org-agenda-span 14)
 
+  ;; Always truncate long agenda lines rather than wrapping — wrapping makes
+  ;; the agenda very hard to scan vertically when entries have long timestamps,
+  ;; tags, or URLs. The variable is buffer-local, so set it in the mode hook.
+  (add-hook 'org-agenda-mode-hook
+            (lambda () (setq truncate-lines t)))
+
     (defun my-org-insert-subheading (heading-type)
     "Inserts a new org heading with unique ID and creation date.
     The type of heading (TODO, PROJECT, etc.) is specified by HEADING-TYPE."
@@ -1759,6 +1765,39 @@ First-run bootstrap: =M-x org-gcal-sync= → browser opens an OAuth consent flow
     (setq epa-pinentry-mode 'loopback)
     (with-eval-after-load 'plstore
       (setq plstore-encrypt-to "amunozgo@broadinstitute.org"))
+    ;; Override oauth2-auto's manual-flow redirect port. Upstream hardcodes
+    ;; localhost:8080 in `oauth2-auto--browser-request-manually', which
+    ;; collides with local nginx. Pick a high port unlikely to clash.
+    (defvar afm/oauth2-auto-redirect-port 28080
+      "Localhost port used as OAuth2 redirect_uri by oauth2-auto's manual flow.")
+    (with-eval-after-load 'oauth2-auto
+      (require 'aio)
+      (aio-defun oauth2-auto--browser-request-manually
+          (provider url-key data-keys extra-alist &optional quiet)
+        "Manual-flow override: use `afm/oauth2-auto-redirect-port' instead
+of upstream's hardcoded localhost:8080. Mirror of upstream otherwise."
+        (let* ((redirect-uri (format "http://localhost:%d"
+                                     afm/oauth2-auto-redirect-port))
+               (redirect-uri-elt (cons 'redirect_uri redirect-uri))
+               (very-extra-alist (cons redirect-uri-elt extra-alist))
+               (provider-info (oauth2-auto--provider-info provider))
+               (data-alist (oauth2-auto--craft-request-alist
+                            provider-info data-keys very-extra-alist))
+               (data (oauth2-auto--urlify-request data-alist))
+               (url (cdr (assoc url-key provider-info)))
+               (auth-url (concat url "?" data)))
+          (unless quiet
+            (alert (format "Please visit this URL to authorize:\n%s\n\nAfter authorization, copy the 'code' parameter from the redirect URL and paste it below:"
+                           auth-url)
+                   :title "Emacs OAuth2 login"
+                   :category 'oauth2-auto))
+          (let ((code (read-string
+                       (format "Please visit this URL to authorize:\n%s\n\nAfter authorization, copy the code from the redirect URL and paste it here.\nEnter authorization code: "
+                               auth-url))))
+            (cons redirect-uri-elt
+                  (list (cons 'code code)
+                        (cons 'redirect_uri redirect-uri)
+                        (cons 'state (cdr (assoc 'state data-alist)))))))))
     (setq org-gcal-client-id "617484897136-vnptn5c92rlqmiosghnv4tv2j3phqlug.apps.googleusercontent.com")
     ;; Read the client_secret from the agenix-decrypted file. Guarded so the
     ;; daemon still loads before the secret exists; org-gcal-sync will then
