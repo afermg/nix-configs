@@ -1293,9 +1293,14 @@ Initialize org-agenda file and set some key bindings to create tasks.
 
   ;; Always truncate long agenda lines rather than wrapping — wrapping makes
   ;; the agenda very hard to scan vertically when entries have long timestamps,
-  ;; tags, or URLs. The variable is buffer-local, so set it in the mode hook.
+  ;; tags, or URLs. Setting truncate-lines alone is not enough because
+  ;; `global-visual-line-mode' is on (see "Wraps lines everywhere" above),
+  ;; and visual-line-mode forces wrapping regardless of truncate-lines. So
+  ;; turn the minor mode off locally in the agenda before setting the var.
   (add-hook 'org-agenda-mode-hook
-            (lambda () (setq truncate-lines t)))
+            (lambda ()
+              (visual-line-mode -1)
+              (setq truncate-lines t)))
 
     (defun my-org-insert-subheading (heading-type)
     "Inserts a new org heading with unique ID and creation date.
