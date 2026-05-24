@@ -7,4 +7,12 @@
   # `git status` for review/commit. Same trick used for emacs init.el.
   home.file.".claude/settings.json".source = config.lib.file.mkOutOfStoreSymlink
     "${config.home.homeDirectory}/.local/share/src/nixos-config/modules/shared/config/claude/settings.json";
+
+  # Personal skills live in the broad/org private repo (so they're tracked
+  # alongside the data they operate on — trip-reconcile reads finance/trips.org
+  # and finance/cc_*.csv). The skill is symlinked into ~/.claude/skills/ so
+  # Claude Code discovers it system-wide, regardless of which directory it
+  # runs from.
+  home.file.".claude/skills/trip-reconcile".source = config.lib.file.mkOutOfStoreSymlink
+    "${config.home.homeDirectory}/Documents/broad/org/.claude/skills/trip-reconcile";
 }
