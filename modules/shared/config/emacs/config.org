@@ -1302,6 +1302,13 @@ Initialize org-agenda file and set some key bindings to create tasks.
               (visual-line-mode -1)
               (setq truncate-lines t)))
 
+  ;; Tell meow to use insert state in the agenda so its many single-key
+  ;; bindings (f/b/n/p/g/t/q/v/r/.) pass through. Same pattern as
+  ;; mu4e/eat — state-list is the reliable path; a mode hook calling
+  ;; meow-insert-mode can be overridden by meow-global-mode afterwards.
+  (with-eval-after-load 'meow
+    (add-to-list 'meow-mode-state-list '(org-agenda-mode . insert)))
+
     (defun my-org-insert-subheading (heading-type)
     "Inserts a new org heading with unique ID and creation date.
     The type of heading (TODO, PROJECT, etc.) is specified by HEADING-TYPE."
@@ -2487,6 +2494,10 @@ Get synonyms on the fly.
   (use-package impatient-mode
     :config
     (setq markdown-max-image-size (cons (/ 1920 2) (/ 1080 2)))
+    ;; simple-httpd defaults to 8080, which collides with the local nginx.
+    ;; Affects both `httpd-start' (used by impatient) and `httpd-serve-directory'.
+    (with-eval-after-load 'simple-httpd
+      (setq httpd-port 28080))
 
     (defun markdown-html (buffer)
       (princ (with-current-buffer buffer
