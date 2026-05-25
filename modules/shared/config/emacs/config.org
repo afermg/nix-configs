@@ -2858,6 +2858,23 @@ Very useful for interactive parsing
         (project-remember-project proj)))
     (add-hook 'find-file-hook #'afm/project-auto-remember)
 
+    ;; Tell meow to use insert state inside magit's TUI buffers. Magit binds
+    ;; many single-key commands (s/u/c/P/F/l/d/x/RET/TAB …) that conflict
+    ;; with meow's normal-state bindings. Same pattern as mu4e/eat/org-agenda
+    ;; — state-list is the reliable path; a mode hook can be overridden by
+    ;; meow-global-mode's after-change-major-mode-hook.
+    (with-eval-after-load 'meow
+      (dolist (entry '((magit-status-mode   . insert)
+                       (magit-log-mode      . insert)
+                       (magit-diff-mode     . insert)
+                       (magit-revision-mode . insert)
+                       (magit-process-mode  . insert)
+                       (magit-refs-mode     . insert)
+                       (magit-stash-mode    . insert)
+                       (magit-stashes-mode  . insert)
+                       (magit-reflog-mode   . insert)))
+        (add-to-list 'meow-mode-state-list entry)))
+
     (dir-locals-set-class-variables
      'huge-git-repository
      '((nil
