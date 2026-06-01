@@ -6,7 +6,8 @@
     "marimo-pair@marimo-pair": true,
     "skill-creator@claude-plugins-official": true,
     "compose-notebook@scientific-skills": true,
-    "emacs-pair@afermg-emacs-pair": true
+    "emacs-pair@afermg-emacs-pair": true,
+    "autoresearch@autoresearch": true
   },
   "extraKnownMarketplaces": {
     "marimo-pair": {

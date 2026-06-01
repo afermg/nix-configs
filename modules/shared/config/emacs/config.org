@@ -1126,7 +1126,10 @@ Using [[https://github.com/eki3z/mini-echo.el][mini-echo]] — renders the model
     ;; the final character to be clipped on some frames.
     (setq resize-mini-windows 'grow-only
           max-mini-window-height 1
-          mini-echo-right-padding 2)
+          mini-echo-right-padding 2
+          ;; Default 0.3s × N segments × every `message' call competed with
+          ;; eat's PTY filter under Claude's spinner; 1.0s is calm enough.
+          mini-echo-update-interval 1.0)
 
     ;; Magit/dired/ibuffer/etc. get a hard-coded rule from
     ;; `mini-echo-persistent-detect' that would otherwise drop hostname
