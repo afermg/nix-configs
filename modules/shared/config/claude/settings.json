@@ -31,5 +31,7 @@
       "autoUpdate": true
     }
   },
-  "skipDangerousModePermissionPrompt": true
+  "skipDangerousModePermissionPrompt": true,
+  "showClearContextOnPlanAccept": true,
+  "disableAutoMode": "disable"
 }
