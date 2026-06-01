@@ -33,5 +33,12 @@
   },
   "skipDangerousModePermissionPrompt": true,
   "showClearContextOnPlanAccept": true,
-  "disableAutoMode": "disable"
+  "disableAutoMode": "disable",
+  "env": {
+    "CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY": "1",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    "DISABLE_AUTOUPDATER": "1",
+    "IS_DEMO": "1",
+    "CLAUDE_CODE_DISABLE_TERMINAL_TITLE": "1"
+  }
 }
