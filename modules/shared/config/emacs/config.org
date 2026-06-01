@@ -3044,14 +3044,43 @@ native codeberg support, so the custom URL formatters aren't needed.
     (git-link-default-remote "origin")
     (git-link-open-in-browser nil)
     :config
+    (defun +vc/link-branch ()
+      "Copy the forge URL for the current branch's working tree.
+  Mirrors `git-link-homepage' but appends the per-forge path that
+  views the tree at the current branch (GitHub `/tree/BRANCH',
+  GitLab `/-/tree/BRANCH', Codeberg/Gitea/Forgejo
+  `/src/branch/BRANCH', Bitbucket `/src/BRANCH')."
+      (interactive)
+      (let* ((remote (git-link--select-remote))
+             (parsed (git-link--parse-remote (git-link--remote-url remote)))
+             (host   (nth 0 parsed))
+             (dir    (nth 1 parsed))
+             (branch (or (and (fboundp 'magit-get-current-branch)
+                              (magit-get-current-branch))
+                         (car (vc-git-branches))
+                         "HEAD"))
+             (path   (cond
+                      ((string-match-p "gitlab" host) "/-/tree/")
+                      ((string-match-p "codeberg\\|gitea\\|forgejo" host)
+                                                      "/src/branch/")
+                      ((string-match-p "bitbucket" host) "/src/")
+                      (t "/tree/")))
+             (url    (format "https://%s/%s%s%s" host dir path branch)))
+        (kill-new url)
+        (message "Copied: %s" url)))
+
     (defun +vc/link (&optional arg)
-      "Copy a forge URL for the current file/line/region to the clipboard.
-  With prefix ARG, flip `git-link-use-commit' — branch links become commit
-  links, and vice versa."
+      "Copy a forge URL for the current context to the clipboard.
+  In a magit buffer, copy the URL for the current branch's working
+  tree (`+vc/link-branch'). Elsewhere, copy the URL for the current
+  file/line/region. With prefix ARG, flip `git-link-use-commit' —
+  branch links become commit links, and vice versa (file context only)."
       (interactive "P")
-      (let ((git-link-use-commit
-             (if arg (not git-link-use-commit) git-link-use-commit)))
-        (call-interactively #'git-link)))
+      (if (derived-mode-p 'magit-mode)
+          (+vc/link-branch)
+        (let ((git-link-use-commit
+               (if arg (not git-link-use-commit) git-link-use-commit)))
+          (call-interactively #'git-link))))
 
     (defun +vc/link-commit ()
       "Copy a forge URL pinned to the current commit SHA."
