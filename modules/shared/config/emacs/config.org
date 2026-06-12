@@ -1291,7 +1291,8 @@ Initialize org-agenda file and set some key bindings to create tasks.
 #+NAME::org-mode-agenda
 #+BEGIN_SRC emacs-lisp
   (setq org-agenda-files (list (concat org-directory "/notes.org")
-                                (concat org-directory "/gcal.org")))
+                                (concat org-directory "/gcal.org")
+                                (concat org-directory "/personal_notes.org")))
   (setq org-agenda-span 14)
 
   ;; Always truncate long agenda lines rather than wrapping — wrapping makes
@@ -2013,6 +2014,38 @@ source buffer.
                      (eww url)
                      (current-buffer))))
           (display-buffer buf '(display-buffer-pop-up-window))))))
+
+  (defun afm/org-open-links-in-region (beg end)
+    "Open every org link between BEG and END. With an active region use
+  it; otherwise fall back to the current line so that a bare
+  \\[universal-argument]-free call still does something useful."
+    (interactive
+     (if (use-region-p)
+         (list (region-beginning) (region-end))
+       (list (line-beginning-position) (line-end-position))))
+    (save-excursion
+      (goto-char beg)
+      (let ((n 0))
+        (while (re-search-forward org-link-any-re end t)
+          (save-excursion
+            (goto-char (match-beginning 0))
+            (org-open-at-point))
+          (cl-incf n))
+        (message "Opened %d link%s" n (if (= n 1) "" "s")))))
+
+  (defun afm/org-open-dwim ()
+    "Dispatch C-c C-o: on a heading, defer to `org-open-at-point' so
+  subtree-aware openers (Doom's dwim, or any advice on
+  org-open-at-point) can act over the whole tree.  Anywhere else, open
+  every link in the region or current line via
+  `afm/org-open-links-in-region'."
+    (interactive)
+    (if (org-at-heading-p)
+        (call-interactively #'org-open-at-point)
+      (call-interactively #'afm/org-open-links-in-region)))
+
+  (with-eval-after-load 'org
+    (define-key org-mode-map (kbd "C-c C-o") #'afm/org-open-dwim))
 #+end_src
 
 
