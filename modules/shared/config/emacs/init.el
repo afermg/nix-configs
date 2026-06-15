@@ -256,6 +256,20 @@ diff with `magit-status' or `git diff' and commit manually."
 ;; -------------------------
 ;; Load Org Config or Default
 ;; -------------------------
+;; Prepend `;; -*- lexical-binding: t -*-' to any tangled .el output so macros
+;; that require lexical binding (e.g. `aio-defun') can be eager-macroexpanded
+;; at load time. Without this header, `org-babel-load-file' aborts mid-config
+;; and later blocks (mu4e, etc.) silently never run.
+(add-hook 'org-babel-post-tangle-hook
+          (lambda ()
+            (when (and (buffer-file-name)
+                       (string-suffix-p ".el" (buffer-file-name)))
+              (save-excursion
+                (goto-char (point-min))
+                (unless (looking-at-p ";;.*lexical-binding")
+                  (insert ";; -*- lexical-binding: t -*-\n")
+                  (save-buffer))))))
+
 (condition-case nil
     (progn
       (unless (file-exists-p org-config-file)

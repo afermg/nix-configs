@@ -1,6 +1,7 @@
 #+TITLE: Emacs
 #+STARTUP: content
 #+PROPERTY: header-args :results silent
+#+PROPERTY: header-args:emacs-lisp :lexical t
 
 * Configuration   :emacs:
 ** About my Emacs
@@ -150,7 +151,7 @@ I needed this for it to work on Linux-Linux connections. [[https://www.rahuljuli
   (setq xterm-extra-capabilities '(getSelection setSelection modifyOtherKeys))
 #+end_src
 
-*** Navigation and editing
+*** Navigation, views and editing
 **** Meow modal editing
 
 #+begin_src emacs-lisp
@@ -817,7 +818,7 @@ Window/layout rotation helpers from [[https://github.com/daichirata/emacs-rotate
            ("C-c M-x" . consult-mode-command)
            ("C-c h" . consult-history)
            ("C-c k" . consult-kmacro)
-           ("C-c m" . consult-man)
+           ("C-c M" . consult-man)
            ("C-c i" . consult-info)
            ([remap Info-search] . consult-info)
            ;; C-x bindings in `ctl-x-map'
@@ -2034,18 +2035,151 @@ source buffer.
         (message "Opened %d link%s" n (if (= n 1) "" "s")))))
 
   (defun afm/org-open-dwim ()
-    "Dispatch C-c C-o: on a heading, defer to `org-open-at-point' so
-  subtree-aware openers (Doom's dwim, or any advice on
-  org-open-at-point) can act over the whole tree.  Anywhere else, open
-  every link in the region or current line via
-  `afm/org-open-links-in-region'."
+    "Dispatch C-c C-o:
+  - on a heading: defer to `org-open-at-point' so subtree-aware
+    openers (Doom's dwim, advice on org-open-at-point, etc.) can act
+    over the whole tree.
+  - on a link element: defer to `org-open-at-point' so we open only the
+    single link under point, even when other links share the line.
+  - everywhere else: walk the region (or current line) and open every
+    link via `afm/org-open-links-in-region'."
     (interactive)
-    (if (org-at-heading-p)
-        (call-interactively #'org-open-at-point)
-      (call-interactively #'afm/org-open-links-in-region)))
+    (cond
+     ((org-at-heading-p)
+      (call-interactively #'org-open-at-point))
+     ((eq (org-element-type (org-element-context)) 'link)
+      (call-interactively #'org-open-at-point))
+     (t
+      (call-interactively #'afm/org-open-links-in-region))))
 
   (with-eval-after-load 'org
     (define-key org-mode-map (kbd "C-c C-o") #'afm/org-open-dwim))
+#+end_src
+
+** Pittsburgh housing sweep
+:PROPERTIES:
+:CUSTOM_ID: pittsburgh-housing-sweep
+:END:
+
+Twice-daily background sweep that pulls fresh Craigslist apartment listings
+matching the search filter and appends any new candidates to the To-review
+table of the housing planning org file. Dedup keys are: (1) listing PIDs
+already in the file, (2) leading "<number> <street>" normalised addresses
+already in the file. Multi-unit reposts at the same building collapse to
+one row.
+
+#+begin_src emacs-lisp
+  (defvar afm/housing-search-urls
+    '("https://pittsburgh.craigslist.org/jsonsearch/apa?max_bedrooms=1&max_price=1300&postal=15232&search_distance=1.2"
+      "https://pittsburgh.craigslist.org/jsonsearch/apa?max_bedrooms=1&max_price=1300&postal=15217&search_distance=0.5")
+    "List of CL jsonsearch URLs used by `afm/housing-cl-sweep'.
+  Each URL contributes a PID set; results are deduplicated across all
+  URLs and against listings already in the org file. The two URLs here
+  cover (1) 1.2 mi around Shadyside (15232) and (2) 0.5 mi around the
+  Squirrel Hill core (15217) to pull the rest of Sq Hill that 1.2 mi
+  from 15232 leaves out.")
+
+  (defvar afm/housing-org-file
+    (expand-file-name "~/Documents/broad/org/planning/2026_pittsburgh_move.org")
+    "Path to the housing org file the sweep updates.")
+
+  (defvar afm/housing-sweep-script
+    (expand-file-name "~/.local/share/afm/cl-housing-sweep.py")
+    "Python script that fetches and parses CL listings for the sweep.")
+
+  (defvar afm/housing-sweep-timers nil
+    "Live recurring-timer objects from `afm/housing-sweep-schedule'.")
+
+  (defun afm/housing-cl-sweep ()
+    "Pull current CL housing listings via the sweep script and append any
+  new candidate rows to the To-review table of `afm/housing-org-file'."
+    (interactive)
+    (let* ((out-buf (get-buffer-create "*housing-sweep*"))
+           (org-buf (find-file-noselect afm/housing-org-file)))
+      (with-current-buffer out-buf (erase-buffer))
+      (let ((proc (apply #'start-process
+                         "housing-sweep" out-buf
+                         "python3" afm/housing-sweep-script
+                         afm/housing-org-file
+                         afm/housing-search-urls)))
+        (set-process-sentinel
+         proc
+         (lambda (p _event)
+           (when (memq (process-status p) '(exit signal))
+             (let* ((ts (format-time-string "%Y-%m-%d %H:%M:%S"))
+                    (ok (zerop (process-exit-status p)))
+                    (raw (with-current-buffer (process-buffer p)
+                           (buffer-string)))
+                    (rows (cl-remove-if-not
+                           (lambda (l) (string-prefix-p "| " l))
+                           (split-string raw "\n" t))))
+               (cond
+                ((not ok)
+                 (message "[%s] housing-sweep: FAILED — see *housing-sweep*" ts))
+                ((null rows)
+                 (message "[%s] housing-sweep: no new candidates" ts))
+                (t
+                 (with-current-buffer org-buf
+                   (save-excursion
+                     (goto-char (point-min))
+                     ;; Walk into the To-review table and skip to its last row
+                     (re-search-forward "^\\* To review")
+                     (re-search-forward "^|[ \t]*[A-Z][ \t]*|")
+                     (while (looking-at-p "^|")
+                       (forward-line 1))
+                     (dolist (row rows)
+                       (insert row "\n")))
+                   (org-table-map-tables 'org-table-align t)
+                   (save-buffer))
+                 (message "[%s] housing-sweep: added %d row(s)"
+                          ts (length rows)))))))))))
+
+  (defun afm/--next-occurrence (hour minute)
+    "Encoded time for the next HOUR:MINUTE in local time, today if still
+  in the future, otherwise tomorrow.  Required because `run-at-time'
+  fires *immediately* if the requested time has already passed today,
+  which would double-trigger the sweep on installation.
+
+  Implementation note: `encode-time' (Emacs 30+) takes a 9-element
+  decoded-time list. Use -1 for DST (not nil — see the DST trap in
+  emacs-pair). For tomorrow, re-encode with day + 1 rather than
+  `time-add'ing 86400 seconds — time-add can collapse the result to an
+  integer, which `run-at-time' interprets as relative-seconds, not as
+  an absolute timestamp."
+    (let* ((now (decode-time))
+           (today-target
+            (encode-time
+             (list 0 minute hour
+                   (decoded-time-day now)
+                   (decoded-time-month now)
+                   (decoded-time-year now)
+                   nil -1 (decoded-time-zone now)))))
+      (if (time-less-p (current-time) today-target)
+          today-target
+        (encode-time
+         (list 0 minute hour
+               (1+ (decoded-time-day now))
+               (decoded-time-month now)
+               (decoded-time-year now)
+               nil -1 (decoded-time-zone now))))))
+
+  (defun afm/housing-sweep-schedule ()
+    "Install daily morning + evening sweep timers (09:00 and 18:00).
+  Cancels any existing timers from a prior call first so this can be
+  called repeatedly without leaking timers."
+    (interactive)
+    (dolist (tm afm/housing-sweep-timers)
+      (when (timerp tm) (cancel-timer tm)))
+    (setq afm/housing-sweep-timers
+          (list (run-at-time (afm/--next-occurrence 9 0)
+                             (* 24 60 60) #'afm/housing-cl-sweep)
+                (run-at-time (afm/--next-occurrence 18 0)
+                             (* 24 60 60) #'afm/housing-cl-sweep)))
+    (message "Housing sweep scheduled: next at %s and %s."
+             (format-time-string "%Y-%m-%d %H:%M" (afm/--next-occurrence 9 0))
+             (format-time-string "%Y-%m-%d %H:%M" (afm/--next-occurrence 18 0))))
+
+  (afm/housing-sweep-schedule)
 #+end_src
 
 
@@ -3475,7 +3609,10 @@ mu4e ships with the =mu= binary but needs to be cloned from GitHub for Emacs. Th
                     (mu4e-trash-folder  . "/broad/[Gmail]/Trash")
                     (mu4e-refile-folder . "/broad/Inbox")))))
     (setq mu4e-context-policy 'pick-first)
-    (setq mu4e-compose-context-policy 'ask-if-none)
+    ;; nil makes compose evaluate per-message match-funcs against the parent
+    ;; message, so replies route to the account that received the thread
+    ;; instead of inheriting the current context.
+    (setq mu4e-compose-context-policy nil)
 
     ;; Maildir shortcuts across both accounts
     (setq mu4e-maildir-shortcuts
@@ -4180,10 +4317,434 @@ Handle very large files via chunked loading.
     (require 'vlf-setup))
 #+end_src
 
+** Karthinks batteries-included features                              :trial:
+Built-in Emacs features and patterns recommended in Karthik Chikmagalur's three
+"batteries included with Emacs" posts:
+- https://karthinks.com/software/batteries-included-with-emacs/
+- https://karthinks.com/software/more-batteries-included-with-emacs/
+- https://karthinks.com/software/even-more-batteries-included-with-emacs/
+
+Documented here so I can pick which to keep. Disruptive globals are
+pre-commented — uncomment to opt in. Overlaps with existing setup are flagged.
+
+*** Discovery and help
+**** apropos family — unified C-h a prefix
+=apropos= and friends search across functions, variables, commands, libraries,
+faces, options. Distinct from =helpful= (which remaps =describe-*=): =helpful=
+shows one symbol's documentation, =apropos= searches across many.
+Karthik's pattern: rebind =C-h a= from the lone =apropos-command= to a prefix
+keymap exposing every variant.
+#+begin_src emacs-lisp
+  (defvar-keymap help-apropos-map
+    :doc "Keymap for apropos subcommands."
+    "a"   #'apropos
+    "l"   #'apropos-library
+    "f"   #'apropos-function
+    "x"   #'apropos-command
+    "v"   #'apropos-variable
+    "V"   #'apropos-local-variable
+    "u"   #'apropos-user-option
+    "d"   #'apropos-documentation
+    "C-f" #'customize-apropos-faces
+    "g"   #'customize-apropos-groups
+    "o"   #'customize-apropos-options
+    "c"   #'customize-apropos
+    "i"   #'info-apropos)
+  (keymap-set help-map "a" help-apropos-map)
+#+end_src
+
+**** find-function-on-key / find-function / find-variable
+Jump from a keybinding (or symbol name) straight to source. Built-in but
+unbound. Complements =helpful=.
+#+begin_src emacs-lisp
+  (keymap-set help-map "M-k" #'find-function-on-key)
+  (keymap-set help-map "M-f" #'find-function)
+  (keymap-set help-map "M-v" #'find-variable)
+#+end_src
+
+**** view-lossage / kmacro-edit-lossage
+=C-h l= (=view-lossage=) shows the last ~300 keystrokes — handy for "what
+did I just do?". =kmacro-edit-lossage= turns those keystrokes into an editable
+keyboard macro, so you can replay a slip-up after the fact.
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-x C-k l") #'kmacro-edit-lossage)
+#+end_src
+
+**** describe-syntax
+=C-h s= shows the syntax table for the current buffer — useful when debugging
+why a motion command treats characters oddly. Default binding, just a reminder.
+
+*** Navigation and views
+**** follow-mode
+Display one buffer across multiple side-by-side windows as a continuous
+scrolling view. Great on wide monitors for long files.
+#+begin_src emacs-lisp
+  ;; M-x follow-mode after splitting the window with C-x 3.
+  ;; Optional convenience binding:
+  (global-set-key (kbd "C-c |") #'follow-mode)
+#+end_src
+
+**** view-mode
+Read-only pager: SPC/DEL page, =s= isearch, =q= dismiss. Karthik recommends
+auto-enabling it whenever a buffer becomes read-only.
+#+begin_src emacs-lisp
+  (setq view-read-only t)
+#+end_src
+
+**** selective-display
+=C-x $= hides text indented past column N — quick collapse of a code/outline
+file by indentation. =C-u C-x $= reveals everything. Built-in, no setup needed.
+
+**** scroll-lock-mode
+=M-x scroll-lock-mode= — arrow keys scroll the buffer instead of moving point.
+Useful for staring at a particular line while scrolling context past it.
+
+**** scroll-all-mode / scroll-other-window / master-mode
+- =scroll-all-mode=: scroll every visible window in lockstep.
+- =scroll-other-window= (=C-M-v=, default): scroll the adjacent window without
+  switching focus — already bound. Karthik makes "other window" mean the
+  least-recently-used window (better with 3+ windows visible):
+- =master-mode=: pin a "master" buffer whose scrolling drives the others.
+#+begin_src emacs-lisp
+  (setq other-window-scroll-default #'get-lru-window)
+#+end_src
+
+**** visible-mode
+=M-x visible-mode= reveals everything Org/outline/etc. has hidden in the
+current buffer. Toggle off to restore folding.
+
+**** ruler-mode
+=M-x ruler-mode= shows a column ruler at the top, draggable to set
+=fill-column= and margins interactively.
+
+*** Editing
+**** undo-in-region
+With an active region, =C-/= undoes only edits inside that region. No setup.
+
+**** cycle-spacing
+=M-SPC= cycles: shrink to one space → remove all whitespace → restore original.
+Replaces the older =just-one-space=. =C-u M-SPC= also collapses surrounding
+blank lines. Built-in, default binding.
+
+**** DWIM case commands
+- =M-u= =upcase-dwim=, =M-l= =downcase-dwim=, =M-c= =capitalize-dwim=
+Act on the active region if any, else the next word. Default bindings already
+do this in modern Emacs — included as a reminder.
+
+**** duplicate-dwim
+Duplicate the current line, or the active region. Already bound to =;c= in my
+meow keymap (=Meow modal editing= / =general=). Karthik also tunes where point
+lands after a duplicate — on the new copy, not the original:
+#+begin_src emacs-lisp
+  (setq duplicate-region-final-position -1
+        duplicate-line-final-position -1)
+#+end_src
+
+**** copy-from-above-command
+Copies characters straight down from the non-blank line above, one per
+invocation. Handy when retyping aligned text.
+#+begin_src emacs-lisp
+  ;; No default binding; bind to a free key if useful:
+  ;; (global-set-key (kbd "C-c v") #'copy-from-above-command)
+#+end_src
+
+**** transpose-region / transpose-paragraphs
+Swap two marked regions, or two adjacent paragraphs / code blocks.
+=transpose-paragraphs= works well in prog-mode with a blank line between blocks.
+Karthik binds =transpose-regions= explicitly:
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-x C-M-t") #'transpose-regions)
+#+end_src
+
+**** subword/superword + per-mode syntax-table tweaks
+- =subword-mode=: =CamelCase= → three words for =M-f= / =M-b=.
+- =superword-mode=: opposite — =snake_case_name= as one word.
+Mutually exclusive. Karthik prefers targeted =modify-syntax-entry= hooks so
+identifier-glue characters (=:= in elisp, ===/=~= in org markup) are part of
+the word for motion/kill commands. Applied as default per his post.
+#+begin_src emacs-lisp
+  (add-hook 'lisp-data-mode-hook
+            (lambda () (modify-syntax-entry ?: "w")))
+
+  (add-hook 'org-mode-hook
+            (lambda ()
+              (modify-syntax-entry ?= "w")
+              (modify-syntax-entry ?~ "w")))
+
+  ;; Optional global toggle:
+  ;; (add-hook 'prog-mode-hook #'subword-mode)
+#+end_src
+
+**** cua-selection-mode
+Just the rectangle-editing half of CUA — =C-RET= starts a rectangle, =RET=
+ends it, and you can type into the column. Does NOT remap =C-c/x/v=.
+#+begin_src emacs-lisp
+  ;; (cua-selection-mode 1)
+#+end_src
+
+**** refill-mode
+=M-x refill-mode= keeps paragraphs hard-wrapped at =fill-column= as you
+edit them. Useful for prose buffers where =M-q= gets tedious.
+
+*** Display and aesthetics
+**** pulse — flash line on scroll/jump
+Pulse the cursor line briefly after scrolling, recentering, or window
+switch. Built-in replacement for the =beacon-mode= I removed (see Graveyard).
+Karthik's exact list:
+#+begin_src emacs-lisp
+  (require 'pulse)
+  (defun karthinks/pulse-line (&rest _)
+    "Pulse the current line."
+    (pulse-momentary-highlight-one-line (point)))
+  (dolist (command '(scroll-up-command scroll-down-command
+                     recenter-top-bottom other-window))
+    (advice-add command :after #'karthinks/pulse-line))
+#+end_src
+
+**** prettify-symbols-mode
+Displays =lambda= as λ, =>== as ≥, etc. via composition — characters are
+unchanged on disk. Most prog modes ship a sensible alist.
+#+begin_src emacs-lisp
+  ;; (add-hook 'prog-mode-hook #'prettify-symbols-mode)
+  ;; (setq prettify-symbols-unprettify-at-point 'right-edge)
+#+end_src
+
+**** artist-mode
+=M-x artist-mode= — draw ASCII boxes, lines, ellipses, etc. with the mouse
+or arrow keys. Great for inline diagrams in docstrings or org files.
+
+**** htmlfontify-buffer
+=M-x htmlfontify-buffer= exports the current buffer to HTML preserving the
+exact syntax-highlight colours via CSS. Useful for embedding code in posts.
+
+**** image-map
+When point is on a displayed image (dired, eww, org), the =i= prefix exposes
+rotate/scale/crop/save commands. Default binding — just a reminder.
+
+**** dictionary-tooltip-mode
+Hover a word, get a definition tooltip from a configured dictionary server.
+Requires =dictionary-server= (defaults to =dict.org=).
+#+begin_src emacs-lisp
+  ;; (setq dictionary-server "dict.org")
+  ;; (global-set-key (kbd "C-c d") #'dictionary-lookup-definition)
+  ;; (dictionary-tooltip-mode 1)
+#+end_src
+
+*** Files, dired, comparisons
+**** find-file / dired wildcards
+=C-x C-f /path/*.org RET= opens every match in its own buffer; same trick
+works for dired (=C-x d /path/*foo*=) to get a filtered listing. Pure tip,
+no config needed.
+
+**** ffap-menu
+=M-x ffap-menu= scans the current buffer for every file path and URL, then
+offers them via completion. Faster than ripgrepping a buffer for paths.
+#+begin_src emacs-lisp
+  ;; (global-set-key (kbd "C-c F") #'ffap-menu)
+#+end_src
+
+**** compare-windows
+Place point in two windows, run =M-x compare-windows= — point advances in
+each until the first mismatch. Lighter than ediff for quick eyeballing.
+
+**** dired-compare-directories
+In a dired buffer, =M-x dired-compare-directories= marks files that differ
+between this directory and another, by mtime/size/etc.
+
+**** highlight-changes-mode + highlight-unsaved-mode
+=M-x highlight-changes-mode= faces every edit until you explicitly turn it
+off. Karthik wraps it in a buffer-local minor mode that clears the highlight
+automatically on save — i.e. shows "what changed since the last save":
+#+begin_src emacs-lisp
+  (require 'hilit-chg)
+  (defun karthinks/highlight-changes-mode-turn-off ()
+    (and highlight-changes-mode (highlight-changes-mode -1)))
+  (defun karthinks/highlight-changes-mode-turn-on ()
+    (unless highlight-changes-mode (highlight-changes-mode 1)))
+
+  (define-minor-mode highlight-unsaved-mode
+    "Highlight all changes until the buffer is saved."
+    :lighter " H"
+    (cond
+     ((not (buffer-file-name))
+      (user-error "highlight-unsaved-mode only makes sense in file-visiting buffers"))
+     (highlight-unsaved-mode
+      (highlight-changes-mode 1)
+      (add-hook 'after-save-hook  #'karthinks/highlight-changes-mode-turn-on  nil t)
+      (add-hook 'before-save-hook #'karthinks/highlight-changes-mode-turn-off nil t))
+     (t (highlight-changes-mode -1)
+        (remove-hook 'after-save-hook  #'karthinks/highlight-changes-mode-turn-on  t)
+        (remove-hook 'before-save-hook #'karthinks/highlight-changes-mode-turn-off t))))
+#+end_src
+
+*** Version control built-ins
+Even with magit, these are quick and zero-prompt. Karthik wraps the built-in
+=vc-diff= / =vc-ediff= / =vc-revision-other-window= so they also work on:
+(a) unsaved buffers (diff against on-disk file), and (b) files NOT under VC
+(diff against the newest backup, or a prompted backup with =C-u=). Bound onto
+the same default keys =C-x v == / =C-x v ~=.
+#+begin_src emacs-lisp
+  (defun karthinks/read-backup-file-name (file)
+    (if-let* ((backup-files (file-backup-file-names file)))
+        (completing-read "Backup version: " backup-files nil t)
+      (user-error "No backup files available for file %s" file)))
+
+  (defun karthinks/vc-diff (&optional arg)
+    "Compare current buffer with its file, or file with backup/revision.
+  With prefix ARG, pick a backup explicitly when not under version control."
+    (interactive "P")
+    (if (buffer-modified-p)
+        (diff-buffer-with-file (current-buffer))
+      (condition-case errdata (call-interactively #'vc-diff)
+        (error
+         (if (string-match-p "not under version control" (cadr errdata))
+             (if arg
+                 (diff (karthinks/read-backup-file-name (buffer-file-name))
+                       (buffer-file-name))
+               (diff-backup (buffer-file-name)))
+           (apply #'signal errdata))))))
+
+  (defun karthinks/vc-ediff (&optional arg)
+    "Like `vc-ediff' but also handles unsaved buffers and backup files."
+    (interactive "P")
+    (if (buffer-modified-p)
+        (call-interactively #'ediff-current-file)
+      (condition-case errdata (call-interactively #'vc-ediff)
+        (error
+         (if (string-match-p "not under version control" (cadr errdata))
+             (if arg
+                 (ediff-files (karthinks/read-backup-file-name (buffer-file-name))
+                              (buffer-file-name))
+               (ediff-backup (buffer-file-name)))
+           (apply #'signal errdata))))))
+
+  (defun karthinks/vc-revision-other-window (&optional arg)
+    "Visit the current file's past revision or backup in another window."
+    (interactive "P")
+    (condition-case errdata (call-interactively #'vc-revision-other-window)
+      (error
+       (if (string-match-p "not under version control" (cadr errdata))
+           (if arg
+               (find-file-other-window (karthinks/read-backup-file-name (buffer-file-name)))
+             (if-let* ((backup (file-newest-backup (buffer-file-name))))
+                 (find-file-other-window backup)
+               (user-error "No backup files available for %s" (buffer-file-name))))
+         (apply #'signal errdata)))))
+
+  (with-eval-after-load 'vc-hooks
+    (keymap-set vc-prefix-map "="  #'karthinks/vc-diff)
+    (keymap-set vc-prefix-map "~"  #'karthinks/vc-revision-other-window))
+  (global-set-key (kbd "C-x v e") #'karthinks/vc-ediff)
+#+end_src
+
+*** Minibuffer and completion
+Heavy overlap with my =vertico= / =orderless= / =marginalia= stack — listed
+for awareness, not for swapping in.
+
+**** completion-styles / completion-category-overrides
+=completion-styles= is already explicitly set to =(orderless flex basic
+partial-completion emacs22)= at line ~122 — explicit user config, NOT touching.
+Karthik's other tweak — cycle through candidates when there are few — is
+non-conflicting and pulled in:
+#+begin_src emacs-lisp
+  (setq completion-cycle-threshold 10)
+#+end_src
+
+**** fido-mode
+Built-in ido-flavoured minibuffer. Strictly subsumed by my vertico setup;
+=NOT= enabling. Listed only because Karthik recommends it as a
+no-package alternative.
+#+begin_src emacs-lisp
+  ;; (fido-vertical-mode 1)  ;; conflicts with vertico — pick one
+#+end_src
+
+**** future history — M-n in prompts
+At any minibuffer prompt, =M-n= inserts a context-relevant default
+(=ffap=-style for filenames, symbol-at-point for =describe-*=, etc.).
+Default binding, just a reminder.
+
+*** Frames, buffers, indirect views
+**** make-indirect-buffer
+Clone a buffer so two windows share content but have independent narrowing
+and point. Excellent for editing two parts of one large org/code file.
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-x x I") #'clone-indirect-buffer)
+  (global-set-key (kbd "C-x x i") #'make-indirect-buffer)
+#+end_src
+
+**** undelete-frame-mode
+Tracks closed frames so =M-x undelete-frame= can restore them. Cheap insurance
+against fat-fingering =C-x 5 0=.
+#+begin_src emacs-lisp
+  (undelete-frame-mode 1)
+#+end_src
+
+**** emacs-lock-mode
+=M-x emacs-lock-mode= protects a buffer from being killed and/or Emacs from
+exiting while it's alive. Useful for shell/eat sessions with long-running
+processes.
+
+**** tab-bar-mode
+Frame-level tabs, with per-tab window configurations. Coexists fine with my
+perspective-less setup but I haven't reached for it.
+#+begin_src emacs-lisp
+  ;; (tab-bar-mode 1)
+  ;; (setq tab-bar-show 1)            ;; only show when >1 tab
+  ;; (setq tab-bar-new-tab-choice "*scratch*")
+#+end_src
+
+*** Tables, regexes, computing
+**** orgtbl-mode
+=M-x orgtbl-mode= gives you Org's table editor inside any major mode —
+markdown, code comments, mail. =C-c |= converts a region to a table.
+#+begin_src emacs-lisp
+  ;; (add-hook 'message-mode-hook #'orgtbl-mode)
+  ;; (add-hook 'markdown-mode-hook #'orgtbl-mode)
+#+end_src
+
+**** Calc — units and symbolic
+=C-x * c= enters =calc=, =C-x * q= quick calc in the minibuffer.
+- =u c= converts units (=1 mi/hr → m/s=)
+- =a i= integrate, =a d= differentiate, =a s= solve
+Already built in; just a binding reminder.
+#+begin_src emacs-lisp
+  ;; Default binding already C-x * c; can also do quick calc with `C-x * q`.
+#+end_src
+
+**** re-builder
+Interactive regexp sandbox, =M-x re-builder=. Lives in Graveyard — Karthik
+also recommends it; reinstate by removing the Graveyard entry if I want it
+back.
+
+**** rx — sexp regexps
+Already used in my config (e.g. realgud, dired buffer patterns). Just a
+language, no setup. =(rx bos "foo" (+ digit) eos)= → "^foo[0-9]+$".
+
+*** Less-used / experimental
+**** strokes — mouse gestures
+=M-x strokes-help= for the tutorial. Draw with right-click held; gestures
+map to commands. Niche but fun on a touchpad.
+#+begin_src emacs-lisp
+  ;; (global-set-key [down-mouse-3] #'strokes-do-stroke)
+#+end_src
+
+**** speedbar
+=M-x speedbar= — separate frame with a file/tag tree. Overlaps with my
+=dired= ijkl workflow; haven't found a reason to add it.
+
+**** semantic-decoration-mode
+Part of CEDET. Annotates code with semantic analysis. Mostly superseded by
+=eglot= + =flymake= + =treesit= in my setup; included for completeness.
+
+**** isearch-toggle-invisible
+During =isearch=, =M-s i= toggles whether the search dives into hidden
+(folded) text — critical when isearching in Org buffers. Default binding,
+just a reminder.
+
 * Graveyard
 - org-transclusion: Conflicted with org-mode async export
 - beacon-mode: The cursor-flash when switching windows ended up distracting
-  rather than helpful.
+  rather than helpful due to some bug. Replaced by the included pulse.
 - vterm: Replaced by eat. Preferred eat because it is implemented in pure
   Elisp, so no dynamic module / C compilation step and no external toolchain
   dependency. meow-vterm retired along with it.
@@ -4233,6 +4794,7 @@ Handle very large files via chunked loading.
 - idle-highlight-mode: Highlights every occurrence of the symbol at
   point after a short idle delay. Tried from the lobste.rs list; didn't
   stick.
+- newsticker: Built-in RSS reader. Fully overlapped by my =elfeed= setup; not enabling.
 
 * Future considerations
 - Goto file & line. https://github.com/Warbo/warbo-emacs-d/blob/master/personal/ffap-goto-line.el
