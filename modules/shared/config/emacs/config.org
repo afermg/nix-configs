@@ -4688,9 +4688,9 @@ processes.
 Frame-level tabs, with per-tab window configurations. Coexists fine with my
 perspective-less setup but I haven't reached for it.
 #+begin_src emacs-lisp
-  ;; (tab-bar-mode 1)
-  ;; (setq tab-bar-show 1)            ;; only show when >1 tab
-  ;; (setq tab-bar-new-tab-choice "*scratch*")
+  (tab-bar-mode 1)
+  (setq tab-bar-show 1)            ;; only show when >1 tab
+  (setq tab-bar-new-tab-choice "*scratch*")
 #+end_src
 
 *** Tables, regexes, computing
