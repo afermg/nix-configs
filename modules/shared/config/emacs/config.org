@@ -1252,10 +1252,41 @@ These come with emacs since v28, and I really like them.
 #+end_src 
 
 *** org-modern
+Distinct chip colors per TODO state so the headline scan is
+visual instead of textual.  Each entry inherits a semantic face
+(~error~, ~warning~, ~success~, etc.) so the palette tracks
+whatever theme is active rather than pinning hex colors; the
+~:inverse-video t~ flag flips foreground/background so the
+inherited foreground becomes the chip background — same trick
+~org-modern-todo~ itself uses.
 #+begin_src emacs-lisp
   (use-package org-modern
     :hook ((org-mode . org-modern-mode)
-           (org-agenda-finalize . org-modern-agenda)))
+           (org-agenda-finalize . org-modern-agenda))
+    :custom
+    (org-modern-todo-faces
+     '(("TODO"      . (:inherit (error                       org-modern-label)
+                       :weight semibold :inverse-video t))
+       ("STARTED"   . (:inherit (link                        org-modern-label)
+                       :weight semibold :inverse-video t))
+       ("WAITING"   . (:inherit (warning                     org-modern-label)
+                       :weight semibold :inverse-video t))
+       ("DELEGATED" . (:inherit (font-lock-builtin-face      org-modern-label)
+                       :weight semibold :inverse-video t))
+       ("DEFERRED"  . (:inherit (shadow                      org-modern-label)
+                       :weight semibold :inverse-video t))
+       ("SOMEDAY"   . (:inherit (shadow                      org-modern-label)
+                       :weight semibold :inverse-video t))
+       ("DONE"      . (:inherit (success                     org-modern-label)
+                       :weight semibold :inverse-video t))
+       ("CANCELED"  . (:inherit (shadow                      org-modern-label)
+                       :weight semibold :inverse-video t))
+       ("CANCELLED" . (:inherit (shadow                      org-modern-label)
+                       :weight semibold :inverse-video t))
+       ("PROJECT"   . (:inherit (font-lock-type-face         org-modern-label)
+                       :weight semibold :inverse-video t))
+       ("APPT"      . (:inherit (font-lock-string-face       org-modern-label)
+                       :weight semibold :inverse-video t)))))
 #+end_src
 *** Basics
 Some conveniences
@@ -1360,6 +1391,17 @@ Set various types and colors for ~org-mode~.
      (sequence "PROJECT(p)" "|" "DONE(d@)" "CANCELED(x@)")
      (sequence "APPT(a)" "|" "DONE(d@)" "CANCELED(x@)")))
   ;; (setq org-use-fast-todo-selection t)
+#+end_src
+
+Give priority cookies distinct colors so ~[#A]~ / ~[#B]~ / ~[#C]~
+are visually distinguishable at a glance.  Inherit from the
+semantic ~error~ / ~warning~ / ~success~ faces so the palette
+follows whatever theme is active rather than being hard-coded.
+#+begin_src emacs-lisp
+  (setq org-priority-faces
+        '((?A . (:inherit error   :weight bold))
+          (?B . (:inherit warning :weight bold))
+          (?C . (:inherit success :weight bold))))
 #+end_src
 
 *** Fixed pitch in code blocks
