@@ -1041,7 +1041,25 @@ Window/layout rotation helpers from [[https://github.com/daichirata/emacs-rotate
            ("C-c C-e" . embark-export)
   	 :map embark-file-map
   	 ("O" . embark-open-externally))
-    )
+    :config
+    ;; In eat buffers (e.g. the Claude TUI) plain `insert' writes into
+    ;; the screen buffer without reaching the PTY, so the program never
+    ;; sees the path. Route through `eat-term-send-string-as-yank',
+    ;; which honors bracketed paste — what Claude expects for pasted
+    ;; input. Applies whenever the buffer that was current when
+    ;; `embark-act' was invoked is an eat buffer (typical flow: act on
+    ;; a file candidate in the minibuffer, then "i" to insert into the
+    ;; underlying Claude session).
+    (defun afm/embark-insert-eat-aware (orig-fn strings &rest args)
+      (if (and (derived-mode-p 'eat-mode)
+               (bound-and-true-p eat-terminal)
+               (fboundp 'eat-term-send-string-as-yank))
+          (eat-term-send-string-as-yank
+           eat-terminal
+           (list (string-join (mapcar #'substring-no-properties strings)
+                              (embark--separator strings))))
+        (apply orig-fn strings args)))
+    (advice-add 'embark-insert :around #'afm/embark-insert-eat-aware))
 
   ;; The `embark-consult' package is glue code to tie together `embark'
   ;; and `consult'.
