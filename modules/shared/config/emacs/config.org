@@ -3784,6 +3784,80 @@ mu4e ships with the =mu= binary but needs to be cloned from GitHub for Emacs. Th
             (mu4e-rbw-unlock)
           (apply orig-fn args))))
 
+    ;; Send-time From verification: abort sends whose From doesn't match
+    ;; the historical From used with the thread recipients.
+    ;;
+    ;; Why: mu4e-compose-context-policy nil derives context from the
+    ;; parent message's maildir.  A forwarded copy of a broad thread that
+    ;; landed in /quasimorphic/Inbox routes the reply to quasimorphic and
+    ;; silently sends from the wrong address.  This hook is the last line
+    ;; of defense, fired by message-mode just before delivery.
+    (defvar afm/mu4e-my-addresses
+      '("alan@quasimorphic.com" "amunozgo@broadinstitute.org"))
+
+    (defun afm/mu4e--canonical-from-for (recipient)
+      "More-frequent of Alán's own From addresses across the 50 most
+recent messages Alán sent where RECIPIENT is in the thread.  nil if no
+clear winner or no history.  Restricting to Alán-sent messages avoids
+counting other people's broad/personal addresses as evidence."
+      (let* ((query (format
+                     "(to:%s OR from:%s) AND (from:amunozgo@broadinstitute.org OR from:alan@quasimorphic.com)"
+                     recipient recipient))
+             (cmd (format
+                   "mu find %s --fields f --sortfield=date --reverse 2>/dev/null | head -50"
+                   (shell-quote-argument query)))
+             (out (downcase (shell-command-to-string cmd)))
+             (broad 0) (personal 0) (idx 0))
+        (while (string-match "amunozgo@broadinstitute\\.org" out idx)
+          (cl-incf broad) (setq idx (match-end 0)))
+        (setq idx 0)
+        (while (string-match "alan@quasimorphic\\.com" out idx)
+          (cl-incf personal) (setq idx (match-end 0)))
+        (cond
+         ((and (> broad personal) (> broad 0))    "amunozgo@broadinstitute.org")
+         ((and (> personal broad) (> personal 0)) "alan@quasimorphic.com")
+         (t nil))))
+
+    (defun afm/mu4e-verify-from-before-send ()
+      "Abort message-send when From doesn't match thread history.
+Hard rule: any @broadinstitute.org recipient forces broad From.
+Soft rule: historical mismatch on the first non-self recipient prompts
+for confirmation."
+      (when (derived-mode-p 'message-mode)
+        (let* ((from-raw (or (message-fetch-field "From") ""))
+               (from (downcase (or (cadr (mail-extract-address-components from-raw))
+                                   "")))
+               (to-raw (or (message-fetch-field "To") ""))
+               (cc-raw (or (message-fetch-field "Cc") ""))
+               (parsed (append (mail-extract-address-components to-raw t)
+                               (mail-extract-address-components cc-raw t)))
+               (recipients (delq nil
+                                 (mapcar (lambda (r) (and (cadr r) (downcase (cadr r))))
+                                         parsed)))
+               (my (mapcar #'downcase afm/mu4e-my-addresses))
+               (others (cl-remove-if (lambda (a) (member a my)) recipients)))
+          ;; Hard rule
+          (when (and others
+                     (cl-some (lambda (a) (string-suffix-p "@broadinstitute.org" a))
+                              others)
+                     (not (string= from "amunozgo@broadinstitute.org")))
+            (user-error
+             "ABORT: recipients include @broadinstitute.org but From is %s.  M-x mu4e-context-switch → 'broad', then re-send"
+             from))
+          ;; Soft rule (first non-self recipient)
+          (when others
+            (let* ((target (car others))
+                   (canonical (afm/mu4e--canonical-from-for target)))
+              (when (and canonical (not (string= from canonical)))
+                (unless (y-or-n-p
+                         (format
+                          "Thread history with %s used %s, but you're sending from %s.  Send anyway? "
+                          target canonical from))
+                  (user-error
+                   "Send aborted: From doesn't match prior thread history"))))))))
+
+    (add-hook 'message-send-hook #'afm/mu4e-verify-from-before-send)
+
     ;; Tell meow to use insert state for mu4e buffers so single-key bindings work
     (with-eval-after-load 'meow
       (dolist (entry '((mu4e-main-mode . insert)
