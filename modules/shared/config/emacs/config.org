@@ -626,6 +626,35 @@ Useful to read credentials risk of committing to repo.
         (string-trim (buffer-string)))))
 #+end_src
 
+**** Push file to gist on save
+Call from a file-local =eval:= block to mirror the buffer to a gist on every
+save. =safe-local-eval-function= property pre-approves the call so Emacs
+doesn't prompt.
+#+begin_src emacs-lisp
+  (defun afm/gist-push-on-save (gist-id filename)
+    "Install a buffer-local `after-save-hook' that pushes the file to GIST-ID as FILENAME."
+    (add-hook 'after-save-hook
+              (lambda ()
+                (let ((p (start-process "gist-push" "*gist-push*"
+                                        "gh" "gist" "edit" gist-id
+                                        "--filename" filename
+                                        (buffer-file-name))))
+                  (set-process-sentinel
+                   p (lambda (proc _e)
+                       (when (memq (process-status proc) '(exit signal))
+                         (let ((ts (format-time-string "%Y-%m-%d %H:%M:%S"))
+                               (ok (zerop (process-exit-status proc))))
+                           (with-current-buffer (process-buffer proc)
+                             (goto-char (point-max))
+                             (insert (format "[%s] gist push %s\n" ts
+                                             (if ok "finished" "FAILED"))))
+                           (message "[%s] gist push %s" ts
+                                    (if ok "finished" "FAILED"))))))))
+              nil t))
+
+  (put 'afm/gist-push-on-save 'safe-local-eval-function t)
+#+end_src
+
 *** Directories/popping
 #+begin_src emacs-lisp
   (defadvice pop-to-mark-command (around ensure-new-position activate)
