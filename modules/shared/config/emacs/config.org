@@ -1359,7 +1359,7 @@ It pastes a URL from the clipboard and automatically fetches the page title to f
 (use-package org-cliplink
   ;; `C-c l' is reserved for `org-store-link' (the standard org-mode binding,
   ;; used heavily by mu4e-org to capture message links). `C-c L' belongs to
-  ;; `claude-dashboard'.
+  ;; `llm-dashboard'.
   :bind ("C-c y l" . org-cliplink))
 
 (global-set-key (kbd "C-c l") #'org-store-link)
@@ -3235,50 +3235,63 @@ When in a file, go back in commit history.
     )
 #+END_SRC
 
-**** Claude Dashboard
-Magit-style dashboard for managing Claude Code instances launched from
-Emacs.  See [[https://github.com/afermg/emacs-claude-dashboard][afermg/emacs-claude-dashboard]].
-#+NAME: claude-dashboard
+**** LLM Dashboard
+Magit-style dashboard for managing Claude Code (and other LLM-TUI)
+instances launched from Emacs.  Upstream was renamed from
+=claude-dashboard= to =llm-dashboard=; the package still ships
+compat shims so the old =claude-dashboard-*= aliases keep working.
+See [[https://github.com/afermg/emacs-claude-dashboard][afermg/emacs-claude-dashboard]].
+#+NAME: llm-dashboard
 #+BEGIN_SRC emacs-lisp
   (use-package eat
     :defer t)
 
-  (use-package claude-dashboard
+  (use-package llm-dashboard
     :straight (:host github :repo "afermg/emacs-claude-dashboard"
-               :files ("claude-dashboard.el"
+               :files ("llm-dashboard.el"
+                       "llm-dashboard-schedule.el"
+                       "llm-dashboard-recurring.el"
+                       "llm-dashboard-usage.el"
+                       "claude-dashboard.el"
                        "claude-dashboard-schedule.el"
                        "claude-dashboard-recurring.el"
                        "claude-dashboard-usage.el"))
-    :commands (claude-dashboard
-               claude-dashboard-new
-               claude-dashboard-continue
-               claude-dashboard-resume
-               claude-dashboard-schedule-send
-               claude-dashboard-schedule-launch
-               claude-dashboard-schedule-resume
-               claude-dashboard-schedule-launch-worktree
-               claude-dashboard-schedule-recurring-send
-               claude-dashboard-schedule-recurring-launch
-               claude-dashboard-schedule-recurring-launch-worktree
-               claude-dashboard-list-pending-sends
-               claude-dashboard-list-recurring
-               claude-dashboard-resume-pending-sends
-               claude-dashboard-usage-list
-               claude-dashboard-usage-now)
-    :bind ("C-c L" . claude-dashboard)
+    :commands (llm-dashboard
+               llm-dashboard-new
+               llm-dashboard-continue
+               llm-dashboard-resume
+               llm-dashboard-schedule-send
+               llm-dashboard-schedule-launch
+               llm-dashboard-schedule-resume
+               llm-dashboard-schedule-launch-worktree
+               llm-dashboard-schedule-recurring-send
+               llm-dashboard-schedule-recurring-launch
+               llm-dashboard-schedule-recurring-launch-worktree
+               llm-dashboard-list-pending-sends
+               llm-dashboard-list-recurring
+               llm-dashboard-resume-pending-sends
+               llm-dashboard-usage-list
+               llm-dashboard-usage-now)
+    :bind ("C-c L" . llm-dashboard)
+    :custom
+    ;; Disable the auto-name pass that injects `/name <slug>' five user
+    ;; turns in.  Buffer names stay as `*claude-<cwd>-<sid>*' unless an
+    ;; explicit `/name' / `/rename' is sent (manually or via the
+    ;; scheduler's RENAME-NAME arg).
+    (llm-dashboard-auto-name-after-turns nil)
     :config
     ;; Schedulers — one-shot (S/J/L bindings) and recurring (r binding).
-    (require 'claude-dashboard-schedule)
-    (require 'claude-dashboard-recurring)
+    (require 'llm-dashboard-schedule)
+    (require 'llm-dashboard-recurring)
     ;; Usage monitor — scans buffer tails for `Approaching ... · resets ...'
     ;; and `usage limit reached' patterns.  Adds U binding for the list
     ;; buffer.  Default mode is :monitor (passive); flip to :auto-resume
-    ;; via `M-x customize-variable RET claude-dashboard-usage-mode' once
+    ;; via `M-x customize-variable RET llm-dashboard-usage-mode' once
     ;; the patterns are validated against a real limit hit.
-    (require 'claude-dashboard-usage)
+    (require 'llm-dashboard-usage)
     ;; Re-arm any sends, launches, and recurring schedules from disk.
     ;; The :after advice on resume-pending-sends restores recurring too.
-    (claude-dashboard-resume-pending-sends))
+    (llm-dashboard-resume-pending-sends))
 #+END_SRC
 
 **** Dired-git
