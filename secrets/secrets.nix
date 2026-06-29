@@ -14,4 +14,5 @@ in
   "cloudflared-overleaf.age".publicKeys = keys;
   "netrc-overleaf.age".publicKeys = keys;
   "org-gcal.age".publicKeys = keys;
+  "hedgedoc-env.age".publicKeys = keys;
 }

@@ -26,6 +26,7 @@
     # You can also split up your configuration and import pieces of it here:
     ./boot.nix
     ./overleaf.nix
+    ./hedgedoc.nix
     ./org-gcal.nix
     ../common/networking.nix
     ../common/printing.nix
