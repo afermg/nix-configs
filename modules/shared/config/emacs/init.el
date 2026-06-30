@@ -275,7 +275,14 @@ diff with `magit-status' or `git diff' and commit manually."
       (unless (file-exists-p org-config-file)
         (dl/download-default-config))
       (if (file-exists-p org-config-file)
-          (org-babel-load-file org-config-file)
+          (progn
+            ;; `config.el' is gitignored — force re-tangle every startup so
+            ;; it can't drift from `config.org'. `org-babel-load-file' only
+            ;; re-tangles when the .org file is newer, which silently loads
+            ;; stale content if the .el was touched out-of-band.
+            (ignore-errors
+              (delete-file (concat (file-name-sans-extension org-config-file) ".el")))
+            (org-babel-load-file org-config-file))
         (org-babel-load-file default-config-file))
       (message "Configuration loaded successfully."))
   (error (message "Error occurred while loading the configuration.")))
