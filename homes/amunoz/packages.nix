@@ -47,6 +47,8 @@ in
   opencode
   gemini-cli
   claude-code
+  codex
+  pi-coding-agent
   #openai-whisper-cpp
   #piper-tts
 
