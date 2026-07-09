@@ -2790,6 +2790,27 @@ For bibliography and citations
     (expand-file-name "~/Zotero/styles/")))
 #+end_src
 
+*** Annotations (org-remark)
+Highlight and annotate my own drafts (or any text file: org, markdown, code)
+in place. Each highlight gets an entry in a =marginalia.org= file next to the
+draft, where the notes live as plain org headings.
+
+#+begin_src emacs-lisp
+(use-package org-remark
+  ;; `C-c r' belongs to org-roam, so use `C-c n' as the manual suggests.
+  :bind (("C-c n m" . org-remark-mark)
+         ("C-c n l" . org-remark-mark-line)
+         :map org-remark-mode-map
+         ("C-c n o" . org-remark-open)
+         ("C-c n ]" . org-remark-view-next)
+         ("C-c n [" . org-remark-view-prev)
+         ("C-c n r" . org-remark-remove)
+         ("C-c n d" . org-remark-delete))
+  :init
+  ;; Re-load saved highlights when visiting a previously annotated file.
+  (org-remark-global-tracking-mode +1))
+#+end_src
+
 ** Coding
 *** Compile buffers
 Everything related to M-x compile.
