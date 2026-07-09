@@ -286,3 +286,30 @@ diff with `magit-status' or `git diff' and commit manually."
         (org-babel-load-file default-config-file))
       (message "Configuration loaded successfully."))
   (error (message "Error occurred while loading the configuration.")))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(safe-local-variable-values
+   '((org-cite-export-processors (latex biblatex) (t csl))
+     (citar-notes-paths
+      "~/Documents/broad/drafts/papers/2026_06_jx_paper/")
+     (org-cite-global-bibliography
+      "~/Documents/broad/bibliography/bibliography.bib")
+     (citar-bibliography
+      "~/Documents/broad/bibliography/bibliography.bib")
+     (eval add-hook 'after-save-hook
+	   (lambda nil
+	     (start-process "gist-push" "*gist-push*" "gh" "gist"
+			    "edit" "35c5e26294334cd8eaaac595eeed571b"
+			    "--filename" "2026_pittsburgh_move.org"
+			    (buffer-file-name)))
+	   nil t)
+     (org-hugo-base-dir . "~/Documents/broad/drafts/afermg.github.io/"))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

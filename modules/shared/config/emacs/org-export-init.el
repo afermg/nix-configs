@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t -*-
 (use-package org-contrib
 :config
 (require 'ox-extra)

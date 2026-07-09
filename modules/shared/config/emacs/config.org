@@ -2698,7 +2698,7 @@ test
                              (window-height . 0.4)))))))
     :config
     (setq eat-kill-buffer-on-exit t)
-    (setq eat-term-scrollback-size 30000)
+    (setq eat-term-scrollback-size 90000)
     (setq process-adaptive-read-buffering nil)
     (setq read-process-output-max (* 4 1024 1024))
     (defun +eat/here (arg)
