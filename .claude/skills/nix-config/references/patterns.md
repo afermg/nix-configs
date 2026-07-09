@@ -128,10 +128,12 @@ requirements (perms, path conventions, format complexity).
 # modules/shared/config/claude/claude.nix
 { config, ... }:
 {
-  # ~/.claude/settings.json is a symlink straight back to the repo file. The
-  # repo path stays the single source of truth (declarative, version-
-  # controlled), and Claude can edit it directly via /permissions, /plugin
-  # add, etc. — those edits land on the tracked file and show up in
+  # ~/.claude/settings.json is an out-of-store symlink resolving to the repo
+  # file (two-hop: `ls -l` shows a /nix/store/...-home-manager-files path, which
+  # is itself a symlink to the repo path — `readlink -f` resolves through to the
+  # repo file). The repo path stays the single source of truth (declarative,
+  # version-controlled), and Claude can edit it directly via /permissions,
+  # /plugin add, etc. — those edits land on the tracked file and show up in
   # `git status` for review/commit.
   home.file.".claude/settings.json".source = config.lib.file.mkOutOfStoreSymlink
     "${config.home.homeDirectory}/.local/share/src/nixos-config/modules/shared/config/claude/settings.json";
@@ -148,10 +150,16 @@ Same trick used for emacs:
 };
 ```
 
-**Mechanics:** home-manager creates `~/.claude/settings.json` as a symlink
-pointing at the absolute repo path you give it (NOT into `/nix/store`).
-`config.home.homeDirectory` makes the path host-portable. Edits to the repo
-file land on disk immediately; no rebuild needed.
+**Mechanics:** home-manager registers the entry in the generation's
+`home-manager-files` store dir, so `~/.claude/settings.json` first-hops into
+`/nix/store/<hash>-home-manager-files/.claude/settings.json` — but that store
+entry is itself a symlink to the absolute repo path you gave `mkOutOfStoreSymlink`,
+so `readlink -f` resolves all the way to the repo file. Don't be fooled by
+`ls -l` showing a `/nix/store` target; the tell for out-of-store vs nix-baked
+(Pattern 1) is the *final* resolved target: a live writable repo file here vs a
+read-only content *copy* in the store for Pattern 1. `config.home.homeDirectory`
+makes the path host-portable. Edits to the repo file land on disk immediately;
+no rebuild needed.
 
 **When to use:** the file changes more often than you want to rebuild for,
 OR another tool writes to it and you want the writes preserved across

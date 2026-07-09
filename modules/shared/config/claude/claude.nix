@@ -1,10 +1,16 @@
 { config, ... }:
 {
-  # ~/.claude/settings.json is an out-of-store symlink straight back to the
-  # repo file. The repo path stays the single source of truth (declarative,
-  # version-controlled), and Claude can edit it directly via /permissions,
-  # /plugin add, etc. — those edits land on the tracked file and show up in
-  # `git status` for review/commit. Same trick used for emacs init.el.
+  # ~/.claude/settings.json is an out-of-store symlink resolving to the repo
+  # file. Note the two-hop indirection: home-manager registers the entry inside
+  # the generation's `home-manager-files` store dir, so `ls -l` shows the link
+  # pointing into /nix/store — but that store entry is itself a symlink to the
+  # absolute repo path, so `readlink -f` resolves all the way back to the repo
+  # file. This is NOT nix-baked (Pattern 1), where the store target would be a
+  # read-only *copy*; here the final target is the live, writable repo file.
+  # The repo path stays the single source of truth (declarative, version-
+  # controlled), and Claude can edit it directly via /permissions, /plugin add,
+  # etc. — those edits land on the tracked file immediately (no rebuild) and
+  # show up in `git status` for review/commit. Same trick used for emacs init.el.
   home.file.".claude/settings.json".source = config.lib.file.mkOutOfStoreSymlink
     "${config.home.homeDirectory}/.local/share/src/nixos-config/modules/shared/config/claude/settings.json";
 

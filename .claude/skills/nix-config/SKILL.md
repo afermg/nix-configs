@@ -122,10 +122,15 @@ own single quotes: `[ "rbw" "get" "'Broad Email App Password'" ]`. See
 }
 ```
 
-`~/.claude/settings.json` is a symlink straight back to the repo file. You
-(and Claude itself, via `/permissions`) can edit it directly; changes show up
-in `git status`. **Trap:** the target file must be `git add`'d for the flake
-to see it.
+`~/.claude/settings.json` resolves back to the repo file via a two-hop
+symlink: `ls -l` shows it pointing into `/nix/store/<hash>-home-manager-files/`,
+but that store entry is itself a symlink to the repo path, so `readlink -f`
+lands on the repo file. (Contrast Pattern 1, where the store target is a
+read-only *copy* — that resolved copy-vs-repo-file distinction is the tell for
+"baked vs live", since both patterns show a `/nix/store` path in `ls -l`.) You
+(and Claude itself, via `/permissions`) can edit it directly; changes take
+effect immediately with no rebuild and show up in `git status`. **Trap:** the
+target file must be `git add`'d for the flake to see it.
 
 ### 4. Unmanaged — DO NOT put in nix
 
