@@ -1,4 +1,6 @@
 {
+  "model": "claude-fable-5",
+  "effortLevel": "xhigh",
   "permissions": {
     "defaultMode": "bypassPermissions"
   },
