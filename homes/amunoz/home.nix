@@ -128,6 +128,7 @@ in
   imports = [
     ../../modules/shared/config/opencode/opencode.nix
     ../../modules/shared/config/claude/claude.nix
+    ../../modules/shared/config/codex/codex.nix
     ../../modules/shared/config/email/rbw.nix
   ];
 

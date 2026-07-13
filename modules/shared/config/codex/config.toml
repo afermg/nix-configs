@@ -1,0 +1,24 @@
+# Declarative Codex defaults.
+#
+# Mirror the low-friction setup used in Claude Code: powerful default model,
+# no approval prompts, and full filesystem access. Use `-p fast`, `-p daily`,
+# etc. when you want a different tradeoff for a single run.
+
+model = "gpt-5.5"
+approval_policy = "never"
+sandbox_mode = "danger-full-access"
+
+[shell_environment_policy]
+inherit = "all"
+
+[profiles.daily]
+model = "gpt-5.4"
+
+[profiles.fast]
+model = "gpt-5.4-mini"
+
+[profiles.agent]
+model = "gpt-5.2"
+
+[profiles.frontier]
+model = "gpt-5.5"
