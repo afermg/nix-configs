@@ -1853,16 +1853,18 @@ org-roam-ui-update-on-save t
 org-roam-ui-open-on-start t))
 #+end_src
 
+#+begin_comment
 *** Org-gcal
-Two-way sync between Google Calendar and =~/Documents/broad/org/gcal.org=. The OAuth client_id is committed inline below (Google treats it as public); the client_secret lives in the agenix secret =org-gcal.age=, decrypted by NixOS to =~/.org-gcal-client-secret= (mode 0600, owner amunoz, raw single-line string).
+Two-way sync between Google Calendar and =~/Documents/broad/org/gcal.org=. The previous inline OAuth client stopped working after its Google Cloud project was deleted, so both the =client_id= and =client_secret= now load from local files instead: =~/.org-gcal-client-id= and =~/.org-gcal-client-secret=.
 
-First-run bootstrap: =M-x org-gcal-sync= → browser opens an OAuth consent flow → grant access → token caches under =~/.config/org-gcal/=. Subsequent syncs happen silently on the 15-minute timer below.
+Bootstrap after rotating credentials: create a new Google Cloud Desktop OAuth client with the Calendar API enabled, write its =client_id= and =client_secret= to those two files, then run =M-x afm/org-gcal-reset-auth=. Subsequent syncs happen silently on the 15-minute timer below.
 
 #+begin_src emacs-lisp
   (use-package org-gcal
     :straight (:host github :repo "kidd/org-gcal.el" :branch "master")
     :defer 5
     :config
+    (require 'subr-x)
     ;; oauth2-auto persists tokens via `plstore', which encrypts the secret
     ;; section with GPG. Pin the recipient so encryption is non-interactive
     ;; (the key was generated with `gpg --batch ... --passphrase ""'), and
@@ -1871,6 +1873,7 @@ First-run bootstrap: =M-x org-gcal-sync= → browser opens an OAuth consent flow
     (setq epa-pinentry-mode 'loopback)
     (with-eval-after-load 'plstore
       (setq plstore-encrypt-to "amunozgo@broadinstitute.org"))
+
     ;; Override oauth2-auto's manual-flow redirect port. Upstream hardcodes
     ;; localhost:8080 in `oauth2-auto--browser-request-manually', which
     ;; collides with local nginx. Pick a high port unlikely to clash.
@@ -1904,37 +1907,106 @@ of upstream's hardcoded localhost:8080. Mirror of upstream otherwise."
                   (list (cons 'code code)
                         (cons 'redirect_uri redirect-uri)
                         (cons 'state (cdr (assoc 'state data-alist)))))))))
-    (setq org-gcal-client-id "617484897136-vnptn5c92rlqmiosghnv4tv2j3phqlug.apps.googleusercontent.com")
-    ;; Read the client_secret from the agenix-decrypted file. Guarded so the
-    ;; daemon still loads before the secret exists; org-gcal-sync will then
-    ;; fail with a clear "client_secret missing" error.
-    (let ((secret-file "~/.org-gcal-client-secret"))
-      (when (file-readable-p secret-file)
-        (setq org-gcal-client-secret
-              (with-temp-buffer
-                (insert-file-contents secret-file)
-                (string-trim (buffer-string))))))
-    ;; org-gcal only registers itself with oauth2-auto at load time if the
-    ;; client-id/secret are already set. We set them above, so trigger the
-    ;; registration explicitly — otherwise sync fails with
-    ;; `oauth2-auto: Unknown provider: org-gcal`.
-    (when (and org-gcal-client-id org-gcal-client-secret
-               (fboundp 'org-gcal-reload-client-id-secret))
-      (org-gcal-reload-client-id-secret))
-    ;; "primary" is the canonical Google alias for the user's main calendar.
+
+    (defvar afm/org-gcal-client-id-file "~/.org-gcal-client-id"
+      "Path to the Google OAuth client_id used by org-gcal.")
+    (defvar afm/org-gcal-client-secret-file "~/.org-gcal-client-secret"
+      "Path to the Google OAuth client_secret used by org-gcal.")
+    (defvar afm/org-gcal-sync-timer nil
+      "Timer for background org-gcal syncs.")
+
+    (defun afm/org-gcal--read-file-string (file)
+      "Return FILE trimmed to a single string, or nil when FILE is missing/empty."
+      (when (file-readable-p (expand-file-name file))
+        (let ((value (with-temp-buffer
+                       (insert-file-contents (expand-file-name file))
+                       (string-trim (buffer-string)))))
+          (unless (string-empty-p value)
+            value))))
+
+    (defun afm/org-gcal-load-client-credentials ()
+      "Load org-gcal OAuth credentials from disk and register the provider."
+      (interactive)
+      (setq org-gcal-client-id
+            (afm/org-gcal--read-file-string afm/org-gcal-client-id-file)
+            org-gcal-client-secret
+            (afm/org-gcal--read-file-string afm/org-gcal-client-secret-file))
+      (when (and org-gcal-client-id org-gcal-client-secret
+                 (fboundp 'org-gcal-reload-client-id-secret))
+        (org-gcal-reload-client-id-secret)))
+
+    (defun afm/org-gcal-credentials-ready-p ()
+      "Return non-nil when both org-gcal OAuth credential files are present."
+      (and (stringp org-gcal-client-id)
+           (not (string-empty-p org-gcal-client-id))
+           (stringp org-gcal-client-secret)
+           (not (string-empty-p org-gcal-client-secret))))
+
+    (defun afm/org-gcal-ensure-credentials (&rest _)
+      "Reload org-gcal credentials and raise a clear error when they are missing."
+      (afm/org-gcal-load-client-credentials)
+      (unless (afm/org-gcal-credentials-ready-p)
+        (user-error
+         (concat "org-gcal OAuth credentials are not configured. "
+                 "Create ~/.org-gcal-client-id and ~/.org-gcal-client-secret, "
+                 "then run M-x afm/org-gcal-reset-auth"))))
+
+    (defun afm/org-gcal-reset-auth ()
+      "Forget cached org-gcal OAuth state and start a fresh auth flow."
+      (interactive)
+      (afm/org-gcal-ensure-credentials)
+      (when (fboundp 'org-gcal--sync-unlock)
+        (org-gcal--sync-unlock))
+      (when (boundp 'oauth2-auto--plstore-cache)
+        (clrhash oauth2-auto--plstore-cache))
+      (when (and (boundp 'oauth2-auto-plstore)
+                 (file-exists-p oauth2-auto-plstore))
+        (delete-file oauth2-auto-plstore))
+      (when (fboundp 'org-gcal-sync-tokens-clear)
+        (org-gcal-sync-tokens-clear))
+      (org-gcal-sync))
+
+    (defun afm/org-gcal-sync-maybe ()
+      "Sync org-gcal when credentials are configured.
+Background timers stay silent until credentials exist."
+      (interactive)
+      (afm/org-gcal-load-client-credentials)
+      (when (afm/org-gcal-credentials-ready-p)
+        (condition-case err
+            (org-gcal-sync)
+          (error
+           (message "org-gcal sync failed: %s" (error-message-string err))
+           (when (called-interactively-p 'interactive)
+             (signal (car err) (cdr err)))))))
+
+    (defun afm/org-gcal-cancel-legacy-sync-timers ()
+      "Cancel older anonymous org-gcal timers left over from previous config loads."
+      (dolist (timer (append timer-list timer-idle-list))
+        (let ((fn (ignore-errors (timer--function timer))))
+          (when (and fn
+                     (not (eq fn #'afm/org-gcal-sync-maybe))
+                     (string-match-p "org-gcal-sync" (prin1-to-string fn)))
+            (cancel-timer timer)))))
+
+    (defun afm/org-gcal-install-sync-timer ()
+      "Install the background org-gcal sync timer."
+      (afm/org-gcal-cancel-legacy-sync-timers)
+      (when (timerp afm/org-gcal-sync-timer)
+        (cancel-timer afm/org-gcal-sync-timer))
+      (setq afm/org-gcal-sync-timer
+            (run-at-time 60 (* 15 60) #'afm/org-gcal-sync-maybe)))
+
+    (dolist (fn '(org-gcal-sync org-gcal-post-at-point))
+      (advice-add fn :before #'afm/org-gcal-ensure-credentials))
+
     (setq org-gcal-fetch-file-alist
           `(("primary" . ,(concat org-directory "/gcal.org"))))
-    ;; Background sync every 15 minutes. First fire 60s after load so it
-    ;; doesn't race with emacs daemon startup / OAuth init.
-    (run-at-time 60 (* 15 60)
-                 (lambda ()
-                   (when (and (fboundp 'org-gcal-sync)
-                              (boundp 'org-gcal-client-secret)
-                              org-gcal-client-secret
-                              (not (string-empty-p org-gcal-client-secret)))
-                     (org-gcal-sync)))))
+    (afm/org-gcal-load-client-credentials)
+    (afm/org-gcal-install-sync-timer))
 #+end_src
 
+
+#+end_comment
 *** Babel
 **** Async
 #+begin_src emacs-lisp
