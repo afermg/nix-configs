@@ -3257,26 +3257,75 @@ When in a file, go back in commit history.
 #+END_SRC
 
 **** LLM Dashboard
-Magit-style dashboard for managing Claude Code (and other LLM-TUI)
-instances launched from Emacs.  Upstream was renamed from
-=claude-dashboard= to =llm-dashboard=; the package still ships
-compat shims so the old =claude-dashboard-*= aliases keep working.
+Magit-style dashboard for managing Pi and other coding-agent CLIs from Emacs.
+Prefer the local checkout under =/home/amunoz/projects/emacs_llm_dashboard=
+when it exists, but still install and update the upstream package through
+=straight= so the pinned revision stays tracked in the shared
+=straight-versions.el= lockfile.  If the local checkout is absent, Emacs falls
+back to the straight-installed package.  When the loaded package exposes a =pi=
+backend, new dashboard sessions default there automatically.
 See [[https://github.com/afermg/emacs-claude-dashboard][afermg/emacs-claude-dashboard]].
 #+NAME: llm-dashboard
 #+BEGIN_SRC emacs-lisp
   (use-package eat
     :defer t)
 
+  (defconst afm/llm-dashboard-local-path
+    "/home/amunoz/projects/emacs_llm_dashboard"
+    "Preferred local checkout of llm-dashboard.")
+
+  (defconst afm/llm-dashboard-use-local
+    (file-directory-p afm/llm-dashboard-local-path)
+    "Whether Emacs should load llm-dashboard from the local checkout.")
+
+  (defun afm/llm-dashboard-post-load ()
+    "Load llm-dashboard companion libraries and restore persisted state."
+    (require 'llm-dashboard-schedule)
+    (require 'llm-dashboard-recurring)
+    (require 'llm-dashboard-usage)
+    (llm-dashboard-resume-pending-sends))
+
+  (defun afm/straight-refresh-llm-dashboard ()
+    "Install/update llm-dashboard through straight and refresh the lockfile."
+    (interactive)
+    (unless (fboundp 'straight-use-package)
+      (user-error "straight.el is not loaded"))
+    (straight-use-package
+     '(llm-dashboard :type git :host github
+                     :repo "afermg/emacs-claude-dashboard"
+                     :files ("*.el")))
+    (when (fboundp 'straight-pull-package)
+      (straight-pull-package "llm-dashboard"))
+    (when (fboundp 'straight-rebuild-package)
+      (straight-rebuild-package "llm-dashboard"))
+    (when (fboundp 'afm/straight-freeze-to-repo)
+      (afm/straight-freeze-to-repo)))
+
+  (when afm/llm-dashboard-use-local
+    (add-to-list 'load-path afm/llm-dashboard-local-path)
+    ;; Local checkouts do not come with generated autoloads, so wire up the
+    ;; entry points explicitly.
+    (autoload 'llm-dashboard "llm-dashboard" nil t)
+    (autoload 'llm-dashboard-new "llm-dashboard" nil t)
+    (autoload 'llm-dashboard-continue "llm-dashboard" nil t)
+    (autoload 'llm-dashboard-resume "llm-dashboard" nil t)
+    (autoload 'llm-dashboard-resume-all "llm-dashboard" nil t)
+    (autoload 'llm-dashboard-schedule-send "llm-dashboard-schedule" nil t)
+    (autoload 'llm-dashboard-schedule-launch "llm-dashboard-schedule" nil t)
+    (autoload 'llm-dashboard-schedule-resume "llm-dashboard-schedule" nil t)
+    (autoload 'llm-dashboard-schedule-launch-worktree "llm-dashboard-schedule" nil t)
+    (autoload 'llm-dashboard-list-pending-sends "llm-dashboard-schedule" nil t)
+    (autoload 'llm-dashboard-resume-pending-sends "llm-dashboard-schedule" nil t)
+    (autoload 'llm-dashboard-schedule-recurring-send "llm-dashboard-recurring" nil t)
+    (autoload 'llm-dashboard-schedule-recurring-launch "llm-dashboard-recurring" nil t)
+    (autoload 'llm-dashboard-schedule-recurring-launch-worktree "llm-dashboard-recurring" nil t)
+    (autoload 'llm-dashboard-list-recurring "llm-dashboard-recurring" nil t)
+    (autoload 'llm-dashboard-usage-list "llm-dashboard-usage" nil t)
+    (autoload 'llm-dashboard-usage-now "llm-dashboard-usage" nil t))
+
   (use-package llm-dashboard
     :straight (:host github :repo "afermg/emacs-claude-dashboard"
-               :files ("llm-dashboard.el"
-                       "llm-dashboard-schedule.el"
-                       "llm-dashboard-recurring.el"
-                       "llm-dashboard-usage.el"
-                       "claude-dashboard.el"
-                       "claude-dashboard-schedule.el"
-                       "claude-dashboard-recurring.el"
-                       "claude-dashboard-usage.el"))
+               :files ("*.el"))
     :commands (llm-dashboard
                llm-dashboard-new
                llm-dashboard-continue
@@ -3294,25 +3343,16 @@ See [[https://github.com/afermg/emacs-claude-dashboard][afermg/emacs-claude-dash
                llm-dashboard-usage-list
                llm-dashboard-usage-now)
     :bind ("C-c L" . llm-dashboard)
-    :custom
-    ;; Disable the auto-name pass that injects `/name <slug>' five user
-    ;; turns in.  Buffer names stay as `*claude-<cwd>-<sid>*' unless an
-    ;; explicit `/name' / `/rename' is sent (manually or via the
-    ;; scheduler's RENAME-NAME arg).
-    (llm-dashboard-auto-name-after-turns nil)
+    :init
+    (setq llm-dashboard-auto-name-after-turns nil)
     :config
-    ;; Schedulers — one-shot (S/J/L bindings) and recurring (r binding).
-    (require 'llm-dashboard-schedule)
-    (require 'llm-dashboard-recurring)
-    ;; Usage monitor — scans buffer tails for `Approaching ... · resets ...'
-    ;; and `usage limit reached' patterns.  Adds U binding for the list
-    ;; buffer.  Default mode is :monitor (passive); flip to :auto-resume
-    ;; via `M-x customize-variable RET llm-dashboard-usage-mode' once
-    ;; the patterns are validated against a real limit hit.
-    (require 'llm-dashboard-usage)
-    ;; Re-arm any sends, launches, and recurring schedules from disk.
-    ;; The :after advice on resume-pending-sends restores recurring too.
-    (llm-dashboard-resume-pending-sends))
+    (afm/llm-dashboard-post-load)
+    (setq llm-dashboard-backend
+          (if (assq 'pi llm-dashboard-backends) 'pi 'codex))
+    (unless afm/llm-dashboard-use-local
+      (message "llm-dashboard local checkout not found; using straight package"))
+    (unless (assq 'pi llm-dashboard-backends)
+      (message "llm-dashboard loaded without a Pi backend; defaulting to codex")))
 #+END_SRC
 
 **** Dired-git
