@@ -2743,6 +2743,13 @@ test
 
 
 ** Terminal
+Ghostel is installed as an experimental alternative to eat. Current
+state: keep eat for general-purpose terminals and compatibility, but use
+ghostel as the default terminal backend for =llm-dashboard=. Ghostel's
+native module is configured to auto-download, and the README's project
+keybindings are intentionally not adopted here because =C-x p m= remains
+reserved for Magit.
+
 *** EAT
 #+NAME: eat
 #+begin_src emacs-lisp
@@ -2804,6 +2811,21 @@ test
     ;; overridden by `meow-global-mode' re-entering normal state afterwards.
     (with-eval-after-load 'meow
       (add-to-list 'meow-mode-state-list '(eat-mode . insert))))
+#+end_src
+
+*** Ghostel
+#+NAME: ghostel
+#+begin_src emacs-lisp
+  (use-package ghostel
+    :straight (:host github :repo "dakra/ghostel"
+               :files ("lisp/*.el" "etc" "build.zig" "build.zig.zon"
+                       "symbols.map" "src" "vendor"))
+    :defer t
+    :config
+    (setq ghostel-kill-buffer-on-exit t)
+    (setq ghostel-module-auto-install 'download)
+    (with-eval-after-load 'meow
+      (add-to-list 'meow-mode-state-list '(ghostel-mode . insert))))
 #+end_src
 
 ** Writing
@@ -3342,6 +3364,12 @@ See [[https://github.com/afermg/emacs-claude-dashboard][afermg/emacs-claude-dash
   (use-package eat
     :defer t)
 
+  (use-package ghostel
+    :straight (:host github :repo "dakra/ghostel"
+               :files ("lisp/*.el" "etc" "build.zig" "build.zig.zon"
+                       "symbols.map" "src" "vendor"))
+    :defer t)
+
   (defconst afm/llm-dashboard-local-path
     "/home/amunoz/projects/emacs_llm_dashboard"
     "Preferred local checkout of llm-dashboard.")
@@ -3417,6 +3445,7 @@ See [[https://github.com/afermg/emacs-claude-dashboard][afermg/emacs-claude-dash
     :bind ("C-c L" . llm-dashboard)
     :init
     (setq llm-dashboard-auto-name-after-turns nil)
+    (setq llm-dashboard-terminal-backend 'ghostel)
     :config
     (afm/llm-dashboard-post-load)
     (setq llm-dashboard-backend

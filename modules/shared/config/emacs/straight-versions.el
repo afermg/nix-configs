@@ -59,6 +59,7 @@
  ("f.el" . "931b6d0667fe03e7bf1c6c282d6d8d7006143c52")
  ("gcmh" . "0089f9c3a6d4e9a310d0791cf6fa8f35642ecfd9")
  ("geiser" . "8842104d1521a00c182ce78e9d50d394e9ba86f5")
+ ("ghostel" . "1978b3ed6e3c8be0edc9835a1364a2305ac5f181")
  ("git-link" . "b651de43236276cdb18ec7727f645cbf6743a499")
  ("git-timemachine" . "d1346a76122595aeeb7ebb292765841c6cfd417b")
  ("gntp.el" . "767571135e2c0985944017dc59b0be79af222ef5")
