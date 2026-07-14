@@ -1042,24 +1042,27 @@ Window/layout rotation helpers from [[https://github.com/daichirata/emacs-rotate
   	 :map embark-file-map
   	 ("O" . embark-open-externally))
     :config
-    ;; In eat buffers (e.g. the Claude TUI) plain `insert' writes into
-    ;; the screen buffer without reaching the PTY, so the program never
-    ;; sees the path. Route through `eat-term-send-string-as-yank',
-    ;; which honors bracketed paste — what Claude expects for pasted
-    ;; input. Applies whenever the buffer that was current when
-    ;; `embark-act' was invoked is an eat buffer (typical flow: act on
-    ;; a file candidate in the minibuffer, then "i" to insert into the
-    ;; underlying Claude session).
-    (defun afm/embark-insert-eat-aware (orig-fn strings &rest args)
-      (if (and (derived-mode-p 'eat-mode)
+    ;; In terminal buffers used for agent TUIs, plain `insert' writes into
+    ;; the Emacs screen buffer without reaching the PTY, so the program
+    ;; never sees the pasted path. Route through the backend's bracketed
+    ;; paste helper instead. This applies whenever the buffer that was
+    ;; current when `embark-act' was invoked is an `eat' or `ghostel'
+    ;; buffer (typical flow: act on a file candidate in the minibuffer,
+    ;; then "i" to insert into the underlying Claude session).
+    (defun afm/embark-insert-terminal-aware (orig-fn strings &rest args)
+      (let ((text (string-join (mapcar #'substring-no-properties strings)
+                               (embark--separator strings))))
+        (cond
+         ((and (derived-mode-p 'eat-mode)
                (bound-and-true-p eat-terminal)
                (fboundp 'eat-term-send-string-as-yank))
-          (eat-term-send-string-as-yank
-           eat-terminal
-           (list (string-join (mapcar #'substring-no-properties strings)
-                              (embark--separator strings))))
-        (apply orig-fn strings args)))
-    (advice-add 'embark-insert :around #'afm/embark-insert-eat-aware))
+          (eat-term-send-string-as-yank eat-terminal (list text)))
+         ((and (derived-mode-p 'ghostel-mode)
+               (fboundp 'ghostel-paste-string))
+          (ghostel-paste-string text))
+         (t
+          (apply orig-fn strings args)))))
+    (advice-add 'embark-insert :around #'afm/embark-insert-terminal-aware)
 
   ;; The `embark-consult' package is glue code to tie together `embark'
   ;; and `consult'.
