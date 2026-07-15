@@ -1,6 +1,7 @@
 {
   pkgs,
   config,
+  inputs,
   username ? null,
   ...
 }:
@@ -19,7 +20,7 @@ in
     username = "${user}";
     homeDirectory = "/${home_parent}/${user}";
     stateVersion = "24.05";
-    packages = pkgs.callPackage ./packages.nix { } ++ [
+    packages = pkgs.callPackage ./packages.nix { inherit inputs; } ++ [
       # Recover atuin sync after server-side session invalidation. Reads
       # username/password from rbw's "atuin" entry and the BIP39 key from
       # the "atuin key" entry, then runs `atuin login`.
