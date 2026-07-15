@@ -1,27 +1,19 @@
 # Declarative Codex defaults.
 #
 # Mirror the low-friction setup used in Claude Code: powerful default model,
-# no approval prompts, and full filesystem access. Use `-p fast`, `-p daily`,
-# etc. when you want a different tradeoff for a single run.
+# no approval prompts, and full filesystem access. The custom catalog limits
+# model selection to GPT-5.6-Sol and GPT-5.5; use `-p sol` to switch to Sol.
 
 model = "gpt-5.5"
+model_catalog_json = "models.json"
 approval_policy = "never"
 sandbox_mode = "danger-full-access"
 
 [shell_environment_policy]
 inherit = "all"
 
-[profiles.daily]
-model = "gpt-5.4"
-
-[profiles.fast]
-model = "gpt-5.4-mini"
-
-[profiles.agent]
-model = "gpt-5.2"
-
-[profiles.frontier]
-model = "gpt-5.5"
+[profiles.sol]
+model = "gpt-5.6-sol"
 
 [tui.model_availability_nux]
 "gpt-5.6-sol" = 1

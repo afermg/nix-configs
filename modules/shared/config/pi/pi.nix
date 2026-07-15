@@ -5,6 +5,6 @@
   home.file.".pi/agent/settings.json".source = config.lib.file.mkOutOfStoreSymlink
     "${config.home.homeDirectory}/.local/share/src/nixos-config/modules/shared/config/pi/settings.json";
 
-  home.file.".pi/agent/models.json".source = config.lib.file.mkOutOfStoreSymlink
-    "${config.home.homeDirectory}/.local/share/src/nixos-config/modules/shared/config/pi/models.json";
+  home.file.".pi/agent/model-allowlist.ts".source = config.lib.file.mkOutOfStoreSymlink
+    "${config.home.homeDirectory}/.local/share/src/nixos-config/modules/shared/config/pi/model-allowlist.ts";
 }

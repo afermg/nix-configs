@@ -6,6 +6,9 @@
   home.file.".codex/config.toml".source = config.lib.file.mkOutOfStoreSymlink
     "${config.home.homeDirectory}/.local/share/src/nixos-config/modules/shared/config/codex/config.toml";
 
+  home.file.".codex/models.json".source = config.lib.file.mkOutOfStoreSymlink
+    "${config.home.homeDirectory}/.local/share/src/nixos-config/modules/shared/config/codex/models.json";
+
   # User-wide instructions loaded into every Codex session.
   home.file.".codex/AGENTS.md".source = config.lib.file.mkOutOfStoreSymlink
     "${config.home.homeDirectory}/.local/share/src/nixos-config/modules/shared/config/codex/AGENTS.md";
