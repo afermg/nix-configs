@@ -5,7 +5,6 @@
     # Nixpkgs
     nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-25.05";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    nixpkgs-master.url = "github:nixos/nixpkgs/master";
 
     # darwin inputs
     darwin = {
@@ -181,6 +180,24 @@
         in
         {
           "amunoz@moby" = lib.homeManagerConfiguration {
+            pkgs = pkgsFor.x86_64-linux;
+            extraSpecialArgs = { inherit inputs outputs; };
+            modules = [ outputs.homeModules.amunoz ];
+          };
+
+          "amunoz@oppy" = lib.homeManagerConfiguration {
+            pkgs = pkgsFor.x86_64-linux;
+            extraSpecialArgs = { inherit inputs outputs; };
+            modules = [ outputs.homeModules.amunoz ];
+          };
+
+          "amunoz@spirit" = lib.homeManagerConfiguration {
+            pkgs = pkgsFor.x86_64-linux;
+            extraSpecialArgs = { inherit inputs outputs; };
+            modules = [ outputs.homeModules.amunoz ];
+          };
+
+          "amunoz@karkinos" = lib.homeManagerConfiguration {
             pkgs = pkgsFor.x86_64-linux;
             extraSpecialArgs = { inherit inputs outputs; };
             modules = [ outputs.homeModules.amunoz ];

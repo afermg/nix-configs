@@ -1,8 +1,9 @@
 # Packages that only I use
-{ pkgs }:
+{ pkgs, inputs }:
 with pkgs;
 let
   shared-packages = import ../../modules/shared/packages.nix { inherit pkgs; };
+  latestPiCodingAgent = inputs.nixpkgs.legacyPackages.${pkgs.stdenv.hostPlatform.system}.pi-coding-agent;
   # zlib12 = (zlib.overrideAttrs(p: {
   #   src = let
   #     version ="1.2.13";
@@ -47,6 +48,8 @@ in
   opencode
   gemini-cli
   claude-code
+  codex
+  latestPiCodingAgent
   #openai-whisper-cpp
   #piper-tts
 

@@ -1,6 +1,7 @@
 {
   pkgs,
   config,
+  inputs,
   username ? null,
   ...
 }:
@@ -19,7 +20,23 @@ in
     username = "${user}";
     homeDirectory = "/${home_parent}/${user}";
     stateVersion = "24.05";
-    packages = pkgs.callPackage ./packages.nix { };
+    packages = pkgs.callPackage ./packages.nix { inherit inputs; } ++ [
+      # Recover atuin sync after server-side session invalidation. Reads
+      # username/password from rbw's "atuin" entry and the BIP39 key from
+      # the "atuin key" entry, then runs `atuin login`.
+      (pkgs.writeShellApplication {
+        name = "atuin-relogin";
+        runtimeInputs = with pkgs; [ atuin rbw ];
+        text = ''
+          set -euo pipefail
+          rbw unlock
+          user=$(rbw get atuin --field username)
+          pass=$(rbw get atuin)
+          key=$(rbw get 'atuin key')
+          atuin login -u "$user" -p "$pass" -k "$key"
+        '';
+      })
+    ];
     file = import ../../modules/shared/files.nix { inherit config pkgs; };
   };
 
@@ -112,6 +129,8 @@ in
   imports = [
     ../../modules/shared/config/opencode/opencode.nix
     ../../modules/shared/config/claude/claude.nix
+    ../../modules/shared/config/codex/codex.nix
+    ../../modules/shared/config/pi/pi.nix
     ../../modules/shared/config/email/rbw.nix
   ];
 
@@ -126,6 +145,15 @@ in
       sync_address = "https://api.atuin.sh";
       search_mode = "prefix";
     };
+  };
+
+  # Ensure the agenix-decrypted key file is mounted before atuin starts. Without
+  # this ordering, atuin's load_key() can see a broken symlink, fall through to
+  # new_key(), and write a fresh random key — encrypting subsequent records
+  # under a key nobody else has. (Source of the 1Mup orphan records of 2026-04.)
+  systemd.user.services = pkgs.lib.mkIf atuin_daemon_p {
+    atuin-daemon.Unit.After = [ "agenix.service" ];
+    atuin-daemon.Unit.Requires = [ "agenix.service" ];
   };
 
   programs.fish = {
