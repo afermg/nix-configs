@@ -25,9 +25,17 @@ Just me!
 *** System-side functions
 Convenience functions to find my config files locally or remotely. 
 #+begin_src emacs-lisp
-    (setq config-files-by-priority (list org-config-file default-config-file default-config-url))
+  (setq config-files-by-priority (list org-config-file default-config-file default-config-url))
 
-    (defun find-config-dir (config-files) (car (seq-remove (lambda (x) (not (or (file-exists-p x) (url-file-exists-p x)))) config-files)))
+  (defun config-file-exists-p (file)
+    (or (file-exists-p file)
+        (and (string-match-p "\\`https?://" file)
+             (require 'url-handlers nil t)
+             (url-file-exists-p file))))
+
+  (defun find-config-dir (config-files)
+    (seq-find #'config-file-exists-p config-files))
+
   (setq config-dir (file-name-directory (find-config-dir config-files-by-priority)))
 #+end_src
 
@@ -1062,7 +1070,7 @@ Window/layout rotation helpers from [[https://github.com/daichirata/emacs-rotate
           (ghostel-paste-string text))
          (t
           (apply orig-fn strings args)))))
-    (advice-add 'embark-insert :around #'afm/embark-insert-terminal-aware)
+    (advice-add 'embark-insert :around #'afm/embark-insert-terminal-aware))
 
   ;; The `embark-consult' package is glue code to tie together `embark'
   ;; and `consult'.

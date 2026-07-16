@@ -270,7 +270,7 @@ diff with `magit-status' or `git diff' and commit manually."
                   (insert ";; -*- lexical-binding: t -*-\n")
                   (save-buffer))))))
 
-(condition-case nil
+(condition-case err
     (progn
       (unless (file-exists-p org-config-file)
         (dl/download-default-config))
@@ -285,7 +285,7 @@ diff with `magit-status' or `git diff' and commit manually."
             (org-babel-load-file org-config-file))
         (org-babel-load-file default-config-file))
       (message "Configuration loaded successfully."))
-  (error (message "Error occurred while loading the configuration.")))
+  (error (message "Error occurred while loading the configuration: %S" err)))
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
