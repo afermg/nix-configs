@@ -25,9 +25,9 @@
 
     # You can also split up your configuration and import pieces of it here:
     ./boot.nix
-    ./overleaf.nix
-    ./hedgedoc.nix
-    ./org-gcal.nix
+    # ./overleaf.nix # Temporarily removed
+    # ./hedgedoc.nix # This wasn't as useful
+    # ./org-gcal.nix # Removed until we migrate over
     ../common/networking.nix
     ../common/printing.nix
     ../common/gpu/nvidia.nix

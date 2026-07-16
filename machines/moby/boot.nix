@@ -22,6 +22,7 @@
   '';
 
   boot.kernelParams = [ "nohibernate" ];
+  boot.zfs.forceImportRoot = false;
   boot.loader.grub = {
     enable = true;
     zfsSupport = true;
