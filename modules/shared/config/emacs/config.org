@@ -3789,61 +3789,19 @@ Deploy a web server to read feed from my phone.
 ** Email (mu4e)
 Mail client using mu (maildir-utils) as the backend, mbsync (isync) for IMAP sync, and msmtp for sending.
 
-System dependencies (in packages.nix): =mu=, =isync=, =msmtp=.
+System dependencies (in packages.nix): =mu=, =mu.mu4e=, =isync=, =msmtp=.
 
 Run =mbsync -a= to do the initial sync, then =mu init --maildir=~/.mail --my-address=alan@quasimorphic.com --my-address=amunozgo@broadinstitute.org= and =mu index= to build the database.
 
-mu4e ships with the =mu= binary but needs to be cloned from GitHub for Emacs. The =mu4e= straight recipe derives its tag from the installed =mu= version so the Elisp stays on the matching release instead of drifting on =master=. The =straight-versions.el= lockfile still records the resolved commit, so after bumping =mu= refresh it with =M-x afm/straight-freeze-to-repo= and commit that lockfile change alongside the config update.
+The =mu= backend and =mu4e= Emacs package come from nixpkgs's matching =mu= outputs. Installing both =mu= and =mu.mu4e= keeps their versions aligned and provides the generated =mu4e-config.el=, so no Straight checkout or hand-written version expectation is needed.
 
 #+begin_src emacs-lisp
-  (defun afm/mu4e-installed-version ()
-    "Return the installed mu version, or nil if it cannot be determined."
-    (let ((line (ignore-errors (car (process-lines "mu" "--version")))))
-      (when (and line
-                 (string-match "\\([0-9]+\\(?:\\.[0-9]+\\)+\\)" line))
-        (match-string 1 line))))
-
-  (defvar afm/mu4e-version nil
-    "Installed mu/mu4e version used to select the matching upstream release tag.")
-  (setq afm/mu4e-version (or (afm/mu4e-installed-version) "1.14.2"))
-
-  (defvar afm/mu4e-straight-tag nil
-    "Git tag used by straight for the mu4e checkout.")
-  (setq afm/mu4e-straight-tag (format "v%s" afm/mu4e-version))
-
-  (when (fboundp 'straight-use-package)
-    (straight-use-package
-     `(mu4e :type git :host github :repo "djcb/mu"
-            :tag ,afm/mu4e-straight-tag
-            :files ("mu4e/*.el")
-            :pre-build ())))
-
-  ;; mu4e-config.el is normally generated at build time by meson.
-  ;; We generate it from the installed mu binary and copy it to the build dir.
   (use-package mu4e
     :straight nil
     :commands (mu4e)
-    :init
-    (let* ((build-dir (if (fboundp 'straight--build-dir)
-                          (straight--build-dir "mu4e")
-                        (expand-file-name "straight/build/mu4e" user-emacs-directory)))
-           (config-file (expand-file-name "mu4e-config.el" build-dir))
-           (mu-ver afm/mu4e-version)
-           (mu-bin (executable-find "mu"))
-           (mu-doc-dir (if mu-bin
-                           (expand-file-name "../share/doc/mu" (file-name-directory mu-bin))
-                         "")))
-      (unless (file-directory-p build-dir)
-        (make-directory build-dir t))
-      (with-temp-file config-file
-        (insert ";;; mu4e-config.el --- auto-generated -*- lexical-binding: t -*-\n"
-                (format "(defconst mu4e-mu-version \"%s\")\n" mu-ver)
-                (format "(defconst mu4e-doc-dir \"%s\")\n" mu-doc-dir)
-                "(provide 'mu4e-config)\n")))
     :defer 5
     :bind ("C-c m" . mu4e)
     :config
-    (setq mu4e-mu-binary (or (executable-find "mu") mu4e-mu-binary))
     (setq mu4e-maildir (expand-file-name "~/.mail"))
     (setq mu4e-get-mail-command "mbsync -a")
     (setq mu4e-update-interval 300)

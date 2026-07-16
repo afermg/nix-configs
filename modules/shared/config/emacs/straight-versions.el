@@ -91,7 +91,6 @@
  ("melpa" . "7e2b1ce2a242f396cc9c713e3d086eeee53c4a6d")
  ("meow" . "2246f593552c6208bac533de9af04b085fafa6fa")
  ("mini-echo.el" . "d5e5ab763184d0eac2b3dc72e1aac4a7b2e6762f")
- ("mu" . "fcd74be338b7ed1b4398a76422e07ff3e0630339")
  ("nix-mode" . "719feb7868fb567ecfe5578f6119892c771ac5e5")
  ("nongnu-elpa" . "13389da09a33798a59e52afd11e10908eab66331")
  ("numpydoc.el" . "77e2893442c6e20af9c99b9ba2c6c11988fe0e80")

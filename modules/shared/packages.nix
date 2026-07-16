@@ -88,7 +88,8 @@ with pkgs;
   podman # for container needs
 
   # email
-  mu # Maildir indexer (ships mu4e for Emacs)
+  mu # Maildir indexer and mu4e backend
+  mu.mu4e # Matching Emacs frontend, including generated mu4e-config.el
   isync # IMAP sync (mbsync)
   msmtp # SMTP client for sending mail
   rbw # Unofficial Bitwarden CLI with background agent
