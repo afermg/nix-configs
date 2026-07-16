@@ -3412,59 +3412,46 @@ See [[https://github.com/afermg/emacs-claude-dashboard][afermg/emacs-claude-dash
     (when (fboundp 'afm/straight-freeze-to-repo)
       (afm/straight-freeze-to-repo)))
 
-  (when afm/llm-dashboard-use-local
-    (add-to-list 'load-path afm/llm-dashboard-local-path)
-    ;; Local checkouts do not come with generated autoloads, so wire up the
-    ;; entry points explicitly.
-    (autoload 'llm-dashboard "llm-dashboard" nil t)
-    (autoload 'llm-dashboard-new "llm-dashboard" nil t)
-    (autoload 'llm-dashboard-continue "llm-dashboard" nil t)
-    (autoload 'llm-dashboard-resume "llm-dashboard" nil t)
-    (autoload 'llm-dashboard-resume-all "llm-dashboard" nil t)
-    (autoload 'llm-dashboard-schedule-send "llm-dashboard-schedule" nil t)
-    (autoload 'llm-dashboard-schedule-launch "llm-dashboard-schedule" nil t)
-    (autoload 'llm-dashboard-schedule-resume "llm-dashboard-schedule" nil t)
-    (autoload 'llm-dashboard-schedule-launch-worktree "llm-dashboard-schedule" nil t)
-    (autoload 'llm-dashboard-list-pending-sends "llm-dashboard-schedule" nil t)
-    (autoload 'llm-dashboard-resume-pending-sends "llm-dashboard-schedule" nil t)
-    (autoload 'llm-dashboard-schedule-recurring-send "llm-dashboard-recurring" nil t)
-    (autoload 'llm-dashboard-schedule-recurring-launch "llm-dashboard-recurring" nil t)
-    (autoload 'llm-dashboard-schedule-recurring-launch-worktree "llm-dashboard-recurring" nil t)
-    (autoload 'llm-dashboard-list-recurring "llm-dashboard-recurring" nil t)
-    (autoload 'llm-dashboard-usage-list "llm-dashboard-usage" nil t)
-    (autoload 'llm-dashboard-usage-now "llm-dashboard-usage" nil t))
+  (defmacro afm/use-package-llm-dashboard (&rest source-keywords)
+    "Configure llm-dashboard with SOURCE-KEYWORDS selecting the package source."
+    `(use-package llm-dashboard
+       ,@source-keywords
+       :commands (llm-dashboard
+                  llm-dashboard-new
+                  llm-dashboard-continue
+                  llm-dashboard-resume
+                  llm-dashboard-resume-all
+                  llm-dashboard-schedule-send
+                  llm-dashboard-schedule-launch
+                  llm-dashboard-schedule-resume
+                  llm-dashboard-schedule-launch-worktree
+                  llm-dashboard-schedule-recurring-send
+                  llm-dashboard-schedule-recurring-launch
+                  llm-dashboard-schedule-recurring-launch-worktree
+                  llm-dashboard-list-pending-sends
+                  llm-dashboard-list-recurring
+                  llm-dashboard-resume-pending-sends
+                  llm-dashboard-usage-list
+                  llm-dashboard-usage-now)
+       :bind ("C-c L" . llm-dashboard)
+       :init
+       (setq llm-dashboard-auto-name-after-turns nil)
+       (setq llm-dashboard-terminal-backend 'ghostel)
+       :config
+       (afm/llm-dashboard-post-load)
+       (setq llm-dashboard-backend
+             (if (assq 'pi llm-dashboard-backends) 'pi 'codex))
+       (unless (assq 'pi llm-dashboard-backends)
+         (message "llm-dashboard loaded without a Pi backend; defaulting to codex"))))
 
-  (use-package llm-dashboard
-    :straight (:host github :repo "afermg/emacs-claude-dashboard"
-               :files ("*.el"))
-    :commands (llm-dashboard
-               llm-dashboard-new
-               llm-dashboard-continue
-               llm-dashboard-resume
-               llm-dashboard-schedule-send
-               llm-dashboard-schedule-launch
-               llm-dashboard-schedule-resume
-               llm-dashboard-schedule-launch-worktree
-               llm-dashboard-schedule-recurring-send
-               llm-dashboard-schedule-recurring-launch
-               llm-dashboard-schedule-recurring-launch-worktree
-               llm-dashboard-list-pending-sends
-               llm-dashboard-list-recurring
-               llm-dashboard-resume-pending-sends
-               llm-dashboard-usage-list
-               llm-dashboard-usage-now)
-    :bind ("C-c L" . llm-dashboard)
-    :init
-    (setq llm-dashboard-auto-name-after-turns nil)
-    (setq llm-dashboard-terminal-backend 'ghostel)
-    :config
-    (afm/llm-dashboard-post-load)
-    (setq llm-dashboard-backend
-          (if (assq 'pi llm-dashboard-backends) 'pi 'codex))
-    (unless afm/llm-dashboard-use-local
-      (message "llm-dashboard local checkout not found; using straight package"))
-    (unless (assq 'pi llm-dashboard-backends)
-      (message "llm-dashboard loaded without a Pi backend; defaulting to codex")))
+  (if afm/llm-dashboard-use-local
+      (afm/use-package-llm-dashboard
+       :straight nil
+       :load-path afm/llm-dashboard-local-path)
+    (message "llm-dashboard local checkout not found; using straight package")
+    (afm/use-package-llm-dashboard
+     :straight (:host github :repo "afermg/emacs-claude-dashboard"
+                :files ("*.el"))))
 #+END_SRC
 
 **** Dired-git
