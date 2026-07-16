@@ -4120,8 +4120,39 @@ Simple but working gptel+magit integration. Replaced gptcommit-mode
     :ensure t
     :hook (magit-mode . gptel-magit-install)
     :config
-    ; From https://github.com/ragnard/gptel-magit/issues/8
-      (setopt gptel-include-reasoning nil))
+    ;; From https://github.com/ragnard/gptel-magit/issues/8
+    (setopt gptel-include-reasoning nil)
+
+    ;; ChatGPT's subscription endpoint requires streaming, while
+    ;; gptel-magit expects one complete callback. Accumulate streamed
+    ;; chunks and invoke its callback once when the response completes.
+    (define-advice gptel-magit--request
+        (:around (orig-fn &rest args) afm/openai-oauth-stream)
+      (let* ((backend (or gptel-magit-backend gptel-backend))
+             (options (copy-sequence (cdr args)))
+             (callback (plist-get options :callback)))
+        (if (or (not (gptel-openai-oauth-p backend))
+                (not (functionp callback)))
+            (apply orig-fn args)
+          (let ((chunks "")
+                (finished nil))
+            (setq options
+                  (plist-put
+                   options :callback
+                   (lambda (response info)
+                     (cond
+                      ((stringp response)
+                       (setq chunks (concat chunks response)))
+                      ((eq response t)
+                       (unless finished
+                         (setq finished t)
+                         (funcall callback chunks info)))
+                      ((or (null response) (eq response 'abort))
+                       (setq finished t)
+                       (message "gptel-magit request failed: %s"
+                                (plist-get info :status)))))))
+            (setq options (plist-put options :stream t))
+            (apply orig-fn (cons (car args) options)))))))
 #+end_src
 
 
