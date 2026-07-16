@@ -4104,32 +4104,25 @@ These I may replace with EAF
 Cutting edge LLM models.
 
 #+begin_src emacs-lisp
-  (setq gptel-key-file "~/.gemini_key")
+  ;; Gemini is still used by agent-shell below; gptel itself uses the
+  ;; ChatGPT subscription backend.
+  (setq gemini-key-file "~/.gemini_key")
   (setq claude-key-file "~/.claude_token")
 
   (use-package gptel
     :straight (:host github :repo "karthink/gptel"
                      :branch "master")
     :config
-    (setq
-     ;; OpenRouter offers an OpenAI compatible API
-     gptel-default-mode #'org-mode
-     ;; gptel-model 'gemini-pro-latest
-     ;; Pin to a stable point release — the *-latest aliases get throttled
-     ;; (503 UNAVAILABLE) under high demand without notice.
-     gptel-model 'gemini-2.5-flash
-
-     ;; gptel-backend (gptel-make-ollama "Ollama"	;Any name of your choosing
-     ;;   :host "localhost:11434"	;Where it's running
-     ;;   :stream t			;Stream responses
-     ;;   :request-params
-     ;;   '(:options (:num_ctx 16384))
-     ;;   :models '(mistral:latest qwen3:30b-a3b llama3.3:70b))
-     ;; gptel-model 'qwen3:30b-a3b
-     )
-    (when (file-exists-p gptel-key-file)
-      (setq gptel-backend (gptel-make-gemini "Gemini" :key (get-string-from-file gptel-key-file) :stream t)))
-    )
+    (setq gptel-default-mode #'org-mode
+          gptel-model 'gpt-5.4-mini
+          gptel-backend (gptel-make-openai-oauth "OpenAI-sub")))
+    ;; OAuth access/refresh tokens are credentials; gptel creates the
+    ;; token file with the process umask, so tighten it after every write.
+    (define-advice gptel-oauth--write-token
+        (:after (file _token) afm/restrict-token-file)
+      (set-file-modes file #o600))
+    (when (file-exists-p gptel--openai-oauth-token-file)
+      (set-file-modes gptel--openai-oauth-token-file #o600))
 #+end_src
 
 ****  gptel-magit
@@ -4156,7 +4149,7 @@ Simple but working gptel+magit integration. Replaced gptcommit-mode
       (setq agent-shell-anthropic-authentication
         (agent-shell-anthropic-make-authentication :oauth claude-key)))
     (setq agent-shell-anthropic-default-session-mode-id "bypassPermissions")
-    (when-let ((gemini-key (get-string-from-file gptel-key-file)))
+    (when-let ((gemini-key (get-string-from-file gemini-key-file)))
       (setq agent-shell-google-authentication
   	(agent-shell-google-make-authentication :api-key gemini-key)))
     (setq agent-shell-prefer-viewport-interaction t)
