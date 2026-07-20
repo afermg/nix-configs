@@ -40,7 +40,6 @@ in
   ssh = {
     enable = true;
     enableDefaultConfig = false;
-    matchBlocks."*".forwardAgent = true;
     # includes = [
     #   (lib.mkIf pkgs.stdenv.hostPlatform.isLinux
     #     "/home/${user}/.ssh/config_external"
@@ -49,13 +48,15 @@ in
     #     "/Users/${user}/.ssh/config_external"
     #   )
     # ];
-    matchBlocks = {
+    settings = {
+      "*".ForwardAgent = true;
       "github.com" = {
-        identitiesOnly = true;
-        identityFile = [
-          (lib.mkIf pkgs.stdenv.hostPlatform.isLinux "/home/${user}/.ssh/id_ed25519")
-          (lib.mkIf pkgs.stdenv.hostPlatform.isDarwin "/Users/${user}/.ssh/id_ed25519")
-        ];
+        IdentitiesOnly = true;
+        IdentityFile =
+          if pkgs.stdenv.hostPlatform.isLinux then
+            "/home/${user}/.ssh/id_ed25519"
+          else
+            "/Users/${user}/.ssh/id_ed25519";
       };
     };
   };
