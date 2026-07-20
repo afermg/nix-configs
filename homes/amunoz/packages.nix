@@ -3,6 +3,7 @@
 with pkgs;
 let
   shared-packages = import ../../modules/shared/packages.nix { inherit pkgs; };
+  agenix = inputs.agenix.packages.${pkgs.stdenv.hostPlatform.system}.default;
   latestPiCodingAgent = inputs.nixpkgs.legacyPackages.${pkgs.stdenv.hostPlatform.system}.pi-coding-agent;
   # zlib12 = (zlib.overrideAttrs(p: {
   #   src = let
@@ -49,6 +50,7 @@ in
   gemini-cli
   claude-code
   codex
+  agenix
   latestPiCodingAgent
   #openai-whisper-cpp
   #piper-tts
@@ -65,7 +67,6 @@ in
   nixfmt # ruff
 
   # Music
-  ncspot
 
   ## very specific needs
   haskellPackages.xml-to-json-fast
@@ -79,6 +80,9 @@ in
 
 ]
 ++ shared-packages
+++ pkgs.lib.optionals (!pkgs.stdenv.hostPlatform.isDarwin) [
+  ncspot
+]
 # Linux-only packages
 ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
 ]

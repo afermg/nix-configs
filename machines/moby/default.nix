@@ -269,6 +269,7 @@
     imports = [
       # ../../modules/nixos/home-manager.nix;
       outputs.homeModules.amunoz
+      ../../modules/shared/config/syncthing/sync.nix
     ];
   };
 
