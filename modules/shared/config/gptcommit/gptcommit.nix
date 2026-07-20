@@ -22,14 +22,12 @@ in
 
   home.packages = [ gptcommitWithAgenixKey ];
 
-  home.file.".config/gptcommit/config.toml".source = config.lib.file.mkOutOfStoreSymlink
-    "${config.home.homeDirectory}/.local/share/src/nixos-config/modules/shared/config/gptcommit/config.toml";
+  home.file.".config/gptcommit/config.toml".source = ./config.toml;
 
   # Used by `git init` for new repositories. Existing repositories can be
   # enabled with `gptcommit install` after Home Manager installs the package.
   home.file.".config/git/templates/hooks/prepare-commit-msg" = {
-    source = config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/.local/share/src/nixos-config/modules/shared/config/gptcommit/prepare-commit-msg";
+    source = ./prepare-commit-msg;
     executable = true;
   };
 
