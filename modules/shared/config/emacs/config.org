@@ -634,6 +634,18 @@ Useful to read credentials risk of committing to repo.
         (string-trim (buffer-string)))))
 #+end_src
 
+**** Copy current buffer file name
+#+begin_src emacs-lisp
+  (defun copy-buffer-file-name ()
+    "Copy the current buffer's file path to the kill ring."
+    (interactive)
+    (if buffer-file-name
+        (progn
+          (kill-new buffer-file-name)
+          (message "Copied %s" buffer-file-name))
+      (user-error "Current buffer does not visit a file")))
+#+end_src
+
 **** Push file to gist on save
 Call from a file-local =eval:= block to mirror the buffer to a gist on every
 save. =safe-local-eval-function= property pre-approves the call so Emacs
@@ -1589,7 +1601,7 @@ These are templates used to create new notes.
 #+end_src
 
 **** Markdown
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle config.el
   (use-package ox-pandoc
     :ensure t   ;Auto-install the package from Melpa
     :pin melpa  ;`package-archives' should already have ("melpa" . "https://melpa.org/packages/")
