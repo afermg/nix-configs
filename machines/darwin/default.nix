@@ -175,7 +175,7 @@ in
 
   # Configure home manager
   home-manager = {
-    # useGlobalPkgs = true;
+    useGlobalPkgs = true;
     useUserPackages = true;
     extraSpecialArgs = {
       inherit inputs outputs;
@@ -183,10 +183,11 @@ in
     };
     users.${user} = {
       imports = [
+        inputs.agenix.homeManagerModules.default
         ../../homes/amunoz/home.nix
       ];
       home = {
-        packages = pkgs.callPackage ../../modules/darwin/packages.nix { };
+        packages = pkgs.callPackage ../../modules/darwin/packages.nix { inherit inputs; };
       };
       programs = {
         # This is important! Removing this will break your shell and thus your system

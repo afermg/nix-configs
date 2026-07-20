@@ -2,6 +2,7 @@
   pkgs,
   lib,
   config,
+  inputs,
   ...
 }:
 {
@@ -9,7 +10,7 @@
     ./home.nix
   ];
 
-  home.packages = pkgs.callPackage ../../modules/darwin/packages.nix { };
+  home.packages = pkgs.callPackage ../../modules/darwin/packages.nix { inherit inputs; };
 
   programs = {
     fish.enable = true;

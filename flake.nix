@@ -182,7 +182,9 @@
           "amunoz@moby" = lib.homeManagerConfiguration {
             pkgs = pkgsFor.x86_64-linux;
             extraSpecialArgs = { inherit inputs outputs; };
-            modules = [ outputs.homeModules.amunoz ];
+            modules = [
+              outputs.homeModules.amunoz
+            ];
           };
 
           "amunoz@oppy" = lib.homeManagerConfiguration {
