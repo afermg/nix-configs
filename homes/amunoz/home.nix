@@ -47,28 +47,6 @@ in
       path = "${config.home.homeDirectory}/.local/share/atuin/key";
     };
   };
-  services.emacs = {
-    enable = true;
-    startWithUserSession = "graphical";
-    package =
-      (pkgs.emacs.override {
-        withImageMagick = true;
-        withXwidgets = false; # https://github.com/nix-community/emacs-overlay/issues/466
-      }).pkgs.withPackages
-        (epkgs:
-        # with epkgs;
-        [
-          # (eaf.withApplications [
-          #   eaf-browser
-          #   eaf-pdf-viewer
-          #   eaf-file-manager
-          #   eaf-image-viewer
-          #   eaf-map
-          #   eaf-js-video-player
-          # ])
-        ]);
-  };
-
   # Gnome graphical interface
   dconf.settings = {
     "org/gnome/settings-daemon/plugins/power" = {
@@ -127,10 +105,13 @@ in
   };
 
   imports = [
+    ../../modules/shared/config/emacs/emacs-service.nix
     ../../modules/shared/config/opencode/opencode.nix
     ../../modules/shared/config/claude/claude.nix
     ../../modules/shared/config/codex/codex.nix
+    ../../modules/shared/config/gptcommit/gptcommit.nix
     ../../modules/shared/config/pi/pi.nix
+    ../../modules/shared/config/syncthing/receiver.nix
     ../../modules/shared/config/email/rbw.nix
   ];
 

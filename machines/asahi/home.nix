@@ -4,6 +4,10 @@
   ...
 }:
 {
+  imports = [
+    ../../modules/shared/config/emacs/emacs-service.nix
+  ];
+
   # Home Manager needs a bit of information about you and the
   # paths it should manage.
   home = {
@@ -61,11 +65,6 @@
       epkgs.nix-mode
       epkgs.magit
     ];
-  };
-
-  services.emacs = {
-    enable = true;
-    startWithUserSession = "graphical";
   };
 
   services.gpg-agent = {

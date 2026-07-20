@@ -65,7 +65,6 @@ in
   nixfmt # ruff
 
   # Music
-  ncspot
 
   ## very specific needs
   haskellPackages.xml-to-json-fast
@@ -79,6 +78,9 @@ in
 
 ]
 ++ shared-packages
+++ pkgs.lib.optionals (!pkgs.stdenv.hostPlatform.isDarwin) [
+  ncspot
+]
 # Linux-only packages
 ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
 ]

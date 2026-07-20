@@ -11,5 +11,7 @@ with pkgs;
   # jellyseerr # centralised content search
   # audiobookshelf # audiobooks
   # kavita # books
+]
+++ pkgs.lib.optionals (!pkgs.stdenv.hostPlatform.isDarwin) [
   pkgs.bazarr
 ]
