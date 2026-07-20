@@ -4083,6 +4083,16 @@ Cutting edge LLM models.
 #+end_src
 
 ****  gptel-magit
+The OpenAI backend above uses the ChatGPT subscription through OAuth; it
+does not use an OpenAI API key.  Authenticate each computer independently with
+=M-x gptel-openai-oauth-login=.  gptel stores the resulting credential locally
+at =~/.emacs.d/.cache/gptel-openai/openai-oauth-token=, and the advice above
+keeps that file at mode =0600=.  Do not copy or commit this token.
+
+The encrypted =secrets/gptcommit-openai-api-key.age= belongs to the separate
+=gptcommit= CLI under =modules/shared/config/gptcommit/= and is unrelated to
+this Emacs integration.
+
 Simple but working gptel+magit integration. Replaced gptcommit-mode
 
 #+begin_src elisp
