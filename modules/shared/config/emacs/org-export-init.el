@@ -4,20 +4,6 @@
 (require 'ox-extra)
 (ox-extras-activate '(ignore-headlines)))
 
-(use-package ox-pandoc
-  :ensure t   ;Auto-install the package from Melpa
-  :pin melpa  ;`package-archives' should already have ("melpa" . "https://melpa.org/packages/")
-  :after org)
-
- ; Git-flavoured markdown
- (use-package ox-gfm
-   :ensure t
-   :after org
-   :config
-   (add-to-list 'org-export-backends 'md )
-   (add-to-list 'org-export-backends 'gfm )
-)
-
 (use-package ox-hugo
   :ensure t   ;Auto-install the package from Melpa
   :pin melpa  ;`package-archives' should already have ("melpa" . "https://melpa.org/packages/")
@@ -37,7 +23,7 @@
 
 (setq org-latex-default-class "extarticle")
 
-(setq org-latex-prefer-user-labels t
+   (setq org-latex-prefer-user-labels t
          org-latex-caption-above nil
          ;; org-latex-listings 'minted
          org-latex-listings nil
@@ -98,3 +84,4 @@
           ;; "makeindex %b"
           "latexmk -pdflatex='xelatex -interaction -shell-escape nonstopmode ' -shell-escape -pdf -f %f "
           "latexmk -pdflatex='xelatex -shell-escape -interaction nonstopmode ' -shell-escape -pdf -f %f "))
+
