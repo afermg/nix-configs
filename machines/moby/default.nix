@@ -175,21 +175,6 @@
   # services.netbird.enable = true;
   # environment.systemPackages = [ pkgs.netbird-ui ]; # for GUI
 
-  # services.syncthing = {
-  #   enable = true;
-  #   #user = "syncthing";
-  #   #dataDir = "/home/amunoz/sync";
-  #   #configDir = "/home/amunoz/Documents/.config/syncthing";   # Folder for Syncthing's settings and keys
-  #   overrideDevices = true;     # overrides any devices added or deleted through the WebUI
-  #   #overrideFolders = true;     # overrides any folders added or deleted through the WebUI
-  #   settings = {
-  #     devices = {
-  #       "broad" = { id = "CD7FTGY-ERFLZFS-FBW4K5L-TPW3IQ4-TZ36LIC-AUO3IGE-66LGSRI-5DTEBAG"; };
-  #       "main" = { id = "TKXRRWK-K5EDNVM-AVXZKCP-TE2M2LC-A7CYJB7-LY2G5MU-EYGHIZC-I6GMRAR"; };
-  #     };
-  #     };
-  # };
-
   # Users section, as a backup to the homes folder
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.amunoz = {
@@ -269,6 +254,7 @@
     imports = [
       # ../../modules/nixos/home-manager.nix;
       outputs.homeModules.amunoz
+      ../../modules/shared/config/syncthing/sync.nix
     ];
   };
 
