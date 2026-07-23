@@ -3,6 +3,7 @@
   lib,
   config,
   inputs,
+  username ? "alan",
   ...
 }:
 {
@@ -15,5 +16,8 @@
   programs = {
     fish.enable = true;
   }
-  // import ../../modules/shared/home-manager.nix { inherit config pkgs lib; };
+  // import ../../modules/shared/home-manager.nix {
+    inherit config pkgs lib;
+    user = username;
+  };
 }

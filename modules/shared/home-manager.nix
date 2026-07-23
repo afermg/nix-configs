@@ -2,11 +2,11 @@
   config,
   pkgs,
   lib,
+  user ? "alan",
   ...
 }:
 let
   name = "Alán F. Muñoz";
-  user = if pkgs.stdenv.isLinux then "amunoz" else "alan";
   email = "afer.mg@gmail.com";
 in
 {
