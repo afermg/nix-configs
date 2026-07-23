@@ -16,6 +16,9 @@
   # config.org is intentionally not linked here — init.el already reads it
   # directly from the repo path, so it stays editable with zero setup.
 
+  # Let Git verify SSH-signed commits made by this identity.
+  ".ssh/allowed_signers".text = "* ${builtins.readFile ../../homes/amunoz/id_ed25519.pub}";
+
   # Email configuration (mbsync stays as a raw file; msmtp is now generated
   # by home-manager via accounts.email in home.nix, since msmtp requires the
   # rc file to be mode 0600 — impossible on a read-only /nix/store symlink.)
