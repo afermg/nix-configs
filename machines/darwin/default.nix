@@ -148,7 +148,6 @@ in
     # brews = ["input-leap"]; # Example of brew
     brews = [
       # Here we add any formulae (e.g., https://formulae.brew.sh/formula/portaudio)
-      "portaudio" # for the spotatui binary to work.
     ];
     taps = map (key: builtins.replaceStrings [ "homebrew-" ] [ "" ] key) (
       builtins.attrNames config.nix-homebrew.taps
