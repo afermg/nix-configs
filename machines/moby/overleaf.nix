@@ -1,4 +1,9 @@
-{ config, inputs, pkgs, ... }:
+{
+  config,
+  inputs,
+  pkgs,
+  ...
+}:
 {
   imports = [
     inputs.nix-overleaf.nixosModules.overleaf
@@ -26,6 +31,10 @@
     symlink = false;
   };
 
+  # Use MongoDB's prebuilt server package: the source-built package currently
+  # regresses with nixpkgs' Python toolchain.
+  services.mongodb.package = pkgs.mongodb-ce;
+
   services.overleaf = {
     enable = true;
     # Loopback only — Cloudflare Tunnel reaches us via outbound conn.
@@ -41,6 +50,7 @@
     # `/git/` proxy automatically when this is enabled.
     gitBridge = {
       enable = true;
+      package = pkgs.callPackage ./overleaf-git-bridge.nix { };
       apiBaseUrl = "http://127.0.0.1:18080/api/v0";
     };
   };
@@ -58,7 +68,10 @@
 
   systemd.services.cloudflared-overleaf = {
     description = "Cloudflare Tunnel — overleaf.quasimorphic.com";
-    after = [ "network-online.target" "overleaf-web.service" ];
+    after = [
+      "network-online.target"
+      "overleaf-web.service"
+    ];
     wants = [ "network-online.target" ];
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
@@ -74,7 +87,10 @@
       ProtectSystem = "strict";
       ProtectHome = true;
       PrivateTmp = true;
-      RestrictAddressFamilies = [ "AF_INET" "AF_INET6" ];
+      RestrictAddressFamilies = [
+        "AF_INET"
+        "AF_INET6"
+      ];
       MemoryDenyWriteExecute = true;
       LockPersonality = true;
     };
