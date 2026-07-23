@@ -65,6 +65,11 @@
       url = "github:afermg/nix-overleaf";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    marimohub-nix = {
+      url = "github:afermg/marimohub-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =

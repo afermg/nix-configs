@@ -284,6 +284,26 @@
         "type": "github"
       }
     },
+    "marimohub-nix": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1784844955,
+        "narHash": "sha256-iOYfrroIvWV8ihAEvPpAJOT0+MGDqp6ZBMcYFb5QlVI=",
+        "owner": "afermg",
+        "repo": "marimohub-nix",
+        "rev": "68db5fbf6a04f20651256d7aa11831b5a5cee301",
+        "type": "github"
+      },
+      "original": {
+        "owner": "afermg",
+        "repo": "marimohub-nix",
+        "type": "github"
+      }
+    },
     "nikitabobko-cask": {
       "flake": false,
       "locked": {
@@ -444,6 +464,7 @@
         "homebrew-bundle": "homebrew-bundle",
         "homebrew-cask": "homebrew-cask",
         "homebrew-core": "homebrew-core",
+        "marimohub-nix": "marimohub-nix",
         "nikitabobko-cask": "nikitabobko-cask",
         "nix-homebrew": "nix-homebrew",
         "nix-overleaf": "nix-overleaf",
