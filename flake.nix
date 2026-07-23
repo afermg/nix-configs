@@ -26,11 +26,6 @@
       url = "github:homebrew/homebrew-cask";
       flake = false;
     };
-    nikitabobko-cask = {
-      url = "github:nikitabobko/homebrew-tap";
-      flake = false;
-    };
-
     # system and flake util
     systems.url = "github:nix-systems/default";
 

@@ -8,26 +8,9 @@ _: [
 
   # Utility Tools
   # "syncthing-app"
-  "inkscape"
 
-  # Entertainment Tools
+  # Steam is not usable from nixpkgs on Darwin; keep it as a Homebrew cask.
   "steam"
 
-  # Productivity Tools
-  # "raycast"
-  "zotero"
-
-  # Browsers
-  # "firefox" # Managed by nix directly
-  "google-chrome"
-
-  # AI
-  # "diffusionbee"
-  # change background
-  # "desktoppr"
-  # Note that these two may require manual `sudo git clone X`
-  # "nikitabobko/tap/aerospace"
-  "aerospace"
-  "zoom"
-  "tailscale-app"
+  # Tailscale is managed by nix-darwin's services.tailscale and pkgs.tailscale.
 ]
