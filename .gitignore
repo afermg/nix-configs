@@ -13,6 +13,9 @@ result
 # Tangled from config.org; regenerated on each build
 modules/shared/config/emacs/config.el
 
+# Emacs backup files
+*~
+
 # LaTeX artifacts from org-mode / beamer export
 modules/shared/config/emacs/*.aux
 modules/shared/config/emacs/*.fdb_latexmk
