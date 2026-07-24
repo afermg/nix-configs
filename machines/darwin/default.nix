@@ -34,6 +34,15 @@ in
     tailscale.enable = true; # Network of devices
   };
 
+  # Start the Nix-managed AeroSpace app when the user logs in.
+  launchd.user.agents.aerospace.serviceConfig = {
+    ProgramArguments = [
+      "${pkgs.aerospace}/Applications/AeroSpace.app/Contents/MacOS/AeroSpace"
+    ];
+    RunAtLoad = true;
+    ProcessType = "Interactive";
+  };
+
   # Setup user, packages, programs
   nix = {
     settings.trusted-users = [
