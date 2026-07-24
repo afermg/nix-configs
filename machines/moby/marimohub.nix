@@ -85,7 +85,7 @@
       User = "cloudflared";
       Group = "cloudflared";
       EnvironmentFile = config.age.secrets.cloudflared-marimohub.path;
-      ExecStart = "${pkgs.cloudflared}/bin/cloudflared --no-autoupdate tunnel run";
+      ExecStart = "${pkgs.cloudflared}/bin/cloudflared --no-autoupdate tunnel --protocol http2 --edge-ip-version 4 run";
       Restart = "on-failure";
       RestartSec = "5s";
 
