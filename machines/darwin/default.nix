@@ -203,6 +203,7 @@ in
     username = user;
     entries = [
       { path = "${pkgs.firefox}/Applications/Firefox.app/"; }
+      { path = "${pkgs.zotero}/Applications/Zotero.app/"; }
       { path = "${pkgs.wezterm}/Applications/Wezterm.app/"; }
       {
         path = toString myEmacsLauncher;
