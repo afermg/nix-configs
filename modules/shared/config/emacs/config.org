@@ -636,13 +636,16 @@ Useful to read credentials risk of committing to repo.
 
 **** Copy current buffer file name
 #+begin_src emacs-lisp
-  (defun copy-buffer-file-name ()
-    "Copy the current buffer's file path to the kill ring."
-    (interactive)
+  (defun copy-buffer-file-name (&optional prefix)
+    "Copy the current buffer's file name to the kill ring.
+With a zero prefix argument (`C-u 0'), copy the absolute path instead."
+    (interactive "P")
     (if buffer-file-name
-        (progn
-          (kill-new buffer-file-name)
-          (message "Copied %s" buffer-file-name))
+        (let ((name (if (equal prefix 0)
+                        (expand-file-name buffer-file-name)
+                      (file-name-nondirectory buffer-file-name))))
+          (kill-new name)
+          (message "Copied %s" name))
       (user-error "Current buffer does not visit a file")))
 #+end_src
 
