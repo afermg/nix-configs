@@ -10,7 +10,8 @@
     "model-allowlist.ts"
   ],
   "packages": [
-    "git:github.com/afermg/marimo-pair"
+    "git:github.com/afermg/marimo-pair",
+    "git:github.com/afermg/emacs-pair"
   ],
   "theme": "dark",
   "lastChangelogVersion": "0.80.3"
