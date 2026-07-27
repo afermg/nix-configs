@@ -184,6 +184,7 @@
             extraSpecialArgs = { inherit inputs outputs; };
             modules = [
               outputs.homeModules.amunoz
+              ./modules/shared/config/syncthing/sync.nix
             ];
           };
 
