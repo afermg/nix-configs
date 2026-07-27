@@ -27,20 +27,12 @@ in
     ../common/nix.nix
     ../common/substituters.nix
     ./dock
+    ../../modules/darwin/aerospace.nix
   ];
 
   services = {
     # Auto upgrade nix package and the daemon service.
     tailscale.enable = true; # Network of devices
-  };
-
-  # Start the Nix-managed AeroSpace app when the user logs in.
-  launchd.user.agents.aerospace.serviceConfig = {
-    ProgramArguments = [
-      "${pkgs.aerospace}/Applications/AeroSpace.app/Contents/MacOS/AeroSpace"
-    ];
-    RunAtLoad = true;
-    ProcessType = "Interactive";
   };
 
   # Setup user, packages, programs
@@ -192,9 +184,21 @@ in
         fish.enable = true;
         wezterm.enable = true;
       }
-      // import ../../modules/shared/home-manager.nix { inherit config pkgs lib user; };
+      // import ../../modules/shared/home-manager.nix {
+        inherit
+          config
+          pkgs
+          lib
+          user
+          ;
+      };
     };
     backupFileExtension = "bak";
+  };
+
+  local.aerospace = {
+    enable = true;
+    username = user;
   };
 
   # Fully declarative dock using the latest from Nix Store

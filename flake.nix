@@ -94,6 +94,7 @@
 
       # custom modules
       nixosModules = import ./modules/nixos { inherit inputs outputs; };
+      darwinModules.aerospace = import ./modules/darwin/aerospace.nix;
       # homeManagerModules = import ./modules/home-manager { inherit allowed-unfree-packages; };
 
       overlays = import ./overlays { inherit inputs outputs; };

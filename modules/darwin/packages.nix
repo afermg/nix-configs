@@ -7,7 +7,6 @@ in
 shared-packages
 ++ (import ../shared/media_server.nix { inherit pkgs; })
 ++ [
-  aerospace
   dockutil
   google-chrome
   inkscape
