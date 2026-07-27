@@ -1,4 +1,4 @@
-# Private, one-folder Syncthing backup.
+# Private Syncthing folders from moby to darwin001.
 # This module is imported only by the amunoz@moby Home Manager configuration.
 { ... }:
 {
@@ -12,8 +12,8 @@
 
     settings = {
       devices."remote" = {
-        id = "CD7FTGY-ERFLZFS-FBW4K5L-TPW3IQ4-TZ36LIC-AUO3IGE-66LGSRI-5DTEBAG";
-        addresses = [ "tcp://100.115.212.31:22000" ];
+        id = "TKXRRWK-K5EDNVM-AVXZKCP-TE2M2LC-A7CYJB7-LY2G5MU-EYGHIZC-I6GMRAR";
+        addresses = [ "tcp://100.110.180.8:22000" ];
         autoAcceptFolders = false;
       };
 
@@ -21,7 +21,18 @@
         id = "sync";
         label = "Sync";
         path = "/home/amunoz/sync";
-        type = "sendonly";
+        type = "sendreceive";
+        devices = [ "remote" ];
+        ignorePerms = true;
+        fsWatcherEnabled = true;
+        ignorePatterns = [ ];
+      };
+
+      folders."private-docs-01" = {
+        id = "private-docs-01";
+        label = "Private Docs 01";
+        path = "/home/amunoz/.local/share/syncthing/private-docs-01";
+        type = "sendreceive";
         devices = [ "remote" ];
         ignorePerms = true;
         fsWatcherEnabled = true;

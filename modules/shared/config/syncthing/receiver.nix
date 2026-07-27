@@ -1,5 +1,4 @@
-# Receiver side for the send-only Syncthing folder declared by moby in
-# github:afermg/nix-configs?ref=feat/syncthing-sync#moby.
+# Darwin side for Syncthing folders shared with moby.
 #
 # This host's existing Syncthing identity is:
 # TKXRRWK-K5EDNVM-AVXZKCP-TE2M2LC-A7CYJB7-LY2G5MU-EYGHIZC-I6GMRAR
@@ -16,13 +15,13 @@ cfg {
     guiAddress = "127.0.0.1:8384";
 
     # Keep existing interactive Syncthing folders/devices intact while adding
-    # the moby sender and its receive-only folder.
+    # the moby peer and shared folders.
     overrideDevices = false;
     overrideFolders = false;
 
     settings = {
       devices."moby" = {
-        id = "KAIQMYC-65TNVPG-2AP7SH7-MZ6YKUL-QYBJ7J6-VCER24G-PJ7PBK7-L3ASMQD";
+        id = "IBGBMDU-WRH5ECV-YS3BFJ7-EPJPC5X-HVLGWGA-RUIFYSG-Y2BOQKO-MNPHHQ4";
         addresses = [ "tcp://100.94.5.85:22000" ];
         autoAcceptFolders = false;
       };
@@ -31,6 +30,16 @@ cfg {
         id = "sync";
         label = "Sync";
         path = "${config.home.homeDirectory}/sync";
+        type = "sendreceive";
+        devices = [ "moby" ];
+        ignorePerms = true;
+        fsWatcherEnabled = true;
+      };
+
+      folders."private-docs-01" = {
+        id = "private-docs-01";
+        label = "Private Docs 01";
+        path = "${config.home.homeDirectory}/.local/share/syncthing/private-docs-01";
         type = "sendreceive";
         devices = [ "moby" ];
         ignorePerms = true;
