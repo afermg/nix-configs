@@ -4076,6 +4076,16 @@ Cutting edge LLM models.
     (setq gptel-default-mode #'org-mode
           gptel-model 'gpt-5.4-mini
           gptel-backend (gptel-make-openai-oauth "OpenAI-sub")))
+
+  (defun afm/gptel-openai-device-login ()
+    "Log in to the active gptel OpenAI backend using device authorization.
+
+Use this command from terminal Emacs or when the Emacs host has no
+browser.  It displays a one-time code for
+https://auth.openai.com/codex/device."
+    (interactive)
+    (require 'gptel-openai-oauth)
+    (gptel-openai-oauth-login nil 'device))
     ;; OAuth access/refresh tokens are credentials; gptel creates the
     ;; token file with the process umask, so tighten it after every write.
     (define-advice gptel-oauth--write-token
@@ -4088,7 +4098,8 @@ Cutting edge LLM models.
 ****  gptel-magit
 The OpenAI backend above uses the ChatGPT subscription through OAuth; it
 does not use an OpenAI API key.  Authenticate each computer independently with
-=M-x gptel-openai-oauth-login=.  gptel stores the resulting credential locally
+=M-x gptel-openai-oauth-login=, or from a terminal with
+=M-x afm/gptel-openai-device-login=.  gptel stores the resulting credential locally
 at =~/.emacs.d/.cache/gptel-openai/openai-oauth-token=, and the advice above
 keeps that file at mode =0600=.  Do not copy or commit this token.
 
