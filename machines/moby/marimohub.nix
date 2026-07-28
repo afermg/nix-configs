@@ -27,7 +27,10 @@
   services.marimohub = {
     enable = true;
     listenAddress = "127.0.0.1";
-    port = 3000;
+    # Overleaf uses 3000 internally; keep MarimoHub on a distinct origin.
+    # The Cloudflare dashboard ingress must target http://localhost:18081
+    # before this module is re-enabled in ./default.nix.
+    port = 18081;
 
     podman = {
       enable = true;
@@ -48,8 +51,9 @@
       MARIMOHUB_STORAGE_BACKEND = "fs";
       MARIMOHUB_STORAGE_FS_ROOT = "/var/lib/marimohub/storage";
 
-      # The Cloudflare Tunnel terminates public HTTPS and forwards to this local
-      # loopback service. Authentication remains direct Google OIDC in marimohub.
+      # The Cloudflare Tunnel terminates public HTTPS and forwards to the
+      # dedicated loopback origin on port 18081. Authentication remains direct
+      # Google OIDC in marimohub.
       MARIMOHUB_APP_BASE_URL = "https://hub.quasimorphic.com";
       MARIMOHUB_SANDBOX_EXPOSURE = "proxy";
       MARIMOHUB_SANDBOX_PROXY_ACK_UNTRUSTED = true;
@@ -90,12 +94,14 @@
       RestartSec = "5s";
 
       # Connector only needs outbound HTTPS/WebSockets to Cloudflare and local
-      # access to 127.0.0.1:3000.
+      # access to 127.0.0.1:18081.
       NoNewPrivileges = true;
       ProtectSystem = "strict";
       ProtectHome = true;
       PrivateTmp = true;
+      # cloudflared reports readiness to systemd over an sd_notify socket.
       RestrictAddressFamilies = [
+        "AF_UNIX"
         "AF_INET"
         "AF_INET6"
       ];

@@ -26,7 +26,7 @@
     # You can also split up your configuration and import pieces of it here:
     ./boot.nix
     ./overleaf.nix
-    ./marimohub.nix
+    # ./marimohub.nix # Disabled: keep Overleaf's internal port 3000 free
     # ./hedgedoc.nix # This wasn't as useful
     # ./org-gcal.nix # Removed until we migrate over
     ../common/networking.nix
