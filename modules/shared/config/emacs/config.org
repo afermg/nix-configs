@@ -396,8 +396,8 @@ I needed this for it to work on Linux-Linux connections. [[https://www.rahuljuli
         '(";hr" . dl/reload-emacs)
         '(";hn" . dl/load-buffer-with-nix-config)
         '(";hp" . dl/load-buffer-with-emacs-config)
-        '(";ot" . toggle-eat-window)
-        '(";oT" . +eat/here)
+        '(";ot" . toggle-ghostel-window)
+        '(";oT" . +ghostel/here)
         '(";ox" . afm/toggle-scratch-buffer)
         '(";lf" . dl/xref-find-references-other-window)
         '(";lc" . dl/xref-find-implementation-other-window)
@@ -2847,6 +2847,37 @@ reserved for Magit.
                :files ("lisp/*.el" "etc" "build.zig" "build.zig.zon"
                        "symbols.map" "src" "vendor"))
     :defer t
+    :init
+    (defun +ghostel/here (arg)
+      "Open Ghostel in the current window at the project root.
+
+With prefix ARG, use the current `default-directory' instead.
+Returns the Ghostel buffer."
+      (interactive "P")
+      (require 'ghostel)
+      (let* ((origin-directory default-directory)
+             (project (project-current nil))
+             (root (if project
+                       (project-root project)
+                     origin-directory))
+             (default-directory (if arg origin-directory root)))
+        (setenv "PROOT" root)
+        (ghostel)))
+
+    (defun toggle-ghostel-window ()
+      "Toggle the default Ghostel terminal in a bottom side window."
+      (interactive)
+      (require 'ghostel)
+      (let* ((buffer (or (get-buffer ghostel-buffer-name)
+                         (save-window-excursion (+ghostel/here nil))))
+             (window (get-buffer-window buffer)))
+        (if window
+            (delete-window window)
+          (select-window
+           (display-buffer buffer
+                           '((display-buffer-in-side-window)
+                             (side . bottom)
+                             (window-height . 0.4)))))))
     :config
     (setq ghostel-kill-buffer-on-exit t)
     (setq ghostel-module-auto-install 'download)
