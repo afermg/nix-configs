@@ -31,9 +31,16 @@
     symlink = false;
   };
 
-  # Use MongoDB's prebuilt server package: the source-built package currently
-  # regresses with nixpkgs' Python toolchain.
-  services.mongodb.package = pkgs.mongodb-ce;
+  # Use MongoDB's prebuilt 8.0 release: the existing database still has FCV
+  # 7.0, which 8.0 can upgrade, while nixpkgs' current 8.2 cannot start it.
+  # Keep this explicit until the FCV has been upgraded and the 8.2 hop tested.
+  services.mongodb.package = pkgs.mongodb-ce.overrideAttrs (_: {
+    version = "8.0.28";
+    src = pkgs.fetchurl {
+      url = "https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-ubuntu2404-8.0.28.tgz";
+      hash = "sha256-MCC+2HO/6oaNc4jDpK/1lIxHaijNrD6JSu8wnv5RAPI=";
+    };
+  });
 
   services.overleaf = {
     enable = true;
@@ -87,7 +94,9 @@
       ProtectSystem = "strict";
       ProtectHome = true;
       PrivateTmp = true;
+      # cloudflared reports readiness to systemd over an sd_notify socket.
       RestrictAddressFamilies = [
+        "AF_UNIX"
         "AF_INET"
         "AF_INET6"
       ];
