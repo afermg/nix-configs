@@ -11,12 +11,11 @@ let
     url = "https://raw.githubusercontent.com/nikitabobko/AeroSpace/v0.21.2-Beta/docs/config-examples/default-config.toml";
     hash = "sha256-pHUACO8I1pUMokopPxU0E0t5IvXypZj5reQZtQx7e4A=";
   };
-  isLetterWorkspaceBinding =
-    line:
-    builtins.match "^[[:space:]]*alt-[a-z] = 'workspace [A-Z]'.*$" line != null
-    || builtins.match "^[[:space:]]*alt-shift-[a-z] = 'move-node-to-workspace [A-Z]'.*$" line != null;
+  # Leave Option-letter chords available to Emacs and other applications.
+  isAltLetterBinding =
+    line: builtins.match "^[[:space:]]*alt(-shift)?-[a-z][[:space:]]*=.*$" line != null;
   aerospaceConfig = lib.concatStringsSep "\n" (
-    builtins.filter (line: !isLetterWorkspaceBinding line) (
+    builtins.filter (line: !isAltLetterBinding line) (
       lib.splitString "\n" (builtins.readFile aerospaceDefaultConfig)
     )
   );
@@ -82,6 +81,9 @@ in
         4 = 1
         5 = 2
         6 = 3
+        7 = 2
+        8 = 2
+        9 = 2
       '';
     };
 

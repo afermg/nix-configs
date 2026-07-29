@@ -12,6 +12,17 @@ let
     #!/bin/sh
     emacsclient -c -n &
   '';
+  disabledCtrlSpaceHotkey = lib.generators.toPlist { escape = true; } {
+    enabled = false;
+    value = {
+      parameters = [
+        32
+        49
+        262144
+      ];
+      type = "standard";
+    };
+  };
 in
 {
   imports = [
@@ -114,6 +125,15 @@ in
         TrackpadThreeFingerDrag = true;
       };
     };
+
+    # Disable "Select the previous input source" without replacing other shortcuts.
+    activationScripts.userDefaults.text = lib.mkAfter ''
+      echo >&2 "Disabling the macOS Ctrl-Space input source shortcut..."
+      /bin/launchctl asuser "$(/usr/bin/id -u -- ${lib.escapeShellArg user})" \
+        /usr/bin/sudo --user=${lib.escapeShellArg user} -- \
+        /usr/bin/defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys \
+          -dict-add 60 ${lib.escapeShellArg disabledCtrlSpaceHotkey}
+    '';
   };
 
   # Configure nixpkgs
