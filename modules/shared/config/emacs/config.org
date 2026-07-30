@@ -2928,6 +2928,12 @@ Get synonyms on the fly.
 
 *** Citations
 For bibliography and citations
+
+For portable LaTeX exports such as Overleaf, note that
+~org-cite-global-bibliography~ is emitted even when a file declares its own
+~#+bibliography:~.  Set the global bibliography to ~nil~ buffer-locally (for
+example, with file-local variables) and use relative bibliography paths in
+those project files.
 #+begin_src emacs-lisp
  (use-package citar
    :ensure t
