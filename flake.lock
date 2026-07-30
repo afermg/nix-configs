@@ -322,26 +322,6 @@
         "type": "github"
       }
     },
-    "nix-overleaf": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1785275411,
-        "narHash": "sha256-ZbbKncPyH+lrRCxF2YLz7GwaHzBF8bIjZFW+d+OCrjU=",
-        "owner": "afermg",
-        "repo": "nix-overleaf",
-        "rev": "48a51ecae3a87d70e115bd5bf4f5c6fac387a78a",
-        "type": "github"
-      },
-      "original": {
-        "owner": "afermg",
-        "repo": "nix-overleaf",
-        "type": "github"
-      }
-    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1784555310,
@@ -435,6 +415,26 @@
         "type": "github"
       }
     },
+    "overleaf-nix": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1785383206,
+        "narHash": "sha256-LYvC4tzYRFApmBRugJH3YFu+01/Q+xrlSwVEK6VCLho=",
+        "owner": "afermg",
+        "repo": "overleaf-nix",
+        "rev": "c82e972ae747a13dc3007aeea85e0338e948d4c7",
+        "type": "github"
+      },
+      "original": {
+        "owner": "afermg",
+        "repo": "overleaf-nix",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "agenix": "agenix",
@@ -450,9 +450,9 @@
         "homebrew-core": "homebrew-core",
         "marimohub-nix": "marimohub-nix",
         "nix-homebrew": "nix-homebrew",
-        "nix-overleaf": "nix-overleaf",
         "nixpkgs": "nixpkgs_4",
         "nixpkgs-stable": "nixpkgs-stable_2",
+        "overleaf-nix": "overleaf-nix",
         "systems": "systems_4"
       }
     },

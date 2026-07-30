@@ -23,8 +23,8 @@ maven.buildMavenPackage {
   sourceRoot = "${src.name}/services/git-bridge";
 
   # nixpkgs' Maven 3.9.16 resolves newer default lifecycle plugins than the
-  # nix-overleaf package was hashed with. Keep this local override until the
-  # corrected dependency hash is available from nix-overleaf itself.
+  # overleaf-nix package was hashed with. Keep this local override until the
+  # corrected dependency hash is available from overleaf-nix itself.
   mvnHash = "sha256-n/Ad4ZpZetisd3aXEZzYHfxrv2ysjHbXk9ffgyUT6xk=";
   mvnParameters = "-Dmaven.test.skip=true package";
 

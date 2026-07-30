@@ -6,7 +6,7 @@
 }:
 {
   imports = [
-    inputs.nix-overleaf.nixosModules.overleaf
+    inputs.overleaf-nix.nixosModules.overleaf
   ];
 
   # Decrypted token containing TUNNEL_TOKEN=<...> for the cloudflared
