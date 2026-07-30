@@ -1,4 +1,70 @@
 ;; -*- lexical-binding: t -*-
+(with-eval-after-load 'ox
+  ;; Let explicit CUSTOM_ID and NAME values win in the LaTeX backend.
+  (setq org-latex-prefer-user-labels t)
+
+  (defun afm/org-export--title-reference-backend-p (info)
+    "Return non-nil when INFO uses a title-reference export backend."
+    (let ((backend (plist-get info :back-end)))
+      (and backend
+           (org-export-derived-backend-p backend 'html 'md 'latex))))
+
+  (defun afm/org-export--reference-slug (title)
+    "Convert headline TITLE to a portable HTML, Markdown, and LaTeX slug."
+    (let ((slug (downcase (substring-no-properties title))))
+      (setq slug (replace-regexp-in-string "[^[:alnum:]]+" "-" slug))
+      (setq slug (replace-regexp-in-string "\\`-+\\|-+\\'" "" slug))
+      (if (string-empty-p slug) "section" slug)))
+
+  (defun afm/org-export--new-title-reference (datum cache)
+    "Return a title-derived reference for DATUM that is unique in CACHE."
+    (let* ((reference
+            (afm/org-export--reference-slug
+             (org-element-property :raw-value datum)))
+           (parent (org-element-property :parent datum)))
+      ;; Prefer an ancestor-qualified reference when duplicate titles occur.
+      (while (and (assoc reference cache)
+                  (eq (org-element-type parent) 'headline))
+        (setq reference
+              (concat
+               (afm/org-export--reference-slug
+                (org-element-property :raw-value parent))
+               "--" reference)
+              parent (org-element-property :parent parent)))
+      ;; Identical outline paths receive a stable numeric suffix.
+      (let ((base reference)
+            (suffix 2))
+        (while (assoc reference cache)
+          (setq reference (format "%s--%d" base suffix)
+                suffix (1+ suffix))))
+      reference))
+
+  (defun afm/org-export--get-title-reference (datum info)
+    "Return and cache a unique title-derived reference for DATUM."
+    (let ((cache (plist-get info :internal-references)))
+      (or (car (rassq datum cache))
+          (let* ((reference
+                  (afm/org-export--new-title-reference datum cache))
+                 (cells (org-export-search-cells datum)))
+            (dolist (cell cells)
+              (push (cons cell reference) cache))
+            (push (cons reference datum) cache)
+            (plist-put info :internal-references cache)
+            reference))))
+
+  (defun afm/org-export-get-reference (original datum info)
+    "Use headline titles for HTML, Markdown, and LaTeX references."
+    (if (and (eq (org-element-type datum) 'headline)
+             (not (org-element-property :CUSTOM_ID datum))
+             (afm/org-export--title-reference-backend-p info))
+        (afm/org-export--get-title-reference datum info)
+      (funcall original datum info)))
+
+  (advice-remove 'org-export-get-reference
+                 #'afm/org-export-get-reference)
+  (advice-add 'org-export-get-reference :around
+              #'afm/org-export-get-reference))
+
 (use-package org-contrib
 :config
 (require 'ox-extra)

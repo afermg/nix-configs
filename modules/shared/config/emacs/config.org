@@ -1589,6 +1589,89 @@ These are templates used to create new notes.
 :PROPERTIES:
 :header-args:emacs-lisp: :tangle org-export-init.el
 :END:
+
+**** Useful headline references
+Adapted from
+[[https://github.com/alphapapa/unpackaged.el#export-to-html-with-useful-anchors][Alphapapa's useful HTML anchors snippet]], extended here for Markdown and
+LaTeX/PDF-safe slugs.
+Use deterministic title-based references for HTML, Markdown, and LaTeX/PDF.
+Explicit =CUSTOM_ID= properties still take precedence.  Restricting slugs to
+letters and numbers separated by hyphens keeps the same reference valid in all
+three formats and avoids LaTeX comment characters such as the =%= in =%20=.
+
+#+name: afm-org-export-title-references
+#+begin_src emacs-lisp :tangle config.el
+  (with-eval-after-load 'ox
+    ;; Let explicit CUSTOM_ID and NAME values win in the LaTeX backend.
+    (setq org-latex-prefer-user-labels t)
+
+    (defun afm/org-export--title-reference-backend-p (info)
+      "Return non-nil when INFO uses a title-reference export backend."
+      (let ((backend (plist-get info :back-end)))
+        (and backend
+             (org-export-derived-backend-p backend 'html 'md 'latex))))
+
+    (defun afm/org-export--reference-slug (title)
+      "Convert headline TITLE to a portable HTML, Markdown, and LaTeX slug."
+      (let ((slug (downcase (substring-no-properties title))))
+        (setq slug (replace-regexp-in-string "[^[:alnum:]]+" "-" slug))
+        (setq slug (replace-regexp-in-string "\\`-+\\|-+\\'" "" slug))
+        (if (string-empty-p slug) "section" slug)))
+
+    (defun afm/org-export--new-title-reference (datum cache)
+      "Return a title-derived reference for DATUM that is unique in CACHE."
+      (let* ((reference
+              (afm/org-export--reference-slug
+               (org-element-property :raw-value datum)))
+             (parent (org-element-property :parent datum)))
+        ;; Prefer an ancestor-qualified reference when duplicate titles occur.
+        (while (and (assoc reference cache)
+                    (eq (org-element-type parent) 'headline))
+          (setq reference
+                (concat
+                 (afm/org-export--reference-slug
+                  (org-element-property :raw-value parent))
+                 "--" reference)
+                parent (org-element-property :parent parent)))
+        ;; Identical outline paths receive a stable numeric suffix.
+        (let ((base reference)
+              (suffix 2))
+          (while (assoc reference cache)
+            (setq reference (format "%s--%d" base suffix)
+                  suffix (1+ suffix))))
+        reference))
+
+    (defun afm/org-export--get-title-reference (datum info)
+      "Return and cache a unique title-derived reference for DATUM."
+      (let ((cache (plist-get info :internal-references)))
+        (or (car (rassq datum cache))
+            (let* ((reference
+                    (afm/org-export--new-title-reference datum cache))
+                   (cells (org-export-search-cells datum)))
+              (dolist (cell cells)
+                (push (cons cell reference) cache))
+              (push (cons reference datum) cache)
+              (plist-put info :internal-references cache)
+              reference))))
+
+    (defun afm/org-export-get-reference (original datum info)
+      "Use headline titles for HTML, Markdown, and LaTeX references."
+      (if (and (eq (org-element-type datum) 'headline)
+               (not (org-element-property :CUSTOM_ID datum))
+               (afm/org-export--title-reference-backend-p info))
+          (afm/org-export--get-title-reference datum info)
+        (funcall original datum info)))
+
+    (advice-remove 'org-export-get-reference
+                   #'afm/org-export-get-reference)
+    (advice-add 'org-export-get-reference :around
+                #'afm/org-export-get-reference))
+#+end_src
+
+Keep asynchronous exports consistent with the main Emacs session.
+#+begin_src emacs-lisp :tangle org-export-init.el :noweb yes
+  <<afm-org-export-title-references>>
+#+end_src
 #+begin_src emacs-lisp :tangle no
   (setq org-export-in-background nil)
   ;; Use a minimal init for async export to avoid package conflicts (e.g. org-transclusion)
@@ -4459,107 +4542,6 @@ These packages may come and go, but ultimately aid in my understanding of emacs 
     :config
     (hyperbole-mode)
     )
-#+end_src
-
-*** COMMENT alphapapa tricks
-Org export with useful labels
-TODO: make this lazy-loaded again
-The main issue with this is that "%" markers, commonly used for spaces in html export, appear as comments in LaTeX.
-#+begin_src emacs-lisp
-  (eval-when-compile
-    (require 'easy-mmode)
-    (require 'ox))
-
-  (with-eval-after-load 'ox
-      (define-minor-mode unpackaged/org-export-html-with-useful-ids-mode
-        "Attempt to export Org as HTML with useful link IDs.
-        Instead of random IDs like \"#orga1b2c3\", use heading titles,
-        made unique when necessary."
-                 :global t
-                 (if unpackaged/org-export-html-with-useful-ids-mode
-                     (advice-add #'org-export-get-reference :override #'unpackaged/org-export-get-reference)
-                   (advice-remove #'org-export-get-reference #'unpackaged/org-export-get-reference)))
-
-               (defun unpackaged/org-export-get-reference (datum info)
-                 "Like `org-export-get-reference', except uses heading titles instead of random numbers."
-                 (let ((cache (plist-get info :internal-references)))
-                   (or (car (rassq datum cache))
-                       (let* ((crossrefs (plist-get info :crossrefs))
-                              (cells (org-export-search-cells datum))
-  			    (replacements '((" "  . "-") ("?" . "") ("/" . "-")))
-                              ;; Preserve any pre-existing association between
-                              ;; a search cell and a reference, i.e., when some
-                              ;; previously published document referenced a location
-                              ;; within current file (see
-                              ;; `org-publish-resolve-external-link').
-                              ;;
-                              ;; However, there is no guarantee that search cells are
-                              ;; unique, e.g., there might be duplicate custom ID or
-                              ;; two headings with the same title in the file.
-                              ;;
-                              ;; As a consequence, before re-using any reference to
-                              ;; an element or object, we check that it doesn't refer
-                              ;; to a previous element or object.
-                              (new (or (cl-some
-                                        (lambda (cell)
-                                          (let ((stored (cdr (assoc cell crossrefs))))
-                                            (when stored
-                                              (let ((old (org-export-format-reference stored)))
-                                                (and (not (assoc old cache)) stored)))))
-                                        cells)
-                                       (when (org-element-property :raw-value datum)
-                                         ;; Heading with a title
-                                         (unpackaged/org-export-new-title-reference datum cache))
-                                       ;; NOTE: This probably breaks some Org Export
-                                       ;; feature, but if it does what I need, fine.
-                                       (org-export-format-reference
-                                        (org-export-new-reference cache))))
-                              (reference-string new))
-                         ;; Cache contains both data already associated to
-                         ;; a reference and in-use internal references, so as to make
-                         ;; unique references.
-                         (dolist (cell cells) (push (cons cell new) cache))
-                         ;; Retain a direct association between reference string and
-                         ;; DATUM since (1) not every object or element can be given
-                         ;; a search cell (2) it permits quick lookup.
-                         (push (cons reference-string datum) cache)
-                         (plist-put info :internal-references cache)
-                         reference-string))))
-
-               (defun unpackaged/org-export-new-title-reference (datum cache)
-                 "Return new reference for DATUM that is unique in CACHE."
-                 (cl-macrolet ((inc-suffixf (place)
-                                 `(progn
-                                    (string-match (rx bos
-                                                      (minimal-match (group (1+ anything)))
-                                                      (optional "--" (group (1+ digit)))
-                                                      eos)
-                                                  ,place)
-                                    ;; HACK: `s1' instead of a gensym.
-                                    (-let* (((s1 suffix) (list (match-string 1 ,place)
-                                                               (match-string 2 ,place)))
-                                            (suffix (if suffix
-                                                        (string-to-number suffix)
-                                                      0)))
-                                      (setf ,place (format "%s--%s" s1 (cl-incf suffix)))))))
-                   (let* ((title (s-replace-all replacements (org-element-property :raw-value datum)))
-                          (ref (url-hexify-string (substring-no-properties title)))
-                          (parent (org-element-property :parent datum)))
-                     (while (--any (equal ref (car it))
-                                   cache)
-                       ;; Title not unique: make it so.
-                       (if parent
-                           ;; Append ancestor title.
-                           (setf title (concat (s-replace-all replacements (org-element-property :raw-value parent))
-                                               "--" title)
-                                 ref (url-hexify-string (substring-no-properties title))
-                                 parent (org-element-property :parent parent))
-                         ;; No more ancestors: add and increment a number.
-                         (inc-suffixf ref)))
-                     ref))))
-
-  ; Add the org reference everywhere
-  (advice-add #'org-export-get-reference :override #'unpackaged/org-export-get-reference)
 #+end_src
 
 ** Other Packages
