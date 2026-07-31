@@ -2859,7 +2859,7 @@ native module is configured to auto-download, and the README's project
 keybindings are intentionally not adopted here because =C-x p m= remains
 reserved for Magit.
 
-*** EAT
+*** COMMENT EAT
 #+NAME: eat
 #+begin_src emacs-lisp
   (use-package eat
@@ -3126,7 +3126,7 @@ Makes my lisp parens pretty, and easy to spot.
 #+END_SRC
 
 ****** Lisp environments
-******* geiser
+******* COMMENT geiser
 Scheme interaction.
 #+begin_src emacs-lisp
   (use-package geiser
@@ -3485,8 +3485,8 @@ Very useful for interactive parsing
         magit-bury-buffer-function #'magit-mode-quit-window)
 
 #+end_src
-**** Timemachine
-When in a file, go back in commit history.
+**** COMMENT Timemachine
+When in a file, go back in commit history. Consider replacing it with my own code
 #+NAME: git-timemachine
 #+BEGIN_SRC emacs-lisp
   (use-package git-timemachine
