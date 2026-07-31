@@ -1067,19 +1067,12 @@ Window/layout rotation helpers from [[https://github.com/daichirata/emacs-rotate
     :config
     ;; In terminal buffers used for agent TUIs, plain `insert' writes into
     ;; the Emacs screen buffer without reaching the PTY, so the program
-    ;; never sees the pasted path. Route through the backend's bracketed
-    ;; paste helper instead. This applies whenever the buffer that was
-    ;; current when `embark-act' was invoked is an `eat' or `ghostel'
-    ;; buffer (typical flow: act on a file candidate in the minibuffer,
-    ;; then "i" to insert into the underlying Claude session).
+    ;; never sees the pasted path. Route through Ghostel's bracketed paste
+    ;; helper instead.
     (defun afm/embark-insert-terminal-aware (orig-fn strings &rest args)
       (let ((text (string-join (mapcar #'substring-no-properties strings)
                                (embark--separator strings))))
         (cond
-         ((and (derived-mode-p 'eat-mode)
-               (bound-and-true-p eat-terminal)
-               (fboundp 'eat-term-send-string-as-yank))
-          (eat-term-send-string-as-yank eat-terminal (list text)))
          ((and (derived-mode-p 'ghostel-mode)
                (fboundp 'ghostel-paste-string))
           (ghostel-paste-string text))
@@ -1201,8 +1194,8 @@ Using [[https://github.com/eki3z/mini-echo.el][mini-echo]] — renders the model
     (setq resize-mini-windows 'grow-only
           max-mini-window-height 1
           mini-echo-right-padding 2
-          ;; Default 0.3s × N segments × every `message' call competed with
-          ;; eat's PTY filter under Claude's spinner; 1.0s is calm enough.
+          ;; Default 0.3s × N segments × every `message' call was noisier
+          ;; than needed during busy agent sessions; 1.0s is calm enough.
           mini-echo-update-interval 1.0)
 
     ;; Magit/dired/ibuffer/etc. get a hard-coded rule from
@@ -1413,7 +1406,7 @@ Initialize org-agenda file and set some key bindings to create tasks.
 
   ;; Tell meow to use insert state in the agenda so its many single-key
   ;; bindings (f/b/n/p/g/t/q/v/r/.) pass through. Same pattern as
-  ;; mu4e/eat — state-list is the reliable path; a mode hook calling
+  ;; mu4e/ghostel — state-list is the reliable path; a mode hook calling
   ;; meow-insert-mode can be overridden by meow-global-mode afterwards.
   (with-eval-after-load 'meow
     (add-to-list 'meow-mode-state-list '(org-agenda-mode . insert)))
@@ -2852,75 +2845,10 @@ test
 
 
 ** Terminal
-Ghostel is installed as an experimental alternative to eat. Current
-state: keep eat for general-purpose terminals and compatibility, but use
-ghostel as the default terminal backend for =llm-dashboard=. Ghostel's
-native module is configured to auto-download, and the README's project
+Ghostel is the terminal backend for interactive shells and =llm-dashboard=.
+Its native module is configured to auto-download, and the README's project
 keybindings are intentionally not adopted here because =C-x p m= remains
 reserved for Magit.
-
-*** COMMENT EAT
-#+NAME: eat
-#+begin_src emacs-lisp
-  (use-package eat
-    :straight (:type git
-  		   :host codeberg
-  		   :repo "akib/emacs-eat"
-  		   :files ("*.el" ("term" "term/*.el") "*.texi"
-  			   "*.ti" ("terminfo/e" "terminfo/e/*")
-  			   ("terminfo/65" "terminfo/65/*")
-  			   ("integration" "integration/*")
-  			   (:exclude ".dir-locals.el" "*-tests.el")))
-    :init
-    (defun toggle-eat-window ()
-      "Toggle a bottom side-window *eat* terminal."
-      (interactive)
-      (let ((buffer (or (get-buffer "*eat*")
-                        (save-window-excursion (eat) (get-buffer "*eat*")))))
-        (if (get-buffer-window buffer)
-            (delete-window (get-buffer-window buffer))
-          (select-window
-           (display-buffer buffer
-                           '((display-buffer-in-side-window)
-                             (side . bottom)
-                             (window-height . 0.4)))))))
-    :config
-    (setq eat-kill-buffer-on-exit t)
-    (setq eat-term-scrollback-size 90000)
-    (setq process-adaptive-read-buffering nil)
-    (setq read-process-output-max (* 4 1024 1024))
-    (defun +eat/here (arg)
-      "Open an eat terminal buffer in the current window at project root.
-
-    If prefix ARG is non-nil, cd into `default-directory' instead of project root.
-
-    Returns the eat buffer."
-      (interactive "P")
-      (+eat--configure-project-root-and-display
-       arg
-       (lambda ()
-         (require 'eat)
-         (let (display-buffer-alist)
-           (eat)))))
-
-    (defun +eat--configure-project-root-and-display (arg display-fn)
-      "Set PROOT and display a terminal using `display-fn`.
-
-    If prefix ARG is non-nil, cd into `default-directory' instead of project root.
-
-    Returns the eat buffer."
-      (let* ((project-root default-directory)
-             (default-directory
-              (if arg default-directory project-root)))
-        (setenv "PROOT" project-root)
-        (funcall display-fn)))
-
-    ;; Start meow in insert state inside eat buffers so the terminal gets the
-    ;; raw keys. `meow-mode-state-list' is the reliable path — a hook can be
-    ;; overridden by `meow-global-mode' re-entering normal state afterwards.
-    (with-eval-after-load 'meow
-      (add-to-list 'meow-mode-state-list '(eat-mode . insert))))
-#+end_src
 
 *** Ghostel
 #+NAME: ghostel
@@ -3380,7 +3308,7 @@ Very useful for interactive parsing
 
     ;; Tell meow to use insert state inside magit's TUI buffers. Magit binds
     ;; many single-key commands (s/u/c/P/F/l/d/x/RET/TAB …) that conflict
-    ;; with meow's normal-state bindings. Same pattern as mu4e/eat/org-agenda
+    ;; with meow's normal-state bindings. Same pattern as mu4e/ghostel/org-agenda
     ;; — state-list is the reliable path; a mode hook can be overridden by
     ;; meow-global-mode's after-change-major-mode-hook.
     (with-eval-after-load 'meow
@@ -3498,32 +3426,13 @@ When in a file, go back in commit history. Consider replacing it with my own cod
 
 **** LLM Dashboard
 Magit-style dashboard for managing Pi and other coding-agent CLIs from Emacs.
-Prefer the local checkout under =/home/amunoz/projects/emacs_llm_dashboard=
-when it exists, but still install and update the upstream package through
-=straight= so the pinned revision stays tracked in the shared
-=straight-versions.el= lockfile.  If the local checkout is absent, Emacs falls
-back to the straight-installed package.  When the loaded package exposes a =pi=
-backend, new dashboard sessions default there automatically.
+Use the GitHub/straight package so the same config works across servers.
+The pinned revision is tracked in the shared =straight-versions.el= lockfile.
+When the loaded package exposes a =pi= backend, new dashboard sessions default
+there automatically.
 See [[https://github.com/afermg/emacs-claude-dashboard][afermg/emacs-claude-dashboard]].
 #+NAME: llm-dashboard
 #+BEGIN_SRC emacs-lisp
-  (use-package eat
-    :defer t)
-
-  (use-package ghostel
-    :straight (:host github :repo "dakra/ghostel"
-               :files ("lisp/*.el" "etc" "build.zig" "build.zig.zon"
-                       "symbols.map" "src" "vendor"))
-    :defer t)
-
-  (defconst afm/llm-dashboard-local-path
-    "/home/amunoz/projects/emacs_llm_dashboard"
-    "Preferred local checkout of llm-dashboard.")
-
-  (defconst afm/llm-dashboard-use-local
-    (file-directory-p afm/llm-dashboard-local-path)
-    "Whether Emacs should load llm-dashboard from the local checkout.")
-
   (defun afm/llm-dashboard-post-load ()
     "Load llm-dashboard companion libraries and restore persisted state."
     (require 'llm-dashboard-schedule)
@@ -3547,46 +3456,36 @@ See [[https://github.com/afermg/emacs-claude-dashboard][afermg/emacs-claude-dash
     (when (fboundp 'afm/straight-freeze-to-repo)
       (afm/straight-freeze-to-repo)))
 
-  (defmacro afm/use-package-llm-dashboard (&rest source-keywords)
-    "Configure llm-dashboard with SOURCE-KEYWORDS selecting the package source."
-    `(use-package llm-dashboard
-       ,@source-keywords
-       :commands (llm-dashboard
-                  llm-dashboard-new
-                  llm-dashboard-continue
-                  llm-dashboard-resume
-                  llm-dashboard-resume-all
-                  llm-dashboard-schedule-send
-                  llm-dashboard-schedule-launch
-                  llm-dashboard-schedule-resume
-                  llm-dashboard-schedule-launch-worktree
-                  llm-dashboard-schedule-recurring-send
-                  llm-dashboard-schedule-recurring-launch
-                  llm-dashboard-schedule-recurring-launch-worktree
-                  llm-dashboard-list-pending-sends
-                  llm-dashboard-list-recurring
-                  llm-dashboard-resume-pending-sends
-                  llm-dashboard-usage-list
-                  llm-dashboard-usage-now)
-       :bind ("C-c L" . llm-dashboard)
-       :init
-       (setq llm-dashboard-auto-name-after-turns nil)
-       (setq llm-dashboard-terminal-backend 'ghostel)
-       :config
-       (afm/llm-dashboard-post-load)
-       (setq llm-dashboard-backend
-             (if (assq 'pi llm-dashboard-backends) 'pi 'codex))
-       (unless (assq 'pi llm-dashboard-backends)
-         (message "llm-dashboard loaded without a Pi backend; defaulting to codex"))))
-
-  (if afm/llm-dashboard-use-local
-      (afm/use-package-llm-dashboard
-       :straight nil
-       :load-path afm/llm-dashboard-local-path)
-    (message "llm-dashboard local checkout not found; using straight package")
-    (afm/use-package-llm-dashboard
-     :straight (:host github :repo "afermg/emacs-claude-dashboard"
-                :files ("*.el"))))
+  (use-package llm-dashboard
+    :straight (:host github :repo "afermg/emacs-claude-dashboard"
+               :files ("*.el"))
+    :commands (llm-dashboard
+               llm-dashboard-new
+               llm-dashboard-continue
+               llm-dashboard-resume
+               llm-dashboard-resume-all
+               llm-dashboard-schedule-send
+               llm-dashboard-schedule-launch
+               llm-dashboard-schedule-resume
+               llm-dashboard-schedule-launch-worktree
+               llm-dashboard-schedule-recurring-send
+               llm-dashboard-schedule-recurring-launch
+               llm-dashboard-schedule-recurring-launch-worktree
+               llm-dashboard-list-pending-sends
+               llm-dashboard-list-recurring
+               llm-dashboard-resume-pending-sends
+               llm-dashboard-usage-list
+               llm-dashboard-usage-now)
+    :bind ("C-c L" . llm-dashboard)
+    :init
+    (setq llm-dashboard-auto-name-after-turns nil)
+    (setq llm-dashboard-terminal-backend 'ghostel)
+    :config
+    (afm/llm-dashboard-post-load)
+    (setq llm-dashboard-backend
+          (if (assq 'pi llm-dashboard-backends) 'pi 'codex))
+    (unless (assq 'pi llm-dashboard-backends)
+      (message "llm-dashboard loaded without a Pi backend; defaulting to codex")))
 #+END_SRC
 
 **** Dired-git
@@ -5078,7 +4977,7 @@ against fat-fingering =C-x 5 0=.
 
 **** emacs-lock-mode
 =M-x emacs-lock-mode= protects a buffer from being killed and/or Emacs from
-exiting while it's alive. Useful for shell/eat sessions with long-running
+exiting while it's alive. Useful for shell/terminal sessions with long-running
 processes.
 
 **** tab-bar-mode
@@ -5142,9 +5041,7 @@ just a reminder.
 - org-transclusion: Conflicted with org-mode async export
 - beacon-mode: The cursor-flash when switching windows ended up distracting
   rather than helpful due to some bug. Replaced by the included pulse.
-- vterm: Replaced by eat. Preferred eat because it is implemented in pure
-  Elisp, so no dynamic module / C compilation step and no external toolchain
-  dependency. meow-vterm retired along with it.
+- vterm: Replaced by Ghostel. meow-vterm retired along with it.
 - dirvish: Removed in favor of plain dired. The extra panes, headers, and
   override-mode added more surface area than I used; when something broke it
   was always at the dirvish layer. Kept the navigation bindings (ijkl) and
