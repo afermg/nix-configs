@@ -129,6 +129,10 @@
     experimental-features = "nix-command flakes";
     # Deduplicate and optimize nix store
     auto-optimise-store = true;
+    # Leave enough pool headroom for stateful services such as MongoDB while
+    # large closures (for example, TeX Live) are being realized.
+    min-free = 20 * 1024 * 1024 * 1024;
+    max-free = 50 * 1024 * 1024 * 1024;
   };
 
   fonts.packages = with pkgs; [
