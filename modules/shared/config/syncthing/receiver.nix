@@ -1,13 +1,14 @@
 # Darwin side for Syncthing folders shared with moby.
-#
-# This host's existing Syncthing identity is:
-# TKXRRWK-K5EDNVM-AVXZKCP-TE2M2LC-A7CYJB7-LY2G5MU-EYGHIZC-I6GMRAR
-# If moby should sync to this host, its "remote" device must use that ID and
-# address tcp://100.110.180.8:22000.
+# Moby declares both receivers; each receiver binds only its own Tailscale IP.
 { config, lib, pkgs, ... }:
 
 let
-  cfg = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin;
+  receiverAddresses = {
+    alan = "100.72.120.59"; # darwin001 / alan-purdue-mbp
+    amunozgo = "100.110.180.8"; # darwin002 / sce-bio-c06399
+  };
+  receiverAddress = receiverAddresses.${config.home.username} or null;
+  cfg = lib.mkIf (pkgs.stdenv.hostPlatform.isDarwin && receiverAddress != null);
 in
 cfg {
   services.syncthing = {
@@ -48,7 +49,7 @@ cfg {
 
       # Match moby's direct Tailscale-only setup.
       options = {
-        listenAddresses = [ "tcp://100.110.180.8:22000" ];
+        listenAddresses = [ "tcp://${receiverAddress}:22000" ];
         globalAnnounceEnabled = false;
         localAnnounceEnabled = false;
         relaysEnabled = false;

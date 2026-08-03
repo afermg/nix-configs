@@ -1,4 +1,4 @@
-# Private Syncthing folders from moby to darwin001.
+# Private Syncthing folders shared between moby and both Darwin hosts.
 # This module is imported only by the amunoz@moby Home Manager configuration.
 { ... }:
 {
@@ -11,10 +11,17 @@
     overrideFolders = true;
 
     settings = {
-      devices."remote" = {
-        id = "TKXRRWK-K5EDNVM-AVXZKCP-TE2M2LC-A7CYJB7-LY2G5MU-EYGHIZC-I6GMRAR";
-        addresses = [ "tcp://100.110.180.8:22000" ];
-        autoAcceptFolders = false;
+      devices = {
+        darwin001 = {
+          id = "HQRQ26I-ZMMDORA-B6QCPZK-VDOCWAJ-JNXBONT-Z2TRSUL-V4U2PZT-ZHBFHQV";
+          addresses = [ "tcp://100.72.120.59:22000" ];
+          autoAcceptFolders = false;
+        };
+        darwin002 = {
+          id = "TKXRRWK-K5EDNVM-AVXZKCP-TE2M2LC-A7CYJB7-LY2G5MU-EYGHIZC-I6GMRAR";
+          addresses = [ "tcp://100.110.180.8:22000" ];
+          autoAcceptFolders = false;
+        };
       };
 
       folders."sync" = {
@@ -22,7 +29,7 @@
         label = "Sync";
         path = "/home/amunoz/sync";
         type = "sendreceive";
-        devices = [ "remote" ];
+        devices = [ "darwin001" "darwin002" ];
         ignorePerms = true;
         fsWatcherEnabled = true;
         ignorePatterns = [ ];
@@ -33,7 +40,7 @@
         label = "Private Docs 01";
         path = "/home/amunoz/.local/share/syncthing/private-docs-01";
         type = "sendreceive";
-        devices = [ "remote" ];
+        devices = [ "darwin001" "darwin002" ];
         ignorePerms = true;
         fsWatcherEnabled = true;
         ignorePatterns = [ ];
