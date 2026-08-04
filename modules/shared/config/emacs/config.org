@@ -3430,7 +3430,7 @@ Use the GitHub/straight package so the same config works across servers.
 The pinned revision is tracked in the shared =straight-versions.el= lockfile.
 When the loaded package exposes a =pi= backend, new dashboard sessions default
 there automatically.
-See [[https://github.com/afermg/emacs-claude-dashboard][afermg/emacs-claude-dashboard]].
+See [[https://github.com/afermg/emacs-llm-dashboard][afermg/emacs-llm-dashboard]].
 #+NAME: llm-dashboard
 #+BEGIN_SRC emacs-lisp
   (defun afm/llm-dashboard-post-load ()
@@ -3447,7 +3447,7 @@ See [[https://github.com/afermg/emacs-claude-dashboard][afermg/emacs-claude-dash
       (user-error "straight.el is not loaded"))
     (straight-use-package
      '(llm-dashboard :type git :host github
-                     :repo "afermg/emacs-claude-dashboard"
+                     :repo "afermg/emacs-llm-dashboard"
                      :files ("*.el")))
     (when (fboundp 'straight-pull-package)
       (straight-pull-package "llm-dashboard"))
@@ -3457,7 +3457,7 @@ See [[https://github.com/afermg/emacs-claude-dashboard][afermg/emacs-claude-dash
       (afm/straight-freeze-to-repo)))
 
   (use-package llm-dashboard
-    :straight (:host github :repo "afermg/emacs-claude-dashboard"
+    :straight (:host github :repo "afermg/emacs-llm-dashboard"
                :files ("*.el"))
     :commands (llm-dashboard
                llm-dashboard-new
