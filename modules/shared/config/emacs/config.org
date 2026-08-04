@@ -3017,6 +3017,13 @@ Everything related to M-x compile.
   ;; Key prefix (optional, eglot mostly uses standard emacs commands)
   (with-eval-after-load 'eglot
     (define-key eglot-mode-map (kbd "C-c l") 'eglot-code-actions))
+  ;; Navigate the active buffer's Flymake diagnostics directly instead of
+  ;; letting generic `next-error' select another diagnostics source.
+  (with-eval-after-load 'flymake
+    (keymap-set flymake-mode-map "M-g n" #'flymake-goto-next-error)
+    (keymap-set flymake-mode-map "M-g M-n" #'flymake-goto-next-error)
+    (keymap-set flymake-mode-map "M-g p" #'flymake-goto-prev-error)
+    (keymap-set flymake-mode-map "M-g M-p" #'flymake-goto-prev-error))
   (with-eval-after-load 'eglot
     ;; Register dprint-lsp for YAML (and other supported files).
     (add-to-list 'eglot-server-programs
