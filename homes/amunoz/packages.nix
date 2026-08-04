@@ -59,6 +59,7 @@ in
   pdftk
   gnumeric
   ltex-ls # language tool LSP for latex and org-mode
+  harper # grammar checker LSP for prose formats
   autotools-language-server
 
   ## Linting/Formatting/LSP

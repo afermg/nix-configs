@@ -3001,10 +3001,15 @@ Everything related to M-x compile.
 #+begin_src emacs-lisp
   (require 'eglot)
 
-  (dolist (mode '(nix-mode python-mode python-ts-mode markdown-mode envrc-mode racket-mode))
+  (dolist (mode '(nix-mode python-mode python-ts-mode markdown-mode gfm-mode
+                  org-mode latex-mode LaTeX-mode envrc-mode racket-mode))
     (add-hook (intern (format "%s-hook" mode)) #'eglot-ensure))
 
   (setq eglot-autoshutdown t)
+  (setq-default
+   eglot-workspace-configuration
+   (plist-put (copy-tree (default-value 'eglot-workspace-configuration))
+              :harper-ls '(:dialect "American")))
 
   ;; Optimization for performance
   (fset #'jsonrpc--log-event #'ignore)
@@ -3013,14 +3018,27 @@ Everything related to M-x compile.
   (with-eval-after-load 'eglot
     (define-key eglot-mode-map (kbd "C-c l") 'eglot-code-actions))
   (with-eval-after-load 'eglot
-    ;; Register dprint-lsp for YAML (and other supported files)
+    ;; Register dprint-lsp for YAML (and other supported files).
     (add-to-list 'eglot-server-programs
-                 '(yaml-mode . ("dprint" "lsp"))))
+                 '(yaml-mode . ("dprint" "lsp")))
+    ;; Harper checks prose in Org, Markdown, and LaTeX.  Explicit language IDs
+    ;; prevent Eglot from sending mode names that Harper does not recognize.
+    (add-to-list
+     'eglot-server-programs
+     '(((org-mode :language-id "org")
+        (markdown-mode :language-id "markdown")
+        (gfm-mode :language-id "markdown")
+        (latex-mode :language-id "latex")
+        (LaTeX-mode :language-id "latex"))
+       . ("harper-ls" "--stdio"))))
 
-  (add-hook 'eglot-managed-mode-hook
-            (lambda ()
-              ;; Use `t` at the end to make it buffer-local
-              (add-hook 'before-save-hook 'eglot-format-buffer nil t)))
+  (defun afm/eglot-enable-format-on-save ()
+    "Format on save when the current Eglot server supports it."
+    (when (eglot-server-capable :documentFormattingProvider)
+      ;; Use `t` at the end to make it buffer-local.
+      (add-hook 'before-save-hook #'eglot-format-buffer nil t)))
+
+  (add-hook 'eglot-managed-mode-hook #'afm/eglot-enable-format-on-save)
 #+END_SRC
 
 **** Shortcuts
