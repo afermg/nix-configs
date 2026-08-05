@@ -3,8 +3,15 @@
 with pkgs;
 let
   shared-packages = import ../../modules/shared/packages.nix { inherit pkgs; };
+  packages_linux = import ./packages_linux.nix;
+  resolvePackage =
+    name:
+    pkgs.lib.attrByPath (pkgs.lib.splitString "." name)
+      (throw "Home Manager package '${name}' is missing from pkgs")
+      pkgs;
   agenix = inputs.agenix.packages.${pkgs.stdenv.hostPlatform.system}.default;
-  latestPiCodingAgent = inputs.nixpkgs.legacyPackages.${pkgs.stdenv.hostPlatform.system}.pi-coding-agent;
+  latestPiCodingAgent =
+    inputs.nixpkgs.legacyPackages.${pkgs.stdenv.hostPlatform.system}.pi-coding-agent;
   # zlib12 = (zlib.overrideAttrs(p: {
   #   src = let
   #     version ="1.2.13";
@@ -24,7 +31,6 @@ in
   duckdb
   python314
   uv
-  racket
 
   # Development
   git
@@ -84,6 +90,4 @@ in
 ++ pkgs.lib.optionals (!pkgs.stdenv.hostPlatform.isDarwin) [
   ncspot
 ]
-# Linux-only packages
-++ pkgs.lib.optionals pkgs.stdenv.isLinux [
-]
+++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux (map resolvePackage packages_linux)

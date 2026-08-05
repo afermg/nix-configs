@@ -3,7 +3,7 @@
 ;; -------------------------
 (defvar org-config-file "~/.local/share/src/nixos-config/modules/shared/config/emacs/config.org")
 (defvar default-config-file "~/.emacs.d/config.org")
-(defvar default-config-url "https://raw.githubusercontent.com/afermg/nix-configs/f432f6642a13832a3763402774ce262abd579c7c/modules/shared/home-manager.nix")
+(defvar default-config-url "https://raw.githubusercontent.com/afermg/nixos-config/f432f6642a13832a3763402774ce262abd579c7c/modules/shared/home-manager.nix")
 
 ;; -------------------------
 ;; Package Manager Setup

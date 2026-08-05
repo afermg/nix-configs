@@ -48,13 +48,26 @@ Swap =darwin001= for =darwin002= on the other Mac.
 * Where should I add packages?
 Relative to the root folder of the repo.
 
-|        | System-wide                 | home                                  |
-|--------+-----------------------------+---------------------------------------|
-| NixOS  | modules/nixos/packages.nix  | homes/$USER/packages.nix              |
-| Darwin |                             | modules/darwin/packages.nix           |
-| Both   | modules/shared/packages.nix | [WIP] modules/shared/home-manager.nix |
+| Applies to  | System-wide packages         | Home Manager packages                                      |
+|-------------+------------------------------+------------------------------------------------------------|
+| Linux only  | modules/nixos/packages.nix   | homes/$USER/packages_linux.nix                             |
+| Darwin only | Not supported yet            | modules/darwin/packages.nix; packages_darwin.nix planned    |
+| Both        | modules/shared/packages.nix  | homes/$USER/packages.nix                                   |
 
-System-wide Darwin packages is not supported yet.
+The platform-specific =packages_*= files contain package attribute names rather than pinned
+package derivations. For example:
+
+#+begin_src nix
+[
+  "racket"
+  "haskellPackages.some-package"
+]
+#+end_src
+
+=packages.nix= resolves these names against the active Home Manager =pkgs=.
+Consequently, Neusis chooses package versions when it consumes this home module,
+while standalone configurations use this flake's package set. Dotted attribute
+paths are supported.
 * File structure
 #+begin_src bash
 ├── flake.lock
@@ -64,7 +77,8 @@ System-wide Darwin packages is not supported yet.
 │   │   ├── home.nix
 │   │   ├── id_ed25519.pub
 │   │   ├── moby.nix
-│   │   └── packages.nix
+│   │   ├── packages.nix
+│   │   └── packages_linux.nix
 │   ├── $USER # per-user specific config
 │   │   ├── home.nix
 │   │   ├── id_rsa.pub

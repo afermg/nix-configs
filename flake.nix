@@ -106,6 +106,7 @@
       # agenix so consumers don't re-plumb them, and so external
       # `extraSpecialArgs` can't shadow this flake's `outputs`.
       homeModules.amunoz = {
+        _module.args = { inherit inputs outputs; };
         imports = [
           agenix.homeManagerModules.default
           ./homes/amunoz/home.nix
