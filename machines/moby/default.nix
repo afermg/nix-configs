@@ -257,6 +257,17 @@
   # USER HOMES
   # home-manager.users.amunoz = import ../../modules/nixos/home-manager.nix;
   home-manager.users.amunoz = {
+    dconf.settings = {
+      "org/gnome/shell".favorite-apps = [
+        "firefox.desktop"
+        "emacsclient.desktop"
+        "org.gnome.Nautilus.desktop"
+        "com.mitchellh.ghostty.desktop"
+      ];
+      "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0".command =
+        lib.mkForce "ghostty";
+    };
+
     imports = [
       # ../../modules/nixos/home-manager.nix;
       outputs.homeModules.amunoz
