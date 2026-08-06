@@ -14,5 +14,6 @@
     "git:github.com/afermg/emacs-pair"
   ],
   "theme": "dark",
-  "lastChangelogVersion": "0.80.10"
+  "lastChangelogVersion": "0.80.10",
+  "hideThinkingBlock": true
 }

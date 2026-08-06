@@ -4,6 +4,7 @@ E.
 Gogoberidze
 HyperCard
 JX
+KML
 Manz
 Muñoz
 MyST
@@ -12,12 +13,14 @@ Scolnick
 Shyam
 Smalltalk
 Streamlit
+Zenodo
 analyses
 confounders
 introspectability
 marimo
 marimo's
 phenotypes
+priori
 shantanu
 spatiotemporal
 stochasticity
