@@ -186,6 +186,7 @@
             extraSpecialArgs = { inherit inputs outputs; };
             modules = [
               outputs.homeModules.amunoz
+              ./modules/shared/config/pi-msg/pi-msg.nix
               ./modules/shared/config/syncthing/sync.nix
             ];
           };

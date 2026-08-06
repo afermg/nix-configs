@@ -17,4 +17,5 @@ in
   "netrc-overleaf.age".publicKeys = keys;
   "org-gcal.age".publicKeys = keys;
   "hedgedoc-env.age".publicKeys = keys;
+  "pi-msg.age".publicKeys = keys;
 }
